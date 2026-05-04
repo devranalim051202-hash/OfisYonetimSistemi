@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Giriş Seçimi";
+}
+
+<section class="auth-choice-page">
+    <div class="auth-choice-header">
+        <p class="eyebrow">Giriş Seçimi</p>
+        <h1>Sisteme hangi yetkiyle giriş yapmak istiyorsunuz?</h1>
+        <p>Admin ve personel kullanıcıları için ayrı giriş ekranları bulunur.</p>
+    </div>
+
+    <div class="auth-choice-grid">
+        <article class="auth-choice-card">
+            <span class="auth-role-badge">Admin</span>
+            <h2>Admin Girişi</h2>
+            <p>Proje, kullanıcı, rol, malzeme, firma, stok ve evrak yönetimi için tam yetkili giriş.</p>
+            <a class="btn btn-primary" asp-controller="Account" asp-action="AdminLogin">Admin olarak giriş yap</a>
+        </article>
+
+        <article class="auth-choice-card">
+            <span class="auth-role-badge">Personel</span>
+            <h2>Personel Girişi</h2>
+            <p>Günlük kayıtları görüntülemek, malzeme ve evrak süreçlerini takip etmek için personel girişi.</p>
+            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="PersonnelLogin">Personel olarak giriş yap</a>
+        </article>
+    </div>
+</section>

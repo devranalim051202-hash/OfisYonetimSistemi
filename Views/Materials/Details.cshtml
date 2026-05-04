@@ -1,0 +1,84 @@
+@model OfisYonetimSistemi.Models.Material
+
+@{
+    ViewData["Title"] = "Malzeme Detay";
+    decimal totalIn = ViewBag.TotalIn ?? 0m;
+    decimal totalOut = ViewBag.TotalOut ?? 0m;
+    var isCritical = Model.CurrentStock <= Model.MinimumStockLevel;
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Malzeme Detay</p>
+            <h1>@Model.Name</h1>
+            <p>@(Model.Description ?? "Bu malzeme icin aciklama girilmemis.")</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="Materials" asp-action="Index">Malzemelere Don</a>
+            <a class="btn btn-outline-success" asp-controller="Materials" asp-action="StockIn" asp-route-id="@Model.Id">Stok Girisi</a>
+            <a class="btn btn-outline-warning" asp-controller="Materials" asp-action="StockOut" asp-route-id="@Model.Id">Stok Cikisi</a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <span>Mevcut stok</span>
+            <strong>@Model.CurrentStock.ToString("N2") @Model.Unit</strong>
+        </div>
+        <div class="detail-card">
+            <span>Minimum stok</span>
+            <strong>@Model.MinimumStockLevel.ToString("N2") @Model.Unit</strong>
+        </div>
+        <div class="detail-card">
+            <span>Toplam giris</span>
+            <strong>@totalIn.ToString("N2") @Model.Unit</strong>
+        </div>
+        <div class="detail-card">
+            <span>Toplam cikis</span>
+            <strong>@totalOut.ToString("N2") @Model.Unit</strong>
+        </div>
+    </div>
+
+    @if (isCritical)
+    {
+        <div class="alert alert-warning">Bu malzeme kritik stok seviyesinde veya altinda.</div>
+    }
+
+    <div class="table-panel">
+        <div class="table-panel-header">
+            <h2>Stok hareket gecmisi</h2>
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="Materials" asp-action="History">Tum hareketler</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Tur</th>
+                        <th>Miktar</th>
+                        <th>Birim fiyat</th>
+                        <th>Toplam</th>
+                        <th>Proje</th>
+                        <th>Belge no</th>
+                        <th>Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movement in Model.StockMovements.OrderByDescending(sm => sm.MovementDate))
+                    {
+                        <tr>
+                            <td>@movement.MovementType</td>
+                            <td>@movement.Quantity.ToString("N2")</td>
+                            <td>@movement.UnitPrice.ToString("N2") TL</td>
+                            <td>@movement.TotalPrice.ToString("N2") TL</td>
+                            <td>@(movement.Project?.Name ?? "-")</td>
+                            <td>@(movement.DocumentNumber ?? "-")</td>
+                            <td>@movement.MovementDate.ToString("dd.MM.yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

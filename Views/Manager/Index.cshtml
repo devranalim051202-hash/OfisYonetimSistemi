@@ -1,0 +1,73 @@
+@model IEnumerable<OfisYonetimSistemi.Models.User>
+
+@{
+    ViewData["Title"] = "Mudur Paneli";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Yonetim Paneli</p>
+            <h1>Mudur ana sayfasi</h1>
+            <p>Personel hesaplarini buradan olusturabilir ve sistemdeki temel kayitlari takip edebilirsiniz.</p>
+        </div>
+        <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="dashboard-stats">
+        <div>
+            <span>@ViewBag.PersonnelCount</span>
+            <p>Personel</p>
+        </div>
+        <div>
+            <span>@ViewBag.ProjectCount</span>
+            <p>Proje</p>
+        </div>
+        <div>
+            <span>@ViewBag.MaterialCount</span>
+            <p><a asp-controller="Materials" asp-action="Index">Malzeme</a></p>
+        </div>
+        <div>
+            <span>@ViewBag.InvoiceCount</span>
+            <p>Evrak</p>
+        </div>
+    </div>
+
+    <div class="table-panel">
+        <div class="table-panel-header">
+            <h2>Kayitli personeller</h2>
+            <a class="btn btn-outline-secondary btn-sm" asp-controller="Account" asp-action="Logout">Cikis Yap</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Ad Soyad</th>
+                        <th>Mail</th>
+                        <th>Telefon</th>
+                        <th>Sirket</th>
+                        <th>Rol</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model)
+                    {
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>@user.PhoneNumber</td>
+                            <td>@user.CompanyName (@user.CompanySize kisi)</td>
+                            <td>@user.Role?.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

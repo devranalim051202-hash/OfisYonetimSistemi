@@ -1,0 +1,32 @@
+@model OfisYonetimSistemi.Models.Material
+
+@{
+    ViewData["Title"] = "Malzeme Duzenle";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Materials" asp-action="Index">Malzemelere don</a>
+        <p class="eyebrow">Malzeme & Stok</p>
+        <h1>Malzeme duzenle</h1>
+        <p class="auth-help">Malzeme kart bilgilerini guncelleyin. Mevcut stok sadece stok hareketleri ile degisir.</p>
+
+        <form asp-controller="Materials" asp-action="Edit" asp-route-id="@Model.Id" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CurrentStock" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <partial name="_MaterialForm" model="Model" />
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Guncelle</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

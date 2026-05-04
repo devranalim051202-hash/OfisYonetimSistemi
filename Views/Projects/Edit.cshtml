@@ -1,0 +1,31 @@
+@model OfisYonetimSistemi.Models.Project
+
+@{
+    ViewData["Title"] = "Proje Duzenle";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Projects" asp-action="Index">Projelere don</a>
+        <p class="eyebrow">Proje Yonetimi</p>
+        <h1>Proje duzenle</h1>
+        <p class="auth-help">Proje bilgilerini, tarihlerini ve durumunu guncelleyin.</p>
+
+        <form asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <partial name="_ProjectForm" model="Model" />
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Guncelle</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

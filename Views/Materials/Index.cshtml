@@ -1,0 +1,97 @@
+@model IEnumerable<OfisYonetimSistemi.Models.Material>
+
+@{
+    ViewData["Title"] = "Malzemeler";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Malzeme & Stok Yonetimi</p>
+            <h1>Malzemeler</h1>
+            <p>Malzeme kartlarini, mevcut stoklari ve kritik stok durumlarini takip edin.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="Materials" asp-action="History">Stok Hareketleri</a>
+            <a class="btn btn-primary" asp-controller="Materials" asp-action="Create">Malzeme Ekle</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="dashboard-stats">
+        <div>
+            <span>@ViewBag.TotalMaterialCount</span>
+            <p>Malzeme</p>
+        </div>
+        <div>
+            <span>@ViewBag.CriticalMaterialCount</span>
+            <p>Kritik stok</p>
+        </div>
+        <div>
+            <span>@Model.Sum(m => m.CurrentStock).ToString("N2")</span>
+            <p>Toplam stok miktari</p>
+        </div>
+        <div>
+            <span>@Model.Count(m => m.CurrentStock > m.MinimumStockLevel)</span>
+            <p>Normal stok</p>
+        </div>
+    </div>
+
+    <div class="table-panel">
+        <div class="table-panel-header">
+            <h2>Malzeme listesi</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Malzeme</th>
+                        <th>Kategori</th>
+                        <th>Birim</th>
+                        <th>Mevcut stok</th>
+                        <th>Minimum stok</th>
+                        <th>Durum</th>
+                        <th class="text-end">Islemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var material in Model)
+                    {
+                        var isCritical = material.CurrentStock <= material.MinimumStockLevel;
+                        <tr>
+                            <td>@material.Name</td>
+                            <td>@(material.Category ?? "-")</td>
+                            <td>@material.Unit</td>
+                            <td>@material.CurrentStock.ToString("N2")</td>
+                            <td>@material.MinimumStockLevel.ToString("N2")</td>
+                            <td>
+                                <span class="status-pill @(isCritical ? "status-danger" : "")">
+                                    @(isCritical ? "Kritik" : "Normal")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a class="btn btn-outline-primary" asp-controller="Materials" asp-action="Details" asp-route-id="@material.Id">Detay</a>
+                                    <a class="btn btn-outline-success" asp-controller="Materials" asp-action="StockIn" asp-route-id="@material.Id">Giris</a>
+                                    <a class="btn btn-outline-warning" asp-controller="Materials" asp-action="StockOut" asp-route-id="@material.Id">Cikis</a>
+                                    <a class="btn btn-outline-secondary" asp-controller="Materials" asp-action="Edit" asp-route-id="@material.Id">Duzenle</a>
+                                    <a class="btn btn-outline-danger" asp-controller="Materials" asp-action="Delete" asp-route-id="@material.Id">Sil</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

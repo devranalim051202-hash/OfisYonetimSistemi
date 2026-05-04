@@ -1,0 +1,37 @@
+@model OfisYonetimSistemi.Models.ViewModels.StockMovementFormViewModel
+
+@{
+    ViewData["Title"] = "Stok Cikisi";
+    var material = (OfisYonetimSistemi.Models.Material)ViewBag.Material;
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Materials" asp-action="Details" asp-route-id="@material.Id">Malzeme detayina don</a>
+        <p class="eyebrow">Stok Cikisi</p>
+        <h1>@material.Name</h1>
+        <p class="auth-help">Projede kullanilan veya stoktan cikan malzeme miktarini kaydedin. Isterseniz projeye baglayabilirsiniz.</p>
+
+        <form asp-controller="Materials" asp-action="StockOut" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="MaterialId" />
+
+            <div class="col-md-12">
+                <label asp-for="ProjectId" class="form-label">Proje</label>
+                <select asp-for="ProjectId" asp-items="ViewBag.Projects" class="form-select">
+                    <option value="">Proje secilmedi</option>
+                </select>
+            </div>
+
+            <partial name="_StockMovementForm" model="Model" />
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Stok cikisini kaydet</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

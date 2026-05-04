@@ -1,0 +1,22 @@
+@model OfisYonetimSistemi.Models.Material
+
+@{
+    ViewData["Title"] = "Malzeme Sil";
+}
+
+<section class="auth-page">
+    <div class="auth-panel">
+        <a class="auth-back-link" asp-controller="Materials" asp-action="Index">Malzemelere don</a>
+        <p class="eyebrow">Malzeme & Stok</p>
+        <h1>Malzeme sil</h1>
+        <p class="auth-help">
+            <strong>@Model.Name</strong> malzemesini silmek istediginize emin misiniz?
+            Bu malzemeye ait stok hareketi varsa sistem silmeye izin vermez.
+        </p>
+
+        <form asp-controller="Materials" asp-action="Delete" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-danger w-100">Evet, malzemeyi sil</button>
+        </form>
+    </div>
+</section>

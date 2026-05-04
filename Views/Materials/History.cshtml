@@ -1,0 +1,50 @@
+@model IEnumerable<OfisYonetimSistemi.Models.StockMovement>
+
+@{
+    ViewData["Title"] = "Stok Hareketleri";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Stok Hareket Gecmisi</p>
+            <h1>Stok hareketleri</h1>
+            <p>Tum malzeme giris ve cikis islemlerini tarih, proje ve belge bilgileriyle takip edin.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Materials" asp-action="Index">Malzemelere Don</a>
+    </div>
+
+    <div class="table-panel">
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Malzeme</th>
+                        <th>Tur</th>
+                        <th>Miktar</th>
+                        <th>Birim fiyat</th>
+                        <th>Toplam</th>
+                        <th>Proje</th>
+                        <th>Belge no</th>
+                        <th>Tarih</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movement in Model)
+                    {
+                        <tr>
+                            <td>@(movement.Material?.Name ?? "-")</td>
+                            <td>@movement.MovementType</td>
+                            <td>@movement.Quantity.ToString("N2")</td>
+                            <td>@movement.UnitPrice.ToString("N2") TL</td>
+                            <td>@movement.TotalPrice.ToString("N2") TL</td>
+                            <td>@(movement.Project?.Name ?? "-")</td>
+                            <td>@(movement.DocumentNumber ?? "-")</td>
+                            <td>@movement.MovementDate.ToString("dd.MM.yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,66 @@
+@model IEnumerable<OfisYonetimSistemi.Models.Project>
+
+@{
+    ViewData["Title"] = "Projeler";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Proje Yonetimi</p>
+            <h1>Projeler</h1>
+            <p>Ofiste takip edilen isleri proje bazli kaydedin ve ilgili stok, gider ve evrak kayitlarini buradan izleyin.</p>
+        </div>
+        <a class="btn btn-primary" asp-controller="Projects" asp-action="Create">Proje Ekle</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="table-panel">
+        <div class="table-panel-header">
+            <h2>Proje listesi</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Proje adi</th>
+                        <th>Konum</th>
+                        <th>Baslangic</th>
+                        <th>Bitis</th>
+                        <th>Durum</th>
+                        <th class="text-end">Islemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var project in Model)
+                    {
+                        <tr>
+                            <td>@project.Name</td>
+                            <td>@(project.Location ?? "-")</td>
+                            <td>@project.StartDate.ToString("dd.MM.yyyy")</td>
+                            <td>@(project.EndDate?.ToString("dd.MM.yyyy") ?? "-")</td>
+                            <td><span class="status-pill">@project.Status</span></td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a class="btn btn-outline-primary" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id">Detay</a>
+                                    <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id">Duzenle</a>
+                                    <a class="btn btn-outline-danger" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id">Sil</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

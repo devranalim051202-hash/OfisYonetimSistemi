@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+@{
+    var roleName = Context.Session.GetString("RoleName");
+    var fullName = Context.Session.GetString("FullName");
+    var isLoggedIn = !string.IsNullOrEmpty(roleName);
+    var homeController = roleName == "Admin" || roleName == "Mudur" ? "Manager" : "Personnel";
+}
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Ofis Yönetim Sistemi</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/OfisYonetimSistemi.styles.css" asp-append-version="true" />
+</head>
+<body>
+    @if (isLoggedIn)
+    {
+        <header>
+            <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+                <div class="container-fluid">
+                    <a class="navbar-brand fw-semibold" asp-controller="@homeController" asp-action="Index">Ofis Yönetim Sistemi</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="@homeController" asp-action="Index">Ana Sayfa</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Projects" asp-action="Index">Projeler</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Materials" asp-action="Index">Malzemeler</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="#">Evraklar</a>
+                            </li>
+                        </ul>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="nav-user-name">@fullName</span>
+                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Account" asp-action="Logout">Çıkış Yap</a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    }
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Ofis Yönetim Sistemi
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,129 @@
+@model OfisYonetimSistemi.Models.Project
+
+@{
+    ViewData["Title"] = "Proje Detay";
+    decimal totalExpense = ViewBag.TotalExpense ?? 0m;
+    decimal stockTotal = ViewBag.StockTotal ?? 0m;
+    decimal invoiceTotal = ViewBag.InvoiceTotal ?? 0m;
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Proje Detay</p>
+            <h1>@Model.Name</h1>
+            <p>@(Model.Description ?? "Bu proje icin aciklama girilmemis.")</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Index">Projelere Don</a>
+            <a class="btn btn-primary" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id">Duzenle</a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <span>Durum</span>
+            <strong>@Model.Status</strong>
+        </div>
+        <div class="detail-card">
+            <span>Baslangic</span>
+            <strong>@Model.StartDate.ToString("dd.MM.yyyy")</strong>
+        </div>
+        <div class="detail-card">
+            <span>Bitis</span>
+            <strong>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</strong>
+        </div>
+        <div class="detail-card">
+            <span>Toplam gider</span>
+            <strong>@totalExpense.ToString("N2") TL</strong>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel">
+            <div class="table-panel-header">
+                <h2>Proje ozeti</h2>
+            </div>
+            <dl class="project-info-list">
+                <dt>Proje adi</dt>
+                <dd>@Model.Name</dd>
+                <dt>Konum</dt>
+                <dd>@(Model.Location ?? "-")</dd>
+                <dt>Kayit tarihi</dt>
+                <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                <dt>Stok hareketleri toplamı</dt>
+                <dd>@stockTotal.ToString("N2") TL</dd>
+                <dt>Bagli evrak toplamı</dt>
+                <dd>@invoiceTotal.ToString("N2") TL</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel">
+            <div class="table-panel-header">
+                <h2>Kullanilan malzemeler / stok hareketleri</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Malzeme</th>
+                            <th>Tur</th>
+                            <th>Miktar</th>
+                            <th>Firma</th>
+                            <th>Tarih</th>
+                            <th>Tutar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var movement in Model.StockMovements.OrderByDescending(sm => sm.MovementDate))
+                        {
+                            <tr>
+                                <td>@(movement.Material?.Name ?? "-")</td>
+                                <td>@movement.MovementType</td>
+                                <td>@movement.Quantity.ToString("N2")</td>
+                                <td>@(movement.Company?.Name ?? "-")</td>
+                                <td>@movement.MovementDate.ToString("dd.MM.yyyy")</td>
+                                <td>@movement.TotalPrice.ToString("N2") TL</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel">
+            <div class="table-panel-header">
+                <h2>Bagli evraklar ve irsaliyeler</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Belge turu</th>
+                            <th>Belge no</th>
+                            <th>Firma</th>
+                            <th>Tarih</th>
+                            <th>Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var invoice in Model.Invoices.OrderByDescending(i => i.DocumentDate))
+                        {
+                            <tr>
+                                <td>@invoice.DocumentType</td>
+                                <td>@invoice.DocumentNumber</td>
+                                <td>@(invoice.Company?.Name ?? "-")</td>
+                                <td>@invoice.DocumentDate.ToString("dd.MM.yyyy")</td>
+                                <td>@invoice.TotalAmount.ToString("N2") TL</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

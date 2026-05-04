@@ -1,0 +1,31 @@
+@model OfisYonetimSistemi.Models.ViewModels.StockMovementFormViewModel
+
+<div class="col-md-4">
+    <label asp-for="Quantity" class="form-label">Miktar</label>
+    <input asp-for="Quantity" type="number" step="0.01" min="0.01" class="form-control">
+    <span asp-validation-for="Quantity" class="text-danger"></span>
+</div>
+
+<div class="col-md-4">
+    <label asp-for="UnitPrice" class="form-label">Birim fiyat</label>
+    <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="form-control">
+    <span asp-validation-for="UnitPrice" class="text-danger"></span>
+</div>
+
+<div class="col-md-4">
+    <label asp-for="MovementDate" class="form-label">Tarih</label>
+    <input asp-for="MovementDate" type="date" class="form-control">
+    <span asp-validation-for="MovementDate" class="text-danger"></span>
+</div>
+
+<div class="col-md-12">
+    <label asp-for="DocumentNumber" class="form-label">Belge numarasi</label>
+    <input asp-for="DocumentNumber" class="form-control">
+    <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+</div>
+
+<div class="col-md-12">
+    <label asp-for="Description" class="form-label">Aciklama</label>
+    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    <span asp-validation-for="Description" class="text-danger"></span>
+</div>

@@ -1,0 +1,29 @@
+@model OfisYonetimSistemi.Models.Material
+
+@{
+    ViewData["Title"] = "Malzeme Ekle";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Materials" asp-action="Index">Malzemelere don</a>
+        <p class="eyebrow">Malzeme & Stok</p>
+        <h1>Malzeme ekle</h1>
+        <p class="auth-help">Yeni malzeme karti olusturun. Stok miktari sonra stok girisi ile artirilabilir.</p>
+
+        <form asp-controller="Materials" asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <partial name="_MaterialForm" model="Model" />
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Malzeme kaydet</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

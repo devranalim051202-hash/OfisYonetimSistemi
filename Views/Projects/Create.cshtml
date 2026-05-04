@@ -1,0 +1,29 @@
+@model OfisYonetimSistemi.Models.Project
+
+@{
+    ViewData["Title"] = "Proje Ekle";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Projects" asp-action="Index">Projelere don</a>
+        <p class="eyebrow">Proje Yonetimi</p>
+        <h1>Proje ekle</h1>
+        <p class="auth-help">Yeni proje kaydi olusturun. Malzeme, gider ve evrak kayitlari daha sonra bu projeye baglanacak.</p>
+
+        <form asp-controller="Projects" asp-action="Create" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <partial name="_ProjectForm" model="Model" />
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Proje kaydet</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

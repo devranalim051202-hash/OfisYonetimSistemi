@@ -1,0 +1,57 @@
+@model OfisYonetimSistemi.Models.ViewModels.CreatePersonnelViewModel
+
+@{
+    ViewData["Title"] = "Personel Ekle";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Manager" asp-action="Index">Mudur paneline don</a>
+        <p class="eyebrow">Personel Hesabi</p>
+        <h1>Personel ekle</h1>
+        <p class="auth-help">Calisan sisteme sadece burada olusturulan mail ve sifreyle girebilir. Sirket bilgisi mudur hesabindan otomatik alinir.</p>
+
+        <form asp-controller="Manager" asp-action="CreatePersonnel" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-6">
+                <label asp-for="FirstName" class="form-label">Ad</label>
+                <input asp-for="FirstName" class="form-control">
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="LastName" class="form-label">Soyad</label>
+                <input asp-for="LastName" class="form-control">
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Mail</label>
+                <input asp-for="Email" type="email" class="form-control">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="RoleId" class="form-label">Rol</label>
+                <select asp-for="RoleId" asp-items="ViewBag.Roles" class="form-select"></select>
+                <span asp-validation-for="RoleId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Password" class="form-label">Sifre</label>
+                <input asp-for="Password" type="text" class="form-control">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Personel hesabi olustur</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

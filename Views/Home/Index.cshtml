@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "Ana Sayfa";
+}
+
+<section class="landing-hero">
+    <div class="landing-hero-overlay"></div>
+    <div class="landing-hero-content">
+        <p class="eyebrow">İnşaat Ofis Yönetimi</p>
+        <h1>Ofis, malzeme ve evrak takibini tek sistemde toplayın</h1>
+        <p class="hero-text">
+            Proje bazlı malzeme takibi, firma kayıtları, stok hareketleri, fatura ve irsaliye yönetimi için sade ve kullanışlı bir ofis otomasyon sistemi.
+        </p>
+        <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+            <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Register">Üye Ol</a>
+        </div>
+    </div>
+</section>
+
+<section class="intro-section">
+    <div>
+        <p class="eyebrow">Bu Sistem Ne İşe Yarar?</p>
+        <h2>İnşaat ofisindeki dağınık kayıtları düzenli bir yapıya çevirir.</h2>
+    </div>
+    <p>
+        Kağıt fişler, Excel dosyaları ve sözlü takip yerine; hangi projeye hangi malzeme alındı, hangi firmadan ne geldi, stokta ne kadar kaldı ve evraklar nereye bağlı gibi bilgileri tek merkezden yönetmeyi sağlar.
+    </p>
+</section>
+
+<section class="feature-grid" aria-label="Öne çıkan özellikler">
+    <article class="feature-card">
+        <span class="feature-number">01</span>
+        <h2>Proje Bazlı Takip</h2>
+        <p>Her gider, malzeme hareketi ve evrak ilgili projeye bağlanır.</p>
+    </article>
+
+    <article class="feature-card">
+        <span class="feature-number">02</span>
+        <h2>Malzeme ve Stok</h2>
+        <p>Çimento, demir, boya ve benzeri malzemelerin stok giriş-çıkışları izlenir.</p>
+    </article>
+
+    <article class="feature-card">
+        <span class="feature-number">03</span>
+        <h2>Firma Kayıtları</h2>
+        <p>Tedarikçilerin iletişim, adres ve vergi bilgileri düzenli tutulur.</p>
+    </article>
+
+    <article class="feature-card">
+        <span class="feature-number">04</span>
+        <h2>Fatura ve İrsaliye</h2>
+        <p>Fiş, fatura ve irsaliye kayıtları proje ve firma bilgileriyle saklanır.</p>
+    </article>
+</section>
+
+<section class="audience-band">
+    <div>
+        <p class="eyebrow">Kimler Kullanır?</p>
+        <h2>Müteahhit ofisleri, küçük inşaat ekipleri ve proje takibi yapan işletmeler için tasarlandı.</h2>
+    </div>
+    <div class="audience-list">
+        <span>Müteahhitler</span>
+        <span>Muhasebe ekibi</span>
+        <span>Ofis personeli</span>
+        <span>Proje sorumluları</span>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div>
+        <h2>Projeyi kullanmaya başlayın</h2>
+        <p>Hesabınıza giriş yaparak kayıtları yönetebilir ya da yeni kullanıcı hesabı oluşturabilirsiniz.</p>
+    </div>
+    <div class="cta-actions">
+        <a class="btn btn-primary" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+        <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Register">Üye Ol</a>
+    </div>
+</section>

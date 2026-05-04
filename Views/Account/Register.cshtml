@@ -1,0 +1,69 @@
+@model OfisYonetimSistemi.Models.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Uye Ol";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Home" asp-action="Index">Ana sayfaya don</a>
+        <p class="eyebrow">Ofis Sahibi Uyeligi</p>
+        <h1>Uye ol</h1>
+        <p class="auth-help">Bu kayit ekrani sadece ofis sahibi veya mudur hesabi olusturmak icindir.</p>
+
+        <form asp-controller="Account" asp-action="Register" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-6">
+                <label asp-for="FirstName" class="form-label">Ad</label>
+                <input asp-for="FirstName" class="form-control">
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="LastName" class="form-label">Soyad</label>
+                <input asp-for="LastName" class="form-control">
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PhoneNumber" class="form-label">Telefon numarasi</label>
+                <input asp-for="PhoneNumber" class="form-control">
+                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label">Mail</label>
+                <input asp-for="Email" type="email" class="form-control">
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-8">
+                <label asp-for="CompanyName" class="form-label">Sirket ismi</label>
+                <input asp-for="CompanyName" class="form-control">
+                <span asp-validation-for="CompanyName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="CompanySize" class="form-label">Sirket buyuklugu</label>
+                <input asp-for="CompanySize" type="number" min="1" class="form-control">
+                <span asp-validation-for="CompanySize" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Password" class="form-label">Sifre</label>
+                <input asp-for="Password" type="password" class="form-control">
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Dogrulama kodu gonder</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

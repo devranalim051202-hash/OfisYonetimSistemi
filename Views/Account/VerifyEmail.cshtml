@@ -1,0 +1,33 @@
+@model OfisYonetimSistemi.Models.ViewModels.VerifyEmailViewModel
+
+@{
+    ViewData["Title"] = "Mail Dogrulama";
+}
+
+<section class="auth-page">
+    <div class="auth-panel">
+        <a class="auth-back-link" asp-controller="Account" asp-action="Register">Kayit sayfasina don</a>
+        <p class="eyebrow">Mail Dogrulama</p>
+        <h1>Kodu girin</h1>
+        <p class="auth-help">Mail adresinize gonderilen 6 haneli dogrulama kodunu yazin.</p>
+
+        @if (TempData["VerificationInfo"] != null)
+        {
+            <div class="alert alert-info">@TempData["VerificationInfo"]</div>
+        }
+
+        <form asp-controller="Account" asp-action="VerifyEmail" method="post" class="auth-form">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label asp-for="Code" class="form-label">Dogrulama kodu</label>
+                <input asp-for="Code" class="form-control" maxlength="6">
+                <span asp-validation-for="Code" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Uyeligi tamamla</button>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
