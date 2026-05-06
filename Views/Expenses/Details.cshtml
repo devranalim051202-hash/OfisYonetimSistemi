@@ -1,0 +1,60 @@
+@model OfisYonetimSistemi.Models.Expense
+
+@{
+    ViewData["Title"] = "Gider Detay";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Gider Detay</p>
+            <h1>@Model.Title</h1>
+            <p>@(Model.Description ?? "Bu gider icin aciklama girilmemis.")</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Giderlere Don</a>
+            <a class="btn btn-primary" asp-controller="Expenses" asp-action="Edit" asp-route-id="@Model.Id">Duzenle</a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        <div class="detail-card">
+            <span>Tutar</span>
+            <strong>@Model.Amount.ToString("N2") TL</strong>
+        </div>
+        <div class="detail-card">
+            <span>Tur</span>
+            <strong>@Model.ExpenseType</strong>
+        </div>
+        <div class="detail-card">
+            <span>Odeme durumu</span>
+            <strong>@Model.PaymentStatus</strong>
+        </div>
+        <div class="detail-card">
+            <span>Tarih</span>
+            <strong>@Model.ExpenseDate.ToString("dd.MM.yyyy")</strong>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel">
+            <div class="table-panel-header">
+                <h2>Gider bilgileri</h2>
+            </div>
+            <dl class="project-info-list">
+                <dt>Proje</dt>
+                <dd>@(Model.Project?.Name ?? "-")</dd>
+                <dt>Firma</dt>
+                <dd>@(Model.Company?.Name ?? "-")</dd>
+                <dt>Kaydeden kullanici</dt>
+                <dd>@(Model.User?.FullName ?? "-")</dd>
+                <dt>Belge numarasi</dt>
+                <dd>@(Model.DocumentNumber ?? "-")</dd>
+                <dt>Kayit tarihi</dt>
+                <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
+                <dt>Aciklama</dt>
+                <dd>@(Model.Description ?? "-")</dd>
+            </dl>
+        </div>
+    </div>
+</section>

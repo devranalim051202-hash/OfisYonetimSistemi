@@ -41,6 +41,8 @@ namespace OfisYonetimSistemi.Models
 
         public Role? Role { get; set; }
 
+        public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

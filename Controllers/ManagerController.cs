@@ -26,6 +26,7 @@ public class ManagerController : Controller
         ViewBag.ProjectCount = await _context.Projects.CountAsync();
         ViewBag.MaterialCount = await _context.Materials.CountAsync();
         ViewBag.InvoiceCount = await _context.Invoices.CountAsync();
+        ViewBag.ExpenseCount = await _context.Expenses.CountAsync();
 
         var users = await _context.Users
             .Include(u => u.Role)

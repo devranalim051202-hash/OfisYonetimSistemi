@@ -31,6 +31,8 @@ namespace OfisYonetimSistemi.Models
 
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 
+        public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+
         public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
     }
 }
