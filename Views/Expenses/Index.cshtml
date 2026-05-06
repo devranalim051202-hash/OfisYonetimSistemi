@@ -1,0 +1,140 @@
+@model IEnumerable<OfisYonetimSistemi.Models.Invoice>
+
+@{
+    ViewData["Title"] = "Giderler";
+
+    var expenses = Model.ToList();
+    var documentTypes = ViewBag.DocumentTypes as IEnumerable<string> ?? Enumerable.Empty<string>();
+    var selectedDocumentType = ViewBag.DocumentType as string;
+    DateTime? startDate = ViewBag.StartDate as DateTime?;
+    DateTime? endDate = ViewBag.EndDate as DateTime?;
+
+    var totalAmount = expenses.Sum(e => e.TotalAmount);
+    var taxAmount = expenses.Sum(e => e.TaxAmount);
+    var projectCount = expenses
+        .Where(e => e.ProjectId.HasValue)
+        .Select(e => e.ProjectId)
+        .Distinct()
+        .Count();
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Gider Takibi</p>
+            <h1>Giderler</h1>
+            <p>Fatura, fis ve irsaliye kayitlarini proje, firma, belge turu ve tarih bilgileriyle listeleyin.</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Index">Projelere Don</a>
+            <a class="btn btn-primary" asp-controller="Expenses" asp-action="Create">Gider Ekle</a>
+        </div>
+    </div>
+
+    <div class="dashboard-stats finance-stats">
+        <div class="shadow-sm">
+            <span>@expenses.Count</span>
+            <p>Gider kaydi</p>
+        </div>
+        <div class="shadow-sm">
+            <span>@projectCount</span>
+            <p>Bagli proje</p>
+        </div>
+        <div class="shadow-sm">
+            <span>@taxAmount.ToString("N2")</span>
+            <p>KDV / vergi</p>
+        </div>
+        <div class="shadow-sm">
+            <span>@totalAmount.ToString("N2")</span>
+            <p>Toplam gider</p>
+        </div>
+    </div>
+
+    <form class="filter-panel shadow-sm" method="get" asp-controller="Expenses" asp-action="Index">
+        <div>
+            <label class="form-label" for="documentType">Belge turu</label>
+            <select class="form-select" id="documentType" name="documentType">
+                <option value="">Tum belgeler</option>
+                @foreach (var type in documentTypes)
+                {
+                    <option value="@type" selected="@(type == selectedDocumentType)">@type</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="projectId">Proje</label>
+            <select class="form-select" id="projectId" name="projectId" asp-items="ViewBag.Projects">
+                <option value="">Tum projeler</option>
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="startDate">Baslangic</label>
+            <input class="form-control" id="startDate" name="startDate" type="date" value="@(startDate?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div>
+            <label class="form-label" for="endDate">Bitis</label>
+            <input class="form-control" id="endDate" name="endDate" type="date" value="@(endDate?.ToString("yyyy-MM-dd"))" />
+        </div>
+        <div class="filter-actions">
+            <button class="btn btn-primary" type="submit">Filtrele</button>
+            <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Temizle</a>
+        </div>
+    </form>
+
+    <div class="table-panel shadow-sm">
+        <div class="table-panel-header">
+            <div>
+                <h2>Gider listesi</h2>
+                <p class="expense-meta">Kayitlar en yeni belge tarihinden eskiye dogru siralanir.</p>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle data-table">
+                <thead>
+                    <tr>
+                        <th>Belge tarihi</th>
+                        <th>Belge turu</th>
+                        <th>Belge no</th>
+                        <th>Proje</th>
+                        <th>Firma</th>
+                        <th>Aciklama</th>
+                        <th class="text-end">Ara toplam</th>
+                        <th class="text-end">Vergi</th>
+                        <th class="text-end">Genel toplam</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!expenses.Any())
+                    {
+                        <tr>
+                            <td colspan="9">
+                                <div class="empty-table-state">
+                                    <strong>Gider kaydi bulunamadi.</strong>
+                                    <span>Filtreleri temizleyebilir veya yeni fatura/fis kaydi eklenmesini bekleyebilirsiniz.</span>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var expense in expenses)
+                        {
+                            <tr>
+                                <td>@expense.DocumentDate.ToString("dd.MM.yyyy")</td>
+                                <td><span class="status-pill">@expense.DocumentType</span></td>
+                                <td>@expense.DocumentNumber</td>
+                                <td>@(expense.Project?.Name ?? "-")</td>
+                                <td>@(expense.Company?.Name ?? "-")</td>
+                                <td>@(expense.Description ?? "-")</td>
+                                <td class="text-end amount-cell">@expense.SubTotal.ToString("N2") TL</td>
+                                <td class="text-end amount-cell">@expense.TaxAmount.ToString("N2") TL</td>
+                                <td class="text-end amount-cell amount-strong">@expense.TotalAmount.ToString("N2") TL</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

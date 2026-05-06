@@ -1,0 +1,181 @@
+@model OfisYonetimSistemi.Models.Project
+
+@{
+    ViewData["Title"] = "Proje Gelir-Gider";
+
+    decimal totalIncome = ViewBag.TotalIncome ?? 0m;
+    decimal invoiceExpense = ViewBag.InvoiceExpense ?? 0m;
+    decimal stockExpense = ViewBag.StockExpense ?? 0m;
+    decimal totalExpense = ViewBag.TotalExpense ?? 0m;
+    decimal balance = ViewBag.Balance ?? 0m;
+    string? selectedCompanyName = ViewBag.SelectedCompanyName as string;
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Proje Gelir-Gider</p>
+            <h1>@Model.Name</h1>
+            <p>
+                @(Model.Location ?? "Konum bilgisi girilmemis.")
+                @if (!string.IsNullOrEmpty(selectedCompanyName))
+                {
+                    <span class="finance-filter-label">Firma: @selectedCompanyName</span>
+                }
+            </p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="ProjectFinance" asp-action="Select">Proje Degistir</a>
+            <a class="btn btn-primary" asp-controller="Expenses" asp-action="Create">Gider Ekle</a>
+        </div>
+    </div>
+
+    <div class="dashboard-stats finance-stats">
+        <div class="shadow-sm">
+            <span>@totalIncome.ToString("N2")</span>
+            <p>Toplam gelir</p>
+        </div>
+        <div class="shadow-sm">
+            <span>@totalExpense.ToString("N2")</span>
+            <p>Toplam gider</p>
+        </div>
+        <div class="shadow-sm">
+            <span>@invoiceExpense.ToString("N2")</span>
+            <p>Fatura / fis gideri</p>
+        </div>
+        <div class="shadow-sm">
+            <span class="@(balance < 0 ? "finance-negative" : "")">@balance.ToString("N2")</span>
+            <p>Kalan bakiye</p>
+        </div>
+    </div>
+
+    <div class="finance-grid">
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header">
+                <div>
+                    <h2>Gelirler</h2>
+                    <p class="expense-meta">Gelir kayit modeli eklendiginde bu alan otomatik dolacak.</p>
+                </div>
+            </div>
+            <div class="empty-table-state">
+                <strong>Bu proje icin gelir kaydi yok.</strong>
+                <span>Gelir ekleme modulu sonraki asamada baglanabilir.</span>
+            </div>
+        </div>
+
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header">
+                <div>
+                    <h2>Gider ozeti</h2>
+                    <p class="expense-meta">Bu projeye bagli evrak ve stok hareketleri.</p>
+                </div>
+            </div>
+            <dl class="finance-summary-list">
+                <dt>Fatura / fis / irsaliye</dt>
+                <dd>@invoiceExpense.ToString("N2") TL</dd>
+                <dt>Stok hareketleri</dt>
+                <dd>@stockExpense.ToString("N2") TL</dd>
+                <dt>Toplam gider</dt>
+                <dd>@totalExpense.ToString("N2") TL</dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header">
+                <h2>Proje evrak giderleri</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle data-table">
+                    <thead>
+                        <tr>
+                            <th>Belge tarihi</th>
+                            <th>Belge turu</th>
+                            <th>Belge no</th>
+                            <th>Firma</th>
+                            <th>Aciklama</th>
+                            <th class="text-end">Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Invoices.Any())
+                        {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-table-state">
+                                        <strong>Evrak gideri bulunamadi.</strong>
+                                        <span>Bu projeye bagli fatura, fis veya irsaliye kaydi yok.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var invoice in Model.Invoices.OrderByDescending(i => i.DocumentDate))
+                            {
+                                <tr>
+                                    <td>@invoice.DocumentDate.ToString("dd.MM.yyyy")</td>
+                                    <td><span class="status-pill">@invoice.DocumentType</span></td>
+                                    <td>@invoice.DocumentNumber</td>
+                                    <td>@(invoice.Company?.Name ?? "-")</td>
+                                    <td>@(invoice.Description ?? "-")</td>
+                                    <td class="text-end amount-cell amount-strong">@invoice.TotalAmount.ToString("N2") TL</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header">
+                <h2>Proje stok giderleri</h2>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle data-table">
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Malzeme</th>
+                            <th>Tur</th>
+                            <th>Miktar</th>
+                            <th>Firma</th>
+                            <th class="text-end">Toplam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.StockMovements.Any())
+                        {
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-table-state">
+                                        <strong>Stok gideri bulunamadi.</strong>
+                                        <span>Bu projeye bagli stok hareketi yok.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var movement in Model.StockMovements.OrderByDescending(sm => sm.MovementDate))
+                            {
+                                <tr>
+                                    <td>@movement.MovementDate.ToString("dd.MM.yyyy")</td>
+                                    <td>@(movement.Material?.Name ?? "-")</td>
+                                    <td>@movement.MovementType</td>
+                                    <td>@movement.Quantity.ToString("N2")</td>
+                                    <td>@(movement.Company?.Name ?? "-")</td>
+                                    <td class="text-end amount-cell amount-strong">@movement.TotalPrice.ToString("N2") TL</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,38 @@
+@{
+    ViewData["Title"] = "Proje Gelir-Gider Secimi";
+}
+
+<section class="form-page">
+    <div class="form-panel project-select-panel shadow-sm">
+        <p class="eyebrow">Proje Finans Takibi</p>
+        <h1>Proje sec</h1>
+        <p class="auth-help">Hangi projenin gelir-gider ekranini gormek istiyorsan once buradan proje sec.</p>
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+        }
+
+        <form asp-controller="ProjectFinance" asp-action="Select" method="post" class="project-select-form">
+            @Html.AntiForgeryToken()
+
+            <div class="project-select-grid">
+                <div>
+                    <label class="form-label" for="projectId">Proje</label>
+                    <select class="form-select form-select-lg" id="projectId" name="projectId" asp-items="ViewBag.Projects">
+                        <option value="">Proje secin</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="form-label" for="companyId">Firma</label>
+                    <select class="form-select form-select-lg" id="companyId" name="companyId" asp-items="ViewBag.Companies">
+                        <option value="">Tum firmalar</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn btn-primary btn-lg w-100" type="submit">Gelir-Gider Ekranina Git</button>
+        </form>
+    </div>
+</section>
