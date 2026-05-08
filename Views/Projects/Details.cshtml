@@ -3,8 +3,6 @@
 @{
     ViewData["Title"] = "Proje Detay";
     decimal totalExpense = ViewBag.TotalExpense ?? 0m;
-    decimal stockTotal = ViewBag.StockTotal ?? 0m;
-    decimal invoiceTotal = ViewBag.InvoiceTotal ?? 0m;
     decimal directExpenseTotal = ViewBag.DirectExpenseTotal ?? 0m;
     var remainingText = "-";
 
@@ -70,6 +68,16 @@
         </div>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
     <div class="detail-section">
         <div class="table-panel">
             <div class="table-panel-header">
@@ -88,11 +96,7 @@
                 <dd>@remainingText</dd>
                 <dt>Kayit tarihi</dt>
                 <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
-                <dt>Stok hareketleri toplamı</dt>
-                <dd>@stockTotal.ToString("N2") TL</dd>
-                <dt>Bagli evrak toplamı</dt>
-                <dd>@invoiceTotal.ToString("N2") TL</dd>
-                <dt>Direkt gider toplami</dt>
+                <dt>Proje gider toplami</dt>
                 <dd>@directExpenseTotal.ToString("N2") TL</dd>
             </dl>
         </div>
@@ -101,20 +105,19 @@
     <div class="detail-section">
         <div class="table-panel">
             <div class="table-panel-header">
-                <h2>Direkt giderler</h2>
+                <h2>Projeye ait giderler</h2>
                 <a class="btn btn-outline-primary btn-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id">Gider Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Baslik</th>
-                            <th>Tur</th>
-                            <th>Firma</th>
-                            <th>Kaydeden</th>
+                            <th>Malzeme / urun</th>
+                            <th>Firma / tedarikci</th>
+                            <th>Miktar</th>
+                            <th>Birim fiyat</th>
+                            <th>Toplam fiyat</th>
                             <th>Tarih</th>
-                            <th>Durum</th>
-                            <th>Tutar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -122,60 +125,11 @@
                         {
                             <tr>
                                 <td>@expense.Title</td>
-                                <td>@expense.ExpenseType</td>
-                                <td>@(expense.Company?.Name ?? "-")</td>
-                                <td>@(expense.User?.FullName ?? "-")</td>
-                                <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
-                                <td>@expense.PaymentStatus</td>
+                                <td>@(expense.SupplierName ?? "-")</td>
+                                <td>@expense.Quantity.ToString("N2")</td>
+                                <td>@expense.UnitPrice.ToString("N2") TL</td>
                                 <td>@expense.Amount.ToString("N2") TL</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-    }
-
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-    }
-
-    <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Kullanilan malzemeler / stok hareketleri</h2>
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddMaterial" asp-route-projectId="@Model.Id">Malzeme Ekle</a>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Malzeme</th>
-                            <th>Miktar</th>
-                            <th>Birim fiyat</th>
-                            <th>Gider</th>
-                            <th class="text-end">Islem</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var movement in Model.StockMovements.Where(sm => sm.MovementType == "Cikis").OrderByDescending(sm => sm.MovementDate))
-                        {
-                            <tr>
-                                <td>@(movement.Material?.Name ?? "-")</td>
-                                <td>@movement.Quantity.ToString("N2")</td>
-                                <td>@movement.UnitPrice.ToString("N2") TL</td>
-                                <td>@movement.TotalPrice.ToString("N2") TL</td>
-                                <td class="text-end">
-                                    <form asp-controller="Projects" asp-action="RemoveMaterial" asp-route-id="@movement.Id" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">Cikart</button>
-                                    </form>
-                                </td>
+                                <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
                             </tr>
                         }
                     </tbody>
@@ -187,15 +141,15 @@
     <div class="detail-section">
         <div class="table-panel">
             <div class="table-panel-header">
-                <h2>Bagli evraklar ve irsaliyeler</h2>
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddDocument" asp-route-projectId="@Model.Id">Evrak Ekle</a>
+                <h2>Projeye ait evraklar ve belgeler</h2>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddDocument" asp-route-projectId="@Model.Id">Belge Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
                             <th>Belge turu</th>
-                            <th>Dosya</th>
+                            <th>Dosya / evrak no</th>
                             <th>Tarih</th>
                             <th class="text-end">Islem</th>
                         </tr>

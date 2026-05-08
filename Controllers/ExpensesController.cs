@@ -9,50 +9,19 @@ public class ExpensesController : Controller
 {
     private readonly AppDbContext _context;
 
-    private static readonly string[] ExpenseTypes =
-    {
-        "Genel",
-        "Malzeme",
-        "Iscilik",
-        "Nakliye",
-        "Kira",
-        "Fatura",
-        "Diger"
-    };
-
-    private static readonly string[] PaymentStatuses =
-    {
-        "Odendi",
-        "Bekliyor",
-        "Iptal"
-    };
-
     public ExpensesController(AppDbContext context)
     {
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
         }
 
-        var expenses = await _context.Expenses
-            .Include(e => e.Project)
-            .Include(e => e.Company)
-            .Include(e => e.User)
-            .OrderByDescending(e => e.ExpenseDate)
-            .ThenByDescending(e => e.CreatedAt)
-            .ToListAsync();
-
-        ViewBag.TotalExpenseAmount = expenses.Sum(e => e.Amount);
-        ViewBag.PaidExpenseAmount = expenses.Where(e => e.PaymentStatus == "Odendi").Sum(e => e.Amount);
-        ViewBag.PendingExpenseAmount = expenses.Where(e => e.PaymentStatus == "Bekliyor").Sum(e => e.Amount);
-        ViewBag.ExpenseCount = expenses.Count;
-
-        return View(expenses);
+        return RedirectToAction("Index", "Projects");
     }
 
     public async Task<IActionResult> Details(int id)
@@ -83,9 +52,22 @@ public class ExpensesController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        await FillSelectionsAsync(projectId: projectId);
-        ViewBag.IsProjectScoped = projectId.HasValue;
-        return View(new Expense { ProjectId = projectId, ExpenseDate = DateTime.Today });
+        if (!projectId.HasValue)
+        {
+            TempData["ErrorMessage"] = "Gider eklemek icin once proje detayina girin.";
+            return RedirectToAction("Index", "Projects");
+        }
+
+        var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId.Value);
+
+        if (!projectExists)
+        {
+            return NotFound();
+        }
+
+        ViewBag.Project = await _context.Projects.FindAsync(projectId.Value);
+        ViewBag.IsProjectScoped = true;
+        return View(new Expense { ProjectId = projectId, ExpenseDate = DateTime.Today, ExpenseType = "Malzeme", PaymentStatus = "Odendi" });
     }
 
     [HttpPost]
@@ -97,12 +79,19 @@ public class ExpensesController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        ValidateSelections(expense);
         SetCurrentUser(expense);
+        NormalizeExpense(expense);
+
+        if (!expense.ProjectId.HasValue)
+        {
+            ModelState.AddModelError(nameof(expense.ProjectId), "Gider kaydi bir projeye bagli olmalidir.");
+        }
 
         if (!ModelState.IsValid)
         {
-            await FillSelectionsAsync(expense.ProjectId, expense.CompanyId, expense.ExpenseType, expense.PaymentStatus);
+            ViewBag.Project = expense.ProjectId.HasValue
+                ? await _context.Projects.FindAsync(expense.ProjectId.Value)
+                : null;
             ViewBag.IsProjectScoped = expense.ProjectId.HasValue;
             return View(expense);
         }
@@ -135,7 +124,10 @@ public class ExpensesController : Controller
             return NotFound();
         }
 
-        await FillSelectionsAsync(expense.ProjectId, expense.CompanyId, expense.ExpenseType, expense.PaymentStatus);
+        ViewBag.IsProjectScoped = expense.ProjectId.HasValue;
+        ViewBag.Project = expense.ProjectId.HasValue
+            ? await _context.Projects.FindAsync(expense.ProjectId.Value)
+            : null;
         return View(expense);
     }
 
@@ -153,12 +145,15 @@ public class ExpensesController : Controller
             return NotFound();
         }
 
-        ValidateSelections(expense);
         SetCurrentUser(expense);
+        NormalizeExpense(expense);
 
         if (!ModelState.IsValid)
         {
-            await FillSelectionsAsync(expense.ProjectId, expense.CompanyId, expense.ExpenseType, expense.PaymentStatus);
+            ViewBag.IsProjectScoped = expense.ProjectId.HasValue;
+            ViewBag.Project = expense.ProjectId.HasValue
+                ? await _context.Projects.FindAsync(expense.ProjectId.Value)
+                : null;
             return View(expense);
         }
 
@@ -173,7 +168,10 @@ public class ExpensesController : Controller
         existingExpense.CompanyId = expense.CompanyId;
         existingExpense.UserId = expense.UserId;
         existingExpense.Title = expense.Title;
+        existingExpense.SupplierName = expense.SupplierName;
         existingExpense.ExpenseType = expense.ExpenseType;
+        existingExpense.Quantity = expense.Quantity;
+        existingExpense.UnitPrice = expense.UnitPrice;
         existingExpense.Amount = expense.Amount;
         existingExpense.ExpenseDate = expense.ExpenseDate;
         existingExpense.PaymentStatus = expense.PaymentStatus;
@@ -230,19 +228,6 @@ public class ExpensesController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    private void ValidateSelections(Expense expense)
-    {
-        if (!ExpenseTypes.Contains(expense.ExpenseType))
-        {
-            ModelState.AddModelError(nameof(expense.ExpenseType), "Gecerli bir gider turu secin.");
-        }
-
-        if (!PaymentStatuses.Contains(expense.PaymentStatus))
-        {
-            ModelState.AddModelError(nameof(expense.PaymentStatus), "Gecerli bir odeme durumu secin.");
-        }
-    }
-
     private void SetCurrentUser(Expense expense)
     {
         var userId = HttpContext.Session.GetInt32("UserId");
@@ -256,24 +241,13 @@ public class ExpensesController : Controller
         expense.UserId = userId.Value;
     }
 
-    private async Task FillSelectionsAsync(
-        int? projectId = null,
-        int? companyId = null,
-        string? expenseType = null,
-        string? paymentStatus = null)
+    private static void NormalizeExpense(Expense expense)
     {
-        var projects = await _context.Projects
-            .OrderBy(p => p.Name)
-            .ToListAsync();
+        expense.CompanyId = null;
+        expense.ExpenseType = "Malzeme";
+        expense.PaymentStatus = "Odendi";
 
-        var companies = await _context.Companies
-            .OrderBy(c => c.Name)
-            .ToListAsync();
-
-        ViewBag.Projects = new SelectList(projects, "Id", "Name", projectId);
-        ViewBag.Companies = new SelectList(companies, "Id", "Name", companyId);
-        ViewBag.ExpenseTypes = new SelectList(ExpenseTypes, expenseType);
-        ViewBag.PaymentStatuses = new SelectList(PaymentStatuses, paymentStatus);
+        expense.Amount = expense.Quantity * expense.UnitPrice;
     }
 
     private bool IsLoggedIn()

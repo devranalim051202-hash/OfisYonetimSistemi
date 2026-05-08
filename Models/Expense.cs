@@ -25,9 +25,20 @@ namespace OfisYonetimSistemi.Models
         [StringLength(150)]
         public string Title { get; set; } = string.Empty;
 
+        [StringLength(150)]
+        public string? SupplierName { get; set; }
+
         [Required]
         [StringLength(50)]
-        public string ExpenseType { get; set; } = "Genel";
+        public string ExpenseType { get; set; } = "Malzeme";
+
+        [Column(TypeName = "decimal(18,2)")]
+        [Range(0.01, 1000000)]
+        public decimal Quantity { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        [Range(0, 100000000)]
+        public decimal UnitPrice { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         [Range(0.01, 100000000)]

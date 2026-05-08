@@ -68,10 +68,9 @@ public class ProjectsController : Controller
             return NotFound();
         }
 
-        ViewBag.StockTotal = project.StockMovements.Sum(sm => sm.TotalPrice);
         ViewBag.InvoiceTotal = project.Invoices.Sum(i => i.TotalAmount);
         ViewBag.DirectExpenseTotal = project.Expenses.Sum(e => e.Amount);
-        ViewBag.TotalExpense = ViewBag.StockTotal + ViewBag.InvoiceTotal + ViewBag.DirectExpenseTotal;
+        ViewBag.TotalExpense = ViewBag.DirectExpenseTotal;
 
         return View(project);
     }
