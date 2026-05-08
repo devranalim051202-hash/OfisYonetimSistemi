@@ -67,6 +67,76 @@ namespace OfisYonetimSistemi.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("OfisYonetimSistemi.Models.Expense", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DocumentNumber")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ExpenseDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExpenseType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SupplierName")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Expenses");
+                });
+
             modelBuilder.Entity("OfisYonetimSistemi.Models.Invoice", b =>
                 {
                     b.Property<int>("Id")
@@ -387,6 +457,29 @@ namespace OfisYonetimSistemi.Migrations
                         });
                 });
 
+            modelBuilder.Entity("OfisYonetimSistemi.Models.Expense", b =>
+                {
+                    b.HasOne("OfisYonetimSistemi.Models.Company", "Company")
+                        .WithMany("Expenses")
+                        .HasForeignKey("CompanyId");
+
+                    b.HasOne("OfisYonetimSistemi.Models.Project", "Project")
+                        .WithMany("Expenses")
+                        .HasForeignKey("ProjectId");
+
+                    b.HasOne("OfisYonetimSistemi.Models.User", "User")
+                        .WithMany("Expenses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("Project");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("OfisYonetimSistemi.Models.Invoice", b =>
                 {
                     b.HasOne("OfisYonetimSistemi.Models.Company", "Company")
@@ -438,6 +531,8 @@ namespace OfisYonetimSistemi.Migrations
 
             modelBuilder.Entity("OfisYonetimSistemi.Models.Company", b =>
                 {
+                    b.Navigation("Expenses");
+
                     b.Navigation("Invoices");
 
                     b.Navigation("StockMovements");
@@ -450,6 +545,8 @@ namespace OfisYonetimSistemi.Migrations
 
             modelBuilder.Entity("OfisYonetimSistemi.Models.Project", b =>
                 {
+                    b.Navigation("Expenses");
+
                     b.Navigation("Invoices");
 
                     b.Navigation("StockMovements");
@@ -458,6 +555,11 @@ namespace OfisYonetimSistemi.Migrations
             modelBuilder.Entity("OfisYonetimSistemi.Models.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("OfisYonetimSistemi.Models.User", b =>
+                {
+                    b.Navigation("Expenses");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,103 +1,52 @@
-@model OfisYonetimSistemi.Models.Invoice
+@model OfisYonetimSistemi.Models.Expense
 
 @{
     ViewData["Title"] = "Gider Ekle";
 }
 
-<section class="form-page">
-    <div class="form-panel shadow-sm">
-        <a class="auth-back-link" asp-controller="Expenses" asp-action="Index">Giderlere don</a>
-        <p class="eyebrow">Gider Takibi</p>
-        <h1>Gider ekle</h1>
-        <p class="auth-help">Fatura, fis, irsaliye veya makbuz kaydini ilgili proje ve firma bilgileriyle olusturun.</p>
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Yeni Gider</p>
+            <h1>Gider Ekle</h1>
+            <p>Projeye alinan malzeme, miktar ve fiyat bilgisini kaydedin.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
+    </div>
 
-        <form asp-controller="Expenses" asp-action="Create" method="post" class="row g-3 expense-form needs-validation">
-            @Html.AntiForgeryToken()
+    <div class="table-panel">
+        <form asp-action="Create" method="post" class="row g-3">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="col-12 col-lg-4">
-                <label asp-for="DocumentType" class="form-label">Belge turu</label>
-                <select asp-for="DocumentType" asp-items="ViewBag.DocumentTypes" class="form-select">
-                    <option value="">Belge turu secin</option>
-                </select>
-                <span asp-validation-for="DocumentType" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-lg-4">
-                <label asp-for="DocumentNumber" class="form-label">Belge no</label>
-                <input asp-for="DocumentNumber" class="form-control" placeholder="ORN-2026-001">
-                <span asp-validation-for="DocumentNumber" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-lg-4">
-                <label asp-for="DocumentDate" class="form-label">Belge tarihi</label>
-                <input asp-for="DocumentDate" type="date" class="form-control">
-                <span asp-validation-for="DocumentDate" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-lg-6">
-                <label asp-for="ProjectId" class="form-label">Proje</label>
-                <select asp-for="ProjectId" asp-items="ViewBag.Projects" class="form-select">
-                    <option value="">Proje secin</option>
-                </select>
-                <span asp-validation-for="ProjectId" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-lg-6">
-                <label asp-for="CompanyId" class="form-label">Firma</label>
-                <select asp-for="CompanyId" asp-items="ViewBag.Companies" class="form-select">
-                    <option value="">Firma secin</option>
-                </select>
-                <span asp-validation-for="CompanyId" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <label asp-for="SubTotal" class="form-label">Ara toplam</label>
-                <div class="input-group">
-                    <input asp-for="SubTotal" type="number" step="0.01" min="0" class="form-control">
-                    <span class="input-group-text">TL</span>
-                </div>
-                <span asp-validation-for="SubTotal" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <label asp-for="TaxAmount" class="form-label">KDV / vergi</label>
-                <div class="input-group">
-                    <input asp-for="TaxAmount" type="number" step="0.01" min="0" class="form-control">
-                    <span class="input-group-text">TL</span>
-                </div>
-                <span asp-validation-for="TaxAmount" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 col-md-4">
-                <label asp-for="TotalAmount" class="form-label">Genel toplam</label>
-                <div class="input-group">
-                    <input asp-for="TotalAmount" type="number" step="0.01" min="0" class="form-control">
-                    <span class="input-group-text">TL</span>
-                </div>
-                <span asp-validation-for="TotalAmount" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-12">
-                <label asp-for="FilePath" class="form-label">Dosya yolu</label>
-                <input asp-for="FilePath" class="form-control" placeholder="uploads/faturalar/fatura-001.pdf">
-                <span asp-validation-for="FilePath" class="text-danger"></span>
-            </div>
-
-            <div class="col-md-12">
-                <label asp-for="Description" class="form-label">Aciklama</label>
-                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Gider hakkinda kisa not"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-
-            <div class="col-12 form-actions">
-                <button type="submit" class="btn btn-primary">Gider kaydet</button>
-                <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Vazgec</a>
+            <partial name="_ExpenseForm" model="Model" />
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
             </div>
         </form>
     </div>
 </section>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const quantity = document.getElementById("Quantity");
+            const unitPrice = document.getElementById("UnitPrice");
+            const amount = document.getElementById("Amount");
+
+            const calculateAmount = () => {
+                const quantityValue = Number(quantity?.value || 0);
+                const unitPriceValue = Number(unitPrice?.value || 0);
+                const total = quantityValue * unitPriceValue;
+
+                if (amount) {
+                    amount.value = total > 0 ? total.toFixed(2) : "";
+                }
+            };
+
+            quantity?.addEventListener("input", calculateAmount);
+            unitPrice?.addEventListener("input", calculateAmount);
+            calculateAmount();
+        })();
+    </script>
 }

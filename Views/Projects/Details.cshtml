@@ -3,8 +3,33 @@
 @{
     ViewData["Title"] = "Proje Detay";
     decimal totalExpense = ViewBag.TotalExpense ?? 0m;
-    decimal stockTotal = ViewBag.StockTotal ?? 0m;
-    decimal invoiceTotal = ViewBag.InvoiceTotal ?? 0m;
+    decimal directExpenseTotal = ViewBag.DirectExpenseTotal ?? 0m;
+    var remainingText = "-";
+
+    if (Model.EndDate.HasValue)
+    {
+        var today = DateTime.Today;
+        var endDate = Model.EndDate.Value.Date;
+
+        if (endDate < today)
+        {
+            remainingText = "Suresi doldu";
+        }
+        else
+        {
+            var cursor = today;
+            var months = 0;
+
+            while (cursor.AddMonths(1) <= endDate)
+            {
+                cursor = cursor.AddMonths(1);
+                months++;
+            }
+
+            var days = (endDate - cursor).Days;
+            remainingText = $"{months} ay {days} gun";
+        }
+    }
 }
 
 <section class="dashboard-page">
@@ -37,7 +62,21 @@
             <span>Toplam gider</span>
             <strong>@totalExpense.ToString("N2") TL</strong>
         </div>
+        <div class="detail-card">
+            <span>Kalan sure</span>
+            <strong>@remainingText</strong>
+        </div>
     </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
 
     <div class="detail-section">
         <div class="table-panel">
@@ -49,12 +88,16 @@
                 <dd>@Model.Name</dd>
                 <dt>Konum</dt>
                 <dd>@(Model.Location ?? "-")</dd>
+                <dt>Baslangic tarihi</dt>
+                <dd>@Model.StartDate.ToString("dd.MM.yyyy")</dd>
+                <dt>Bitis tarihi</dt>
+                <dd>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</dd>
+                <dt>Bitmesine kalan</dt>
+                <dd>@remainingText</dd>
                 <dt>Kayit tarihi</dt>
                 <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
-                <dt>Stok hareketleri toplamı</dt>
-                <dd>@stockTotal.ToString("N2") TL</dd>
-                <dt>Bagli evrak toplamı</dt>
-                <dd>@invoiceTotal.ToString("N2") TL</dd>
+                <dt>Proje gider toplami</dt>
+                <dd>@directExpenseTotal.ToString("N2") TL</dd>
             </dl>
         </div>
     </div>
@@ -62,30 +105,31 @@
     <div class="detail-section">
         <div class="table-panel">
             <div class="table-panel-header">
-                <h2>Kullanilan malzemeler / stok hareketleri</h2>
+                <h2>Projeye ait giderler</h2>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id">Gider Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Malzeme</th>
-                            <th>Tur</th>
+                            <th>Malzeme / urun</th>
+                            <th>Firma / tedarikci</th>
                             <th>Miktar</th>
-                            <th>Firma</th>
+                            <th>Birim fiyat</th>
+                            <th>Toplam fiyat</th>
                             <th>Tarih</th>
-                            <th>Tutar</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var movement in Model.StockMovements.OrderByDescending(sm => sm.MovementDate))
+                        @foreach (var expense in Model.Expenses.OrderByDescending(e => e.ExpenseDate))
                         {
                             <tr>
-                                <td>@(movement.Material?.Name ?? "-")</td>
-                                <td>@movement.MovementType</td>
-                                <td>@movement.Quantity.ToString("N2")</td>
-                                <td>@(movement.Company?.Name ?? "-")</td>
-                                <td>@movement.MovementDate.ToString("dd.MM.yyyy")</td>
-                                <td>@movement.TotalPrice.ToString("N2") TL</td>
+                                <td>@expense.Title</td>
+                                <td>@(expense.SupplierName ?? "-")</td>
+                                <td>@expense.Quantity.ToString("N2")</td>
+                                <td>@expense.UnitPrice.ToString("N2") TL</td>
+                                <td>@expense.Amount.ToString("N2") TL</td>
+                                <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
                             </tr>
                         }
                     </tbody>
@@ -97,17 +141,17 @@
     <div class="detail-section">
         <div class="table-panel">
             <div class="table-panel-header">
-                <h2>Bagli evraklar ve irsaliyeler</h2>
+                <h2>Projeye ait evraklar ve belgeler</h2>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddDocument" asp-route-projectId="@Model.Id">Belge Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
                             <th>Belge turu</th>
-                            <th>Belge no</th>
-                            <th>Firma</th>
+                            <th>Dosya / evrak no</th>
                             <th>Tarih</th>
-                            <th>Toplam</th>
+                            <th class="text-end">Islem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,10 +159,22 @@
                         {
                             <tr>
                                 <td>@invoice.DocumentType</td>
-                                <td>@invoice.DocumentNumber</td>
-                                <td>@(invoice.Company?.Name ?? "-")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(invoice.FilePath))
+                                    {
+                                        <a href="@invoice.FilePath" target="_blank">@invoice.DocumentNumber</a>
+                                    }
+                                    else
+                                    {
+                                        @invoice.DocumentNumber
+                                    }
+                                </td>
                                 <td>@invoice.DocumentDate.ToString("dd.MM.yyyy")</td>
-                                <td>@invoice.TotalAmount.ToString("N2") TL</td>
+                                <td class="text-end">
+                                    <form asp-controller="Projects" asp-action="RemoveDocument" asp-route-id="@invoice.Id" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm">Cikart</button>
+                                    </form>
+                                </td>
                             </tr>
                         }
                     </tbody>

@@ -1,0 +1,38 @@
+@model OfisYonetimSistemi.Models.Expense
+
+@{
+    ViewData["Title"] = "Gider Sil";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Gider Sil</p>
+            <h1>@Model.Title</h1>
+            <p>Bu gider kaydini silmek istediginize emin misiniz?</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Giderlere Don</a>
+    </div>
+
+    <div class="table-panel">
+        <dl class="project-info-list">
+            <dt>Proje</dt>
+            <dd>@(Model.Project?.Name ?? "-")</dd>
+            <dt>Firma / tedarikci</dt>
+            <dd>@(Model.SupplierName ?? "-")</dd>
+            <dt>Miktar</dt>
+            <dd>@Model.Quantity.ToString("N2")</dd>
+            <dt>Kaydeden kullanici</dt>
+            <dd>@(Model.User?.FullName ?? "-")</dd>
+            <dt>Odeme durumu</dt>
+            <dd>@Model.PaymentStatus</dd>
+            <dt>Tutar</dt>
+            <dd>@Model.Amount.ToString("N2") TL</dd>
+        </dl>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Sil</button>
+            <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Iptal</a>
+        </form>
+    </div>
+</section>

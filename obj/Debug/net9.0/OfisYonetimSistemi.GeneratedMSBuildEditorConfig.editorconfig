@@ -17,157 +17,181 @@ build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = OfisYonetimSistemi
 build_property.RootNamespace = OfisYonetimSistemi
-build_property.ProjectDir = C:\Users\msi\Documents\Codex\2026-05-06\vs-code-commit-imdi-sana-projemi\OfisYonetimSistemi\
+build_property.ProjectDir = C:\Users\msi\OneDrive\Desktop\OfisYonetimSistemi\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 9.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = C:\Users\msi\Documents\Codex\2026-05-06\vs-code-commit-imdi-sana-projemi\OfisYonetimSistemi
+build_property.MSBuildProjectDirectory = C:\Users\msi\OneDrive\Desktop\OfisYonetimSistemi
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 9.0
 build_property.EnableCodeStyleSeverity = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Account/AdminLogin.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Account/AdminLogin.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxBZG1pbkxvZ2luLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Account/Login.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Account/PersonnelLogin.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Account/PersonnelLogin.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxQZXJzb25uZWxMb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Account/Register.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Account/Register.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Account/VerifyEmail.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Account/VerifyEmail.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlFbWFpbC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Documents/Create.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Documents/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRG9jdW1lbnRzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Expenses/Create.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Expenses/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZXNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Expenses/Index.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Expenses/Delete.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZXNcRGVsZXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Expenses/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZXNcRGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Expenses/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Expenses/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZXNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Home/Index.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Expenses/_ExpenseForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcRXhwZW5zZXNcX0V4cGVuc2VGb3JtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Home/Privacy.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Manager/CreatePersonnel.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Manager/CreatePersonnel.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlclxDcmVhdGVQZXJzb25uZWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Manager/Index.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Manager/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWFuYWdlclxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/Create.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXENyZWF0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/Delete.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXERlbGV0ZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/Details.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXERldGFpbHMuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/Edit.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXEVkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/History.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/History.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXEhpc3RvcnkuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/Index.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/StockIn.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/StockIn.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXFN0b2NrSW4uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/StockOut.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/StockOut.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXFN0b2NrT3V0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/_MaterialForm.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/_MaterialForm.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXF9NYXRlcmlhbEZvcm0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Materials/_StockMovementForm.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Materials/_StockMovementForm.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcTWF0ZXJpYWxzXF9TdG9ja01vdmVtZW50Rm9ybS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Personnel/Index.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Personnel/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUGVyc29ubmVsXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/ProjectFinance/Details.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/ProjectFinance/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdEZpbmFuY2VcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/ProjectFinance/Select.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/ProjectFinance/Select.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdEZpbmFuY2VcU2VsZWN0LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Projects/Create.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/AddDocument.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcQWRkRG9jdW1lbnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/AddMaterial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcQWRkTWF0ZXJpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcQ3JlYXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Projects/Delete.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/Delete.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRGVsZXRlLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Projects/Details.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Projects/Edit.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/Edit.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcRWRpdC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Projects/Index.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Projects/_ProjectForm.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Projects/_ProjectForm.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcUHJvamVjdHNcX1Byb2plY3RGb3JtLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Shared/Error.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Shared/_ValidationScriptsPartial.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/_ViewImports.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/_ViewStart.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[C:/Users/msi/Documents/Codex/2026-05-06/vs-code-commit-imdi-sana-projemi/OfisYonetimSistemi/Views/Shared/_Layout.cshtml]
+[C:/Users/msi/OneDrive/Desktop/OfisYonetimSistemi/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-zyfby54zt9

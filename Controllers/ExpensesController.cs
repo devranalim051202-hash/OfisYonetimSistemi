@@ -9,136 +9,245 @@ public class ExpensesController : Controller
 {
     private readonly AppDbContext _context;
 
-    private static readonly string[] DocumentTypes =
-    {
-        "Fatura",
-        "Fis",
-        "Irsaliye",
-        "Makbuz"
-    };
-
     public ExpensesController(AppDbContext context)
     {
         _context = context;
     }
 
-    public async Task<IActionResult> Index(string? documentType, int? projectId, DateTime? startDate, DateTime? endDate)
+    public IActionResult Index()
     {
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
         }
 
-        var query = _context.Invoices
-            .Include(i => i.Project)
-            .Include(i => i.Company)
-            .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(documentType))
-        {
-            query = query.Where(i => i.DocumentType == documentType);
-        }
-
-        if (projectId.HasValue)
-        {
-            query = query.Where(i => i.ProjectId == projectId.Value);
-        }
-
-        if (startDate.HasValue)
-        {
-            query = query.Where(i => i.DocumentDate >= startDate.Value);
-        }
-
-        if (endDate.HasValue)
-        {
-            query = query.Where(i => i.DocumentDate <= endDate.Value);
-        }
-
-        var expenses = await query
-            .OrderByDescending(i => i.DocumentDate)
-            .ThenByDescending(i => i.CreatedAt)
-            .ToListAsync();
-
-        await FillFilterOptionsAsync(projectId);
-        ViewBag.DocumentTypes = await _context.Invoices
-            .Select(i => i.DocumentType)
-            .Distinct()
-            .OrderBy(t => t)
-            .ToListAsync();
-        ViewBag.DocumentType = documentType;
-        ViewBag.ProjectId = projectId;
-        ViewBag.StartDate = startDate;
-        ViewBag.EndDate = endDate;
-
-        return View(expenses);
+        return RedirectToAction("Index", "Projects");
     }
 
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Details(int id)
     {
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
         }
 
-        await FillFormOptionsAsync();
-        return View(new Invoice { DocumentDate = DateTime.Today });
+        var expense = await _context.Expenses
+            .Include(e => e.Project)
+            .Include(e => e.Company)
+            .Include(e => e.User)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (expense == null)
+        {
+            return NotFound();
+        }
+
+        return View(expense);
+    }
+
+    public async Task<IActionResult> Create(int? projectId = null)
+    {
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        if (!projectId.HasValue)
+        {
+            TempData["ErrorMessage"] = "Gider eklemek icin once proje detayina girin.";
+            return RedirectToAction("Index", "Projects");
+        }
+
+        var projectExists = await _context.Projects.AnyAsync(p => p.Id == projectId.Value);
+
+        if (!projectExists)
+        {
+            return NotFound();
+        }
+
+        ViewBag.Project = await _context.Projects.FindAsync(projectId.Value);
+        ViewBag.IsProjectScoped = true;
+        return View(new Expense { ProjectId = projectId, ExpenseDate = DateTime.Today, ExpenseType = "Malzeme", PaymentStatus = "Odendi" });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Invoice invoice)
+    public async Task<IActionResult> Create(Expense expense)
     {
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
         }
 
-        if (!DocumentTypes.Contains(invoice.DocumentType))
-        {
-            ModelState.AddModelError(nameof(invoice.DocumentType), "Gecerli bir belge turu secin.");
-        }
+        SetCurrentUser(expense);
+        NormalizeExpense(expense);
 
-        if (invoice.TotalAmount <= 0)
+        if (!expense.ProjectId.HasValue)
         {
-            ModelState.AddModelError(nameof(invoice.TotalAmount), "Genel toplam 0'dan buyuk olmalidir.");
+            ModelState.AddModelError(nameof(expense.ProjectId), "Gider kaydi bir projeye bagli olmalidir.");
         }
 
         if (!ModelState.IsValid)
         {
-            await FillFormOptionsAsync(invoice.DocumentType, invoice.ProjectId, invoice.CompanyId);
-            return View(invoice);
+            ViewBag.Project = expense.ProjectId.HasValue
+                ? await _context.Projects.FindAsync(expense.ProjectId.Value)
+                : null;
+            ViewBag.IsProjectScoped = expense.ProjectId.HasValue;
+            return View(expense);
         }
 
-        invoice.CreatedAt = DateTime.Now;
-        _context.Invoices.Add(invoice);
+        expense.CreatedAt = DateTime.Now;
+
+        _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Gider kaydi olusturuldu.";
+        if (expense.ProjectId.HasValue)
+        {
+            return RedirectToAction("Details", "Projects", new { id = expense.ProjectId.Value });
+        }
+
         return RedirectToAction(nameof(Index));
     }
 
-    private async Task FillFilterOptionsAsync(int? selectedProjectId)
+    public async Task<IActionResult> Edit(int id)
     {
-        var projects = await _context.Projects
-            .OrderBy(p => p.Name)
-            .ToListAsync();
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Login", "Account");
+        }
 
-        ViewBag.Projects = new SelectList(projects, "Id", "Name", selectedProjectId);
+        var expense = await _context.Expenses.FindAsync(id);
+
+        if (expense == null)
+        {
+            return NotFound();
+        }
+
+        ViewBag.IsProjectScoped = expense.ProjectId.HasValue;
+        ViewBag.Project = expense.ProjectId.HasValue
+            ? await _context.Projects.FindAsync(expense.ProjectId.Value)
+            : null;
+        return View(expense);
     }
 
-    private async Task FillFormOptionsAsync(string? selectedDocumentType = null, int? selectedProjectId = null, int? selectedCompanyId = null)
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, Expense expense)
     {
-        var projects = await _context.Projects
-            .OrderBy(p => p.Name)
-            .ToListAsync();
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Login", "Account");
+        }
 
-        var companies = await _context.Companies
-            .OrderBy(c => c.Name)
-            .ToListAsync();
+        if (id != expense.Id)
+        {
+            return NotFound();
+        }
 
-        ViewBag.DocumentTypes = new SelectList(DocumentTypes, selectedDocumentType);
-        ViewBag.Projects = new SelectList(projects, "Id", "Name", selectedProjectId);
-        ViewBag.Companies = new SelectList(companies, "Id", "Name", selectedCompanyId);
+        SetCurrentUser(expense);
+        NormalizeExpense(expense);
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.IsProjectScoped = expense.ProjectId.HasValue;
+            ViewBag.Project = expense.ProjectId.HasValue
+                ? await _context.Projects.FindAsync(expense.ProjectId.Value)
+                : null;
+            return View(expense);
+        }
+
+        var existingExpense = await _context.Expenses.FindAsync(id);
+
+        if (existingExpense == null)
+        {
+            return NotFound();
+        }
+
+        existingExpense.ProjectId = expense.ProjectId;
+        existingExpense.CompanyId = expense.CompanyId;
+        existingExpense.UserId = expense.UserId;
+        existingExpense.Title = expense.Title;
+        existingExpense.SupplierName = expense.SupplierName;
+        existingExpense.ExpenseType = expense.ExpenseType;
+        existingExpense.Quantity = expense.Quantity;
+        existingExpense.UnitPrice = expense.UnitPrice;
+        existingExpense.Amount = expense.Amount;
+        existingExpense.ExpenseDate = expense.ExpenseDate;
+        existingExpense.PaymentStatus = expense.PaymentStatus;
+        existingExpense.DocumentNumber = expense.DocumentNumber;
+        existingExpense.Description = expense.Description;
+
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Gider kaydi guncellendi.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    public async Task<IActionResult> Delete(int id)
+    {
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var expense = await _context.Expenses
+            .Include(e => e.Project)
+            .Include(e => e.Company)
+            .Include(e => e.User)
+            .FirstOrDefaultAsync(e => e.Id == id);
+
+        if (expense == null)
+        {
+            return NotFound();
+        }
+
+        return View(expense);
+    }
+
+    [HttpPost, ActionName("Delete")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var expense = await _context.Expenses.FindAsync(id);
+
+        if (expense == null)
+        {
+            return NotFound();
+        }
+
+        _context.Expenses.Remove(expense);
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] = "Gider kaydi silindi.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    private void SetCurrentUser(Expense expense)
+    {
+        var userId = HttpContext.Session.GetInt32("UserId");
+
+        if (userId == null)
+        {
+            ModelState.AddModelError(string.Empty, "Gider kaydi icin kullanici oturumu bulunamadi.");
+            return;
+        }
+
+        expense.UserId = userId.Value;
+    }
+
+    private static void NormalizeExpense(Expense expense)
+    {
+        expense.CompanyId = null;
+        expense.ExpenseType = "Malzeme";
+        expense.PaymentStatus = "Odendi";
+
+        expense.Amount = expense.Quantity * expense.UnitPrice;
     }
 
     private bool IsLoggedIn()
