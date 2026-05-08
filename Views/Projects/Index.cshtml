@@ -24,43 +24,65 @@
         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
     }
 
-    <div class="table-panel">
-        <div class="table-panel-header">
-            <h2>Proje listesi</h2>
+    <div class="premium-list-panel">
+        <div class="premium-list-header">
+            <div>
+                <span class="premium-panel-label">Aktif Portfoy</span>
+                <h2>Proje portfoyu</h2>
+            </div>
+            <span class="premium-count">@Model.Count() proje</span>
         </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Proje adi</th>
-                        <th>Konum</th>
-                        <th>Baslangic</th>
-                        <th>Bitis</th>
-                        <th>Durum</th>
-                        <th class="text-end">Islemler</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var project in Model)
-                    {
-                        <tr>
-                            <td>@project.Name</td>
-                            <td>@(project.Location ?? "-")</td>
-                            <td>@project.StartDate.ToString("dd.MM.yyyy")</td>
-                            <td>@(project.EndDate?.ToString("dd.MM.yyyy") ?? "-")</td>
-                            <td><span class="status-pill">@project.Status</span></td>
-                            <td class="text-end">
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a class="btn btn-outline-primary" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id">Detay</a>
-                                    <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id">Duzenle</a>
-                                    <a class="btn btn-outline-danger" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id">Sil</a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+        @if (!Model.Any())
+        {
+            <div class="premium-empty-state">
+                <span>+</span>
+                <h3>Henuz proje eklenmedi</h3>
+                <p>Ilk projeyi olusturarak gider, evrak ve malzeme takiplerini proje icinde toplamaya baslayin.</p>
+                <a class="btn btn-primary" asp-controller="Projects" asp-action="Create">Ilk Projeyi Ekle</a>
+            </div>
+        }
+        else
+        {
+            <div class="project-card-grid">
+                @foreach (var project in Model)
+                {
+                    var finishDate = project.EndDate?.ToString("dd.MM.yyyy") ?? "Devam ediyor";
+                    <article class="project-card">
+                        <div class="project-card-glow"></div>
+                        <div class="project-card-top">
+                            <span class="project-monogram">@project.Name.Substring(0, 1).ToUpper()</span>
+                            <span class="status-pill premium-status">@project.Status</span>
+                        </div>
+
+                        <div class="project-card-body">
+                            <h3>@project.Name</h3>
+                            <p>@(string.IsNullOrWhiteSpace(project.Description) ? "Bu proje icin henuz aciklama eklenmedi." : project.Description)</p>
+                        </div>
+
+                        <div class="project-meta-grid">
+                            <div>
+                                <span>Konum</span>
+                                <strong>@(project.Location ?? "-")</strong>
+                            </div>
+                            <div>
+                                <span>Baslangic</span>
+                                <strong>@project.StartDate.ToString("dd.MM.yyyy")</strong>
+                            </div>
+                            <div>
+                                <span>Bitis</span>
+                                <strong>@finishDate</strong>
+                            </div>
+                        </div>
+
+                        <div class="project-card-actions">
+                            <a class="btn btn-primary" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id">Projeye Gir</a>
+                            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id">Duzenle</a>
+                            <a class="btn btn-link text-danger" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id">Sil</a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
     </div>
 </section>

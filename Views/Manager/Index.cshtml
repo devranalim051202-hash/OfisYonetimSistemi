@@ -38,36 +38,43 @@
         </div>
     </div>
 
-    <div class="table-panel">
-        <div class="table-panel-header">
-            <h2>Kayitli personeller</h2>
-            <a class="btn btn-outline-secondary btn-sm" asp-controller="Account" asp-action="Logout">Cikis Yap</a>
+    <div class="premium-list-panel">
+        <div class="premium-list-header">
+            <div>
+                <span class="premium-panel-label">Ekip Yonetimi</span>
+                <h2>Kayitli personeller</h2>
+            </div>
+            <span class="premium-count">@Model.Count() personel</span>
         </div>
 
-        <div class="table-responsive">
-            <table class="table align-middle">
-                <thead>
-                    <tr>
-                        <th>Ad Soyad</th>
-                        <th>Mail</th>
-                        <th>Telefon</th>
-                        <th>Sirket</th>
-                        <th>Rol</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var user in Model)
-                    {
-                        <tr>
-                            <td>@user.FullName</td>
-                            <td>@user.Email</td>
-                            <td>@user.PhoneNumber</td>
-                            <td>@user.CompanyName (@user.CompanySize kisi)</td>
-                            <td>@user.Role?.Name</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
+        @if (!Model.Any())
+        {
+            <div class="premium-empty-state">
+                <span>+</span>
+                <h3>Henuz personel eklenmedi</h3>
+                <p>Yeni personel hesabi acarak ekip icindeki is akislarini rol bazli yonetin.</p>
+                <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+            </div>
+        }
+        else
+        {
+            <div class="personnel-card-grid">
+                @foreach (var user in Model)
+                {
+                    <article class="personnel-card">
+                        <div class="personnel-avatar">@user.FullName.Substring(0, 1).ToUpper()</div>
+                        <div class="personnel-info">
+                            <h3>@user.FullName</h3>
+                            <p>@user.Email</p>
+                        </div>
+                        <div class="personnel-details">
+                            <span>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "Telefon yok" : user.PhoneNumber)</span>
+                            <span>@user.CompanyName (@user.CompanySize kisi)</span>
+                        </div>
+                        <span class="role-chip">@user.Role?.Name</span>
+                    </article>
+                }
+            </div>
+        }
     </div>
 </section>
