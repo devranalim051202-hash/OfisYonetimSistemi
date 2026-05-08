@@ -42,6 +42,18 @@ namespace OfisYonetimSistemi.Models
                 .WithMany(u => u.Expenses)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Apartment>()
+                .HasOne(a => a.Project)
+                .WithMany(p => p.Apartments)
+                .HasForeignKey(a => a.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ApartmentSale>()
+                .HasOne(s => s.Apartment)
+                .WithOne(a => a.Sale)
+                .HasForeignKey<ApartmentSale>(s => s.ApartmentId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public DbSet<Company> Companies { get; set; }
@@ -52,5 +64,7 @@ namespace OfisYonetimSistemi.Models
         public DbSet<Role> Roles { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<Apartment> Apartments { get; set; }
+        public DbSet<ApartmentSale> ApartmentSales { get; set; }
     }
 }

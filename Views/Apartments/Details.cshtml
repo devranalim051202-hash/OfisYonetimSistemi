@@ -1,0 +1,140 @@
+@model OfisYonetimSistemi.Models.Apartment
+
+@{
+    ViewData["Title"] = "Daire Detay";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Daire Detay</p>
+            <h1>@Model.Project?.Name - No @Model.ApartmentNumber</h1>
+            <p>@Model.FloorNumber. kat, @Model.RoomType, @(Model.IsSold ? "Satildi" : "Bos")</p>
+        </div>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
+            <a class="btn btn-outline-primary" asp-controller="Apartments" asp-action="Edit" asp-route-id="@Model.Id">Daire Bilgilerini Duzenle</a>
+            @if (!Model.IsSold)
+            {
+                <a class="btn btn-primary" asp-controller="Apartments" asp-action="Sell" asp-route-id="@Model.Id">Satis Yap</a>
+            }
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="detail-section">
+        <div class="table-panel">
+            <div class="table-panel-header">
+                <h2>Daire bilgileri</h2>
+            </div>
+            <dl class="project-info-list">
+                <dt>Proje</dt>
+                <dd>@(Model.Project?.Name ?? "-")</dd>
+                <dt>Kat</dt>
+                <dd>@Model.FloorNumber</dd>
+                <dt>Daire no</dt>
+                <dd>@Model.ApartmentNumber</dd>
+                <dt>Oda tipi</dt>
+                <dd>@Model.RoomType</dd>
+                <dt>Brut alan</dt>
+                <dd>@Model.GrossArea.ToString("N2") m2</dd>
+                <dt>Net alan</dt>
+                <dd>@Model.NetArea.ToString("N2") m2</dd>
+                <dt>Fiyat</dt>
+                <dd>@Model.Price.ToString("N2") TL</dd>
+                <dt>Satis durumu</dt>
+                <dd>@(Model.IsSold ? "Satildi" : "Bos")</dd>
+            </dl>
+        </div>
+    </div>
+
+    @if (Model.Sale != null)
+    {
+        <div class="detail-section">
+            <div class="table-panel">
+                <div class="table-panel-header">
+                    <h2>Satis bilgileri</h2>
+                </div>
+                <dl class="project-info-list">
+                    <dt>Alici</dt>
+                    <dd>@Model.Sale.BuyerFullName</dd>
+                    <dt>TC/Vergi no</dt>
+                    <dd>@Model.Sale.BuyerIdentityNumber</dd>
+                    <dt>Telefon</dt>
+                    <dd>@Model.Sale.BuyerPhone</dd>
+                    <dt>Adres</dt>
+                    <dd>@Model.Sale.BuyerAddress</dd>
+                    <dt>Odeme sekli</dt>
+                    <dd>@Model.Sale.PaymentType</dd>
+                    <dt>Satis bedeli</dt>
+                    <dd>@Model.Sale.SalePrice.ToString("N2") TL</dd>
+                    <dt>Satis tarihi</dt>
+                    <dd>@Model.Sale.SaleDate.ToString("dd.MM.yyyy")</dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <div class="table-panel">
+                <div class="table-panel-header">
+                    <h2>Satis sozlesmesi</h2>
+                    <div class="hero-actions">
+                        <a class="btn btn-outline-primary btn-sm" asp-controller="Apartments" asp-action="EditContract" asp-route-id="@Model.Id">Sozlesmeyi Duzenle</a>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Yazdir</button>
+                    </div>
+                </div>
+                <style>
+                    .contract-document {
+                        width: 210mm;
+                        min-height: 297mm;
+                        max-width: 100%;
+                        margin: 0 auto;
+                        padding: 24mm 20mm;
+                        background: #fff;
+                        color: #111;
+                        border: 1px solid #ddd;
+                        font-family: Arial, sans-serif;
+                        font-size: 13px;
+                        line-height: 1.55;
+                        white-space: pre-wrap;
+                    }
+
+                    @@media print {
+                        body * {
+                            visibility: hidden;
+                        }
+
+                        #contractPrintArea,
+                        #contractPrintArea * {
+                            visibility: visible;
+                        }
+
+                        #contractPrintArea {
+                            position: absolute;
+                            left: 0;
+                            top: 0;
+                            width: 100%;
+                        }
+
+                        .contract-document {
+                            width: auto;
+                            min-height: auto;
+                            border: 0;
+                            padding: 0;
+                        }
+                    }
+                </style>
+                <div id="contractPrintArea" class="contract-document">@Model.Sale.ContractText</div>
+            </div>
+        </div>
+    }
+</section>

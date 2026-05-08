@@ -61,6 +61,8 @@ public class ProjectsController : Controller
                 .ThenInclude(e => e.Company)
             .Include(p => p.Expenses)
                 .ThenInclude(e => e.User)
+            .Include(p => p.Apartments)
+                .ThenInclude(a => a.Sale)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (project == null)
@@ -71,6 +73,7 @@ public class ProjectsController : Controller
         ViewBag.InvoiceTotal = project.Invoices.Sum(i => i.TotalAmount);
         ViewBag.DirectExpenseTotal = project.Expenses.Sum(e => e.Amount);
         ViewBag.TotalExpense = ViewBag.DirectExpenseTotal;
+        ViewBag.CanManageApartmentSales = IsManager();
 
         return View(project);
     }
@@ -101,6 +104,7 @@ public class ProjectsController : Controller
         }
 
         ValidateProjectDates(project);
+        ValidateApartmentPlan(project);
 
         if (!ModelState.IsValid)
         {
@@ -112,6 +116,11 @@ public class ProjectsController : Controller
 
         _context.Projects.Add(project);
         await _context.SaveChangesAsync();
+
+        if (project.ApartmentCount > 0)
+        {
+            await CreateMissingApartmentsAsync(project);
+        }
 
         TempData["SuccessMessage"] = "Proje kaydi olusturuldu.";
         return RedirectToAction(nameof(Index));
@@ -155,6 +164,7 @@ public class ProjectsController : Controller
         }
 
         ValidateProjectDates(project);
+        ValidateApartmentPlan(project);
 
         if (!ModelState.IsValid)
         {
@@ -175,8 +185,15 @@ public class ProjectsController : Controller
         existingProject.StartDate = project.StartDate;
         existingProject.EndDate = project.EndDate;
         existingProject.Status = project.Status;
+        existingProject.FloorCount = project.FloorCount;
+        existingProject.ApartmentCount = project.ApartmentCount;
 
         await _context.SaveChangesAsync();
+
+        if (existingProject.ApartmentCount > 0)
+        {
+            await CreateMissingApartmentsAsync(existingProject);
+        }
 
         TempData["SuccessMessage"] = "Proje kaydi guncellendi.";
         return RedirectToAction(nameof(Index));
@@ -213,6 +230,7 @@ public class ProjectsController : Controller
             .Include(p => p.StockMovements)
             .Include(p => p.Invoices)
             .Include(p => p.Expenses)
+            .Include(p => p.Apartments)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (project == null)
@@ -220,9 +238,9 @@ public class ProjectsController : Controller
             return NotFound();
         }
 
-        if (project.StockMovements.Any() || project.Invoices.Any() || project.Expenses.Any())
+        if (project.StockMovements.Any() || project.Invoices.Any() || project.Expenses.Any() || project.Apartments.Any())
         {
-            TempData["ErrorMessage"] = "Bu projeye bagli stok hareketi, gider veya evrak oldugu icin silinemez.";
+            TempData["ErrorMessage"] = "Bu projeye bagli stok hareketi, gider, evrak veya daire kaydi oldugu icin silinemez.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -435,6 +453,61 @@ public class ProjectsController : Controller
         return RedirectToAction(nameof(Details), new { id = projectId });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> BulkUpdateApartmentRoomType(int projectId, string selectionType, int selectionNumber, string roomType)
+    {
+        if (!IsManager())
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        if (string.IsNullOrWhiteSpace(roomType))
+        {
+            TempData["ErrorMessage"] = "Oda tipi bos olamaz.";
+            return RedirectToAction(nameof(Details), new { id = projectId });
+        }
+
+        var apartments = await _context.Apartments
+            .Where(a => a.ProjectId == projectId)
+            .OrderBy(a => a.FloorNumber)
+            .ThenBy(a => a.ApartmentNumber)
+            .ToListAsync();
+
+        if (!apartments.Any())
+        {
+            TempData["ErrorMessage"] = "Bu proje icin daire kaydi bulunmuyor.";
+            return RedirectToAction(nameof(Details), new { id = projectId });
+        }
+
+        var selectedApartments = selectionType == "row"
+            ? apartments.Where(a => a.FloorNumber == selectionNumber).ToList()
+            : apartments
+                .GroupBy(a => a.FloorNumber)
+                .SelectMany(g => g.OrderBy(a => a.ApartmentNumber)
+                    .Select((apartment, index) => new { apartment, columnNumber = index + 1 })
+                    .Where(x => x.columnNumber == selectionNumber)
+                    .Select(x => x.apartment))
+                .ToList();
+
+        if (!selectedApartments.Any())
+        {
+            TempData["ErrorMessage"] = "Secilen satir veya sutunda daire bulunamadi.";
+            return RedirectToAction(nameof(Details), new { id = projectId });
+        }
+
+        foreach (var apartment in selectedApartments)
+        {
+            apartment.RoomType = roomType.Trim();
+        }
+
+        await _context.SaveChangesAsync();
+
+        var selectionLabel = selectionType == "row" ? $"{selectionNumber}. kat" : $"{selectionNumber}. sutun";
+        TempData["SuccessMessage"] = $"{selectionLabel} icin {selectedApartments.Count} dairenin oda tipi guncellendi.";
+        return RedirectToAction(nameof(Details), new { id = projectId });
+    }
+
     private void FillStatuses(string? selectedStatus = null)
     {
         ViewBag.Statuses = new SelectList(ProjectStatuses, selectedStatus);
@@ -446,6 +519,50 @@ public class ProjectsController : Controller
         {
             ModelState.AddModelError(nameof(project.EndDate), "Bitis tarihi baslangic tarihinden once olamaz.");
         }
+    }
+
+    private void ValidateApartmentPlan(Project project)
+    {
+        if (project.ApartmentCount > 0 && project.FloorCount <= 0)
+        {
+            ModelState.AddModelError(nameof(project.FloorCount), "Daire olusturmak icin kat sayisi girin.");
+        }
+    }
+
+    private async Task CreateMissingApartmentsAsync(Project project)
+    {
+        var existingCount = await _context.Apartments.CountAsync(a => a.ProjectId == project.Id);
+        var missingCount = project.ApartmentCount - existingCount;
+
+        if (missingCount <= 0)
+        {
+            return;
+        }
+
+        var floorCount = Math.Max(project.FloorCount, 1);
+        var startIndex = existingCount + 1;
+
+        for (var offset = 0; offset < missingCount; offset++)
+        {
+            var apartmentIndex = startIndex + offset;
+            var zeroBased = apartmentIndex - 1;
+            var floorNumber = zeroBased % floorCount + 1;
+            var numberOnFloor = zeroBased / floorCount + 1;
+
+            _context.Apartments.Add(new Apartment
+            {
+                ProjectId = project.Id,
+                FloorNumber = floorNumber,
+                ApartmentNumber = $"{floorNumber}{numberOnFloor:00}",
+                RoomType = "1+1",
+                GrossArea = 0,
+                NetArea = 0,
+                Price = 0,
+                CreatedAt = DateTime.Now
+            });
+        }
+
+        await _context.SaveChangesAsync();
     }
 
     private async Task FillProjectMaterialFormAsync(Project project, int? materialId = null, int? companyId = null)
@@ -491,5 +608,11 @@ public class ProjectsController : Controller
     private bool IsLoggedIn()
     {
         return !string.IsNullOrEmpty(HttpContext.Session.GetString("RoleName"));
+    }
+
+    private bool IsManager()
+    {
+        var roleName = HttpContext.Session.GetString("RoleName");
+        return roleName == "Admin" || roleName == "Mudur";
     }
 }

@@ -4,6 +4,10 @@
     ViewData["Title"] = "Proje Detay";
     decimal totalExpense = ViewBag.TotalExpense ?? 0m;
     decimal directExpenseTotal = ViewBag.DirectExpenseTotal ?? 0m;
+    bool canManageApartmentSales = ViewBag.CanManageApartmentSales ?? false;
+    var maxApartmentColumnCount = Model.Apartments.Any()
+        ? Model.Apartments.GroupBy(a => a.FloorNumber).Max(g => g.Count())
+        : 0;
     var remainingText = "-";
 
     if (Model.EndDate.HasValue)
@@ -98,7 +102,97 @@
                 <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
                 <dt>Proje gider toplami</dt>
                 <dd>@directExpenseTotal.ToString("N2") TL</dd>
+                <dt>Kat / daire sayisi</dt>
+                <dd>@Model.FloorCount kat / @Model.ApartmentCount daire</dd>
             </dl>
+        </div>
+    </div>
+
+    <div class="detail-section">
+        <div class="table-panel">
+            <div class="table-panel-header">
+                <h2>Daire satis takip tablosu</h2>
+            </div>
+            @if (!Model.Apartments.Any())
+            {
+                <p>Bu proje icin daire kaydi bulunmuyor.</p>
+            }
+            else
+            {
+                @if (canManageApartmentSales)
+                {
+                    <form asp-controller="Projects" asp-action="BulkUpdateApartmentRoomType" method="post" class="row g-2 align-items-end mb-3">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="projectId" value="@Model.Id" />
+                        <div class="col-md-3">
+                            <label class="form-label">Secim tipi</label>
+                            <select name="selectionType" class="form-select">
+                                <option value="column">Sutun sec</option>
+                                <option value="row">Satir sec</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Satir / sutun no</label>
+                            <input name="selectionNumber" type="number" min="1" class="form-control" value="1">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Oda tipi</label>
+                            <input name="roomType" class="form-control" placeholder="2+1, 3+1, 4+1">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">Oda Tipini Guncelle</button>
+                        </div>
+                    </form>
+                }
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle text-center">
+                        <thead>
+                            <tr>
+                                <th>Kat</th>
+                                @for (var i = 1; i <= maxApartmentColumnCount; i++)
+                                {
+                                    <th>Sutun @i</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var floorGroup in Model.Apartments.GroupBy(a => a.FloorNumber).OrderByDescending(g => g.Key))
+                            {
+                                <tr>
+                                    <th>@floorGroup.Key. Kat</th>
+                                    @foreach (var apartment in floorGroup.OrderBy(a => a.ApartmentNumber))
+                                    {
+                                        var cellColor = apartment.IsSold ? "#198754" : "#ffffff";
+                                        var textColor = apartment.IsSold ? "#ffffff" : "#111111";
+                                        <td style="background-color:@cellColor; color:@textColor;">
+                                            @if (canManageApartmentSales)
+                                            {
+                                                <a asp-controller="Apartments" asp-action="Details" asp-route-id="@apartment.Id" style="display:block; color:inherit; text-decoration:none;">
+                                                    <strong>No @apartment.ApartmentNumber</strong><br>
+                                                    <span>@apartment.RoomType</span><br>
+                                                    <span>@apartment.Price.ToString("N0") TL</span><br>
+                                                    <span>@(apartment.IsSold ? "SATILDI" : "BOS")</span>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <strong>No @apartment.ApartmentNumber</strong><br>
+                                                <span>@apartment.RoomType</span><br>
+                                                <span>@apartment.Price.ToString("N0") TL</span><br>
+                                                <span>@(apartment.IsSold ? "SATILDI" : "BOS")</span>
+                                            }
+                                        </td>
+                                    }
+                                    @for (var emptyIndex = floorGroup.Count(); emptyIndex < maxApartmentColumnCount; emptyIndex++)
+                                    {
+                                        <td></td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 

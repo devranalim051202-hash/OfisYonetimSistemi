@@ -30,6 +30,18 @@
     <span asp-validation-for="EndDate" class="text-danger"></span>
 </div>
 
+<div class="col-md-6">
+    <label asp-for="FloorCount" class="form-label">Kat sayisi</label>
+    <input asp-for="FloorCount" type="number" min="0" class="form-control">
+    <span asp-validation-for="FloorCount" class="text-danger"></span>
+</div>
+
+<div class="col-md-6">
+    <label asp-for="ApartmentCount" class="form-label">Daire sayisi</label>
+    <input asp-for="ApartmentCount" type="number" min="0" class="form-control">
+    <span asp-validation-for="ApartmentCount" class="text-danger"></span>
+</div>
+
 <div class="col-md-12">
     <label asp-for="Description" class="form-label">Aciklama</label>
     <textarea asp-for="Description" class="form-control" rows="4"></textarea>

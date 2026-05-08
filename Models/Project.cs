@@ -27,6 +27,12 @@ namespace OfisYonetimSistemi.Models
         [StringLength(50)]
         public string Status { get; set; } = "Aktif";
 
+        [Range(0, 200)]
+        public int FloorCount { get; set; }
+
+        [Range(0, 5000)]
+        public int ApartmentCount { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
@@ -34,5 +40,7 @@ namespace OfisYonetimSistemi.Models
         public ICollection<Expense> Expenses { get; set; } = new List<Expense>();
 
         public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
+
+        public ICollection<Apartment> Apartments { get; set; } = new List<Apartment>();
     }
 }

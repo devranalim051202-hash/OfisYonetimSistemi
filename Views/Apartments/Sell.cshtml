@@ -1,0 +1,65 @@
+@model OfisYonetimSistemi.Models.ViewModels.ApartmentSaleViewModel
+
+@{
+    ViewData["Title"] = "Daire Satis";
+    var apartment = ViewBag.Apartment as OfisYonetimSistemi.Models.Apartment;
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Apartments" asp-action="Details" asp-route-id="@Model.ApartmentId">Daireye don</a>
+        <p class="eyebrow">Daire Satis</p>
+        <h1>No @(apartment?.ApartmentNumber ?? "-") satisi</h1>
+        <p class="auth-help">Alici bilgileri kaydedilince daire satildi durumuna alinir ve sozlesme metni olusturulur.</p>
+
+        <form asp-controller="Apartments" asp-action="Sell" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ApartmentId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-12">
+                <label asp-for="BuyerFullName" class="form-label">Ad soyad</label>
+                <input asp-for="BuyerFullName" class="form-control">
+                <span asp-validation-for="BuyerFullName" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="BuyerIdentityNumber" class="form-label">TC kimlik / vergi no</label>
+                <input asp-for="BuyerIdentityNumber" class="form-control">
+                <span asp-validation-for="BuyerIdentityNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="BuyerPhone" class="form-label">Telefon</label>
+                <input asp-for="BuyerPhone" class="form-control">
+                <span asp-validation-for="BuyerPhone" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="BuyerAddress" class="form-label">Adres</label>
+                <textarea asp-for="BuyerAddress" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="BuyerAddress" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="SalePrice" class="form-label">Satis bedeli</label>
+                <input asp-for="SalePrice" type="number" step="0.01" class="form-control">
+                <span asp-validation-for="SalePrice" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="PaymentType" class="form-label">Odeme sekli</label>
+                <input asp-for="PaymentType" class="form-control" placeholder="Pesin, banka kredisi, taksitli...">
+                <span asp-validation-for="PaymentType" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Satisi Tamamla</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

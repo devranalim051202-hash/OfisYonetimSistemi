@@ -1,0 +1,36 @@
+@model OfisYonetimSistemi.Models.ViewModels.ContractEditViewModel
+
+@{
+    ViewData["Title"] = "Sozlesme Duzenle";
+    var apartment = ViewBag.Apartment as OfisYonetimSistemi.Models.Apartment;
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Apartments" asp-action="Details" asp-route-id="@Model.ApartmentId">Daireye don</a>
+        <p class="eyebrow">Satis Sozlesmesi</p>
+        <h1>No @(apartment?.ApartmentNumber ?? "-") sozlesmesi</h1>
+        <p class="auth-help">Sozlesme metnini Word belgesi mantigiyla duzenleyip kaydedin. Yazdirma islemi daire detay ekranindan yapilir.</p>
+
+        <form asp-controller="Apartments" asp-action="EditContract" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ApartmentId" />
+            <input type="hidden" asp-for="ApartmentSaleId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-12">
+                <label asp-for="ContractText" class="form-label">Sozlesme metni</label>
+                <textarea asp-for="ContractText" class="form-control" rows="32" style="font-family:Consolas, monospace;"></textarea>
+                <span asp-validation-for="ContractText" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Sozlesmeyi Kaydet</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

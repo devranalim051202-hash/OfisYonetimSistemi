@@ -1,0 +1,67 @@
+@model OfisYonetimSistemi.Models.Apartment
+
+@{
+    ViewData["Title"] = "Daire Duzenle";
+}
+
+<section class="form-page">
+    <div class="form-panel">
+        <a class="auth-back-link" asp-controller="Apartments" asp-action="Details" asp-route-id="@Model.Id">Daireye don</a>
+        <p class="eyebrow">Daire Bilgileri</p>
+        <h1>No @Model.ApartmentNumber</h1>
+        <p class="auth-help">Daire numarasi, kat, oda tipi, alan ve fiyat bilgisini guncelleyin.</p>
+
+        <form asp-controller="Apartments" asp-action="Edit" asp-route-id="@Model.Id" method="post" class="row g-3">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="ProjectId" />
+            <input type="hidden" asp-for="IsSold" />
+            <input type="hidden" asp-for="CreatedAt" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-6">
+                <label asp-for="FloorNumber" class="form-label">Kat numarasi</label>
+                <input asp-for="FloorNumber" type="number" class="form-control">
+                <span asp-validation-for="FloorNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="ApartmentNumber" class="form-label">Daire numarasi</label>
+                <input asp-for="ApartmentNumber" class="form-control">
+                <span asp-validation-for="ApartmentNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="RoomType" class="form-label">Oda tipi</label>
+                <input asp-for="RoomType" class="form-control" placeholder="1+1, 2+1, 3+1...">
+                <span asp-validation-for="RoomType" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Price" class="form-label">Fiyat</label>
+                <input asp-for="Price" type="number" step="0.01" class="form-control">
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="GrossArea" class="form-label">Brut alan</label>
+                <input asp-for="GrossArea" type="number" step="0.01" class="form-control">
+                <span asp-validation-for="GrossArea" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="NetArea" class="form-label">Net alan</label>
+                <input asp-for="NetArea" type="number" step="0.01" class="form-control">
+                <span asp-validation-for="NetArea" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Daireyi Guncelle</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
