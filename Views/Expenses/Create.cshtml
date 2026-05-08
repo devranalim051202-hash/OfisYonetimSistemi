@@ -9,9 +9,9 @@
         <div>
             <p class="eyebrow">Yeni Gider</p>
             <h1>Gider Ekle</h1>
-            <p>Proje, firma ve odeme bilgileriyle yeni gider kaydi olusturun.</p>
+            <p>Projeye alinan malzeme, miktar ve fiyat bilgisini kaydedin.</p>
         </div>
-        <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Giderlere Don</a>
+        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
     </div>
 
     <div class="table-panel">
@@ -20,7 +20,7 @@
             <partial name="_ExpenseForm" model="Model" />
             <div class="col-12 d-flex gap-2">
                 <button type="submit" class="btn btn-primary">Kaydet</button>
-                <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Iptal</a>
+                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
             </div>
         </form>
     </div>
@@ -28,4 +28,25 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        (() => {
+            const quantity = document.getElementById("Quantity");
+            const unitPrice = document.getElementById("UnitPrice");
+            const amount = document.getElementById("Amount");
+
+            const calculateAmount = () => {
+                const quantityValue = Number(quantity?.value || 0);
+                const unitPriceValue = Number(unitPrice?.value || 0);
+                const total = quantityValue * unitPriceValue;
+
+                if (amount) {
+                    amount.value = total > 0 ? total.toFixed(2) : "";
+                }
+            };
+
+            quantity?.addEventListener("input", calculateAmount);
+            unitPrice?.addEventListener("input", calculateAmount);
+            calculateAmount();
+        })();
+    </script>
 }

@@ -18,8 +18,10 @@
         <dl class="project-info-list">
             <dt>Proje</dt>
             <dd>@(Model.Project?.Name ?? "-")</dd>
-            <dt>Firma</dt>
-            <dd>@(Model.Company?.Name ?? "-")</dd>
+            <dt>Firma / tedarikci</dt>
+            <dd>@(Model.SupplierName ?? "-")</dd>
+            <dt>Miktar</dt>
+            <dd>@Model.Quantity.ToString("N2")</dd>
             <dt>Kaydeden kullanici</dt>
             <dd>@(Model.User?.FullName ?? "-")</dd>
             <dt>Odeme durumu</dt>
