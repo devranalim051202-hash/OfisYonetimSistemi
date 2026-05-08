@@ -1,0 +1,89 @@
+@model IEnumerable<OfisYonetimSistemi.Models.Expense>
+
+@{
+    ViewData["Title"] = "Giderler";
+    decimal totalExpenseAmount = ViewBag.TotalExpenseAmount ?? 0m;
+    decimal paidExpenseAmount = ViewBag.PaidExpenseAmount ?? 0m;
+    decimal pendingExpenseAmount = ViewBag.PendingExpenseAmount ?? 0m;
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Gider Yonetimi</p>
+            <h1>Giderler</h1>
+            <p>Proje bazli giderleri, firma baglantilarini ve odeme durumlarini takip edin.</p>
+        </div>
+        <a class="btn btn-primary" asp-controller="Expenses" asp-action="Create">Gider Ekle</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="dashboard-stats">
+        <div>
+            <span>@ViewBag.ExpenseCount</span>
+            <p>Gider kaydi</p>
+        </div>
+        <div>
+            <span>@totalExpenseAmount.ToString("N2")</span>
+            <p>Toplam gider</p>
+        </div>
+        <div>
+            <span>@paidExpenseAmount.ToString("N2")</span>
+            <p>Odenen</p>
+        </div>
+        <div>
+            <span>@pendingExpenseAmount.ToString("N2")</span>
+            <p>Bekleyen</p>
+        </div>
+    </div>
+
+    <div class="table-panel">
+        <div class="table-panel-header">
+            <h2>Gider listesi</h2>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Baslik</th>
+                        <th>Tur</th>
+                        <th>Proje</th>
+                        <th>Firma</th>
+                        <th>Kaydeden</th>
+                        <th>Tarih</th>
+                        <th>Durum</th>
+                        <th>Tutar</th>
+                        <th class="text-end">Islemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in Model)
+                    {
+                        <tr>
+                            <td>@expense.Title</td>
+                            <td>@expense.ExpenseType</td>
+                            <td>@(expense.Project?.Name ?? "-")</td>
+                            <td>@(expense.Company?.Name ?? "-")</td>
+                            <td>@(expense.User?.FullName ?? "-")</td>
+                            <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
+                            <td><span class="status-pill">@expense.PaymentStatus</span></td>
+                            <td>@expense.Amount.ToString("N2") TL</td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a class="btn btn-outline-primary" asp-controller="Expenses" asp-action="Details" asp-route-id="@expense.Id">Detay</a>
+                                    <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Edit" asp-route-id="@expense.Id">Duzenle</a>
+                                    <a class="btn btn-outline-danger" asp-controller="Expenses" asp-action="Delete" asp-route-id="@expense.Id">Sil</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

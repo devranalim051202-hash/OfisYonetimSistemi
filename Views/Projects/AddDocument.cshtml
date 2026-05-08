@@ -1,0 +1,51 @@
+@model OfisYonetimSistemi.Models.ViewModels.ProjectDocumentViewModel
+
+@{
+    var project = ViewBag.Project as OfisYonetimSistemi.Models.Project;
+    ViewData["Title"] = "Projeye Evrak Ekle";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Proje Evraki</p>
+            <h1>@project?.Name</h1>
+            <p>Projeye bagli fatura, fis, makbuz veya irsaliye kaydi olusturun.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
+    </div>
+
+    <div class="table-panel">
+        <form asp-action="AddDocument" method="post" enctype="multipart/form-data" class="row g-3">
+            <input type="hidden" asp-for="ProjectId">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-12">
+                <label asp-for="DocumentFile" class="form-label">PDF veya gorsel dosyasi</label>
+                <input asp-for="DocumentFile" type="file" accept=".pdf,image/*" class="form-control">
+                <span asp-validation-for="DocumentFile" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="DocumentNumber" class="form-label">Evrak no</label>
+                <input asp-for="DocumentNumber" class="form-control">
+                <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-12">
+                <label asp-for="Description" class="form-label">Aciklama</label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Evrak Ekle</button>
+                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

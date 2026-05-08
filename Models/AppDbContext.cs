@@ -36,9 +36,16 @@ namespace OfisYonetimSistemi.Models
                     CreatedAt = new DateTime(2026, 4, 30)
                 }
             );
+
+            modelBuilder.Entity<Expense>()
+                .HasOne(e => e.User)
+                .WithMany(u => u.Expenses)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public DbSet<Company> Companies { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Material> Materials { get; set; }
         public DbSet<Project> Projects { get; set; }

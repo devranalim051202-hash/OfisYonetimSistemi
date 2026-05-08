@@ -1,0 +1,31 @@
+@model OfisYonetimSistemi.Models.Expense
+
+@{
+    ViewData["Title"] = "Gider Ekle";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Yeni Gider</p>
+            <h1>Gider Ekle</h1>
+            <p>Proje, firma ve odeme bilgileriyle yeni gider kaydi olusturun.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Giderlere Don</a>
+    </div>
+
+    <div class="table-panel">
+        <form asp-action="Create" method="post" class="row g-3">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <partial name="_ExpenseForm" model="Model" />
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Iptal</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

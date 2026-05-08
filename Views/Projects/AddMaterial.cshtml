@@ -1,0 +1,61 @@
+@model OfisYonetimSistemi.Models.ViewModels.ProjectMaterialUsageViewModel
+
+@{
+    var project = ViewBag.Project as OfisYonetimSistemi.Models.Project;
+    ViewData["Title"] = "Projeye Malzeme Ekle";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Proje Malzemesi</p>
+            <h1>@project?.Name</h1>
+            <p>Projede kullanilan malzemeyi miktar ve gider tutariyla kaydedin.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
+    </div>
+
+    <div class="table-panel">
+        <form asp-action="AddMaterial" method="post" class="row g-3">
+            <input type="hidden" asp-for="ProjectId">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="col-md-6">
+                <label asp-for="MaterialId" class="form-label">Malzeme</label>
+                <select asp-for="MaterialId" asp-items="ViewBag.Materials" class="form-select">
+                    <option value="">Malzeme secin</option>
+                </select>
+                <span asp-validation-for="MaterialId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="CompanyId" class="form-label">Firma</label>
+                <select asp-for="CompanyId" asp-items="ViewBag.Companies" class="form-select">
+                    <option value="">Firma secilmedi</option>
+                </select>
+                <span asp-validation-for="CompanyId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Quantity" class="form-label">Miktar</label>
+                <input asp-for="Quantity" type="number" step="0.01" min="0.01" class="form-control">
+                <span asp-validation-for="Quantity" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="UnitPrice" class="form-label">Birim fiyat</label>
+                <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="form-control">
+                <span asp-validation-for="UnitPrice" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Malzeme Ekle</button>
+                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
