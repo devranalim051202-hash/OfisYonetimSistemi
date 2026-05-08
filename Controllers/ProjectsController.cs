@@ -101,6 +101,8 @@ public class ProjectsController : Controller
             ModelState.AddModelError(nameof(project.Status), "Gecerli bir proje durumu secin.");
         }
 
+        ValidateProjectDates(project);
+
         if (!ModelState.IsValid)
         {
             FillStatuses(project.Status);
@@ -152,6 +154,8 @@ public class ProjectsController : Controller
         {
             ModelState.AddModelError(nameof(project.Status), "Gecerli bir proje durumu secin.");
         }
+
+        ValidateProjectDates(project);
 
         if (!ModelState.IsValid)
         {
@@ -435,6 +439,14 @@ public class ProjectsController : Controller
     private void FillStatuses(string? selectedStatus = null)
     {
         ViewBag.Statuses = new SelectList(ProjectStatuses, selectedStatus);
+    }
+
+    private void ValidateProjectDates(Project project)
+    {
+        if (project.EndDate.HasValue && project.EndDate.Value.Date < project.StartDate.Date)
+        {
+            ModelState.AddModelError(nameof(project.EndDate), "Bitis tarihi baslangic tarihinden once olamaz.");
+        }
     }
 
     private async Task FillProjectMaterialFormAsync(Project project, int? materialId = null, int? companyId = null)
