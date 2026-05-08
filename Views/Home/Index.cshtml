@@ -2,77 +2,148 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
-<section class="landing-hero">
-    <div class="landing-hero-overlay"></div>
-    <div class="landing-hero-content">
-        <p class="eyebrow">İnşaat Ofis Yönetimi</p>
-        <h1>Ofis, malzeme ve evrak takibini tek sistemde toplayın</h1>
+<section class="premium-hero">
+    <div class="hero-slider">
+        <span style="background-image:url('/images/landing/hero-1.png')"></span>
+        <span style="background-image:url('/images/landing/hero-2.png')"></span>
+        <span style="background-image:url('/images/landing/hero-3.png')"></span>
+        <span style="background-image:url('/images/landing/hero-4.png')"></span>
+        <span style="background-image:url('/images/landing/hero-5.png')"></span>
+    </div>
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-content">
+        <p class="eyebrow">Premium İnşaat ERP Sistemi</p>
+
+        <h1>Projelerinizi, stoklarınızı ve evrak süreçlerinizi tek merkezden yönetin.</h1>
+
         <p class="hero-text">
-            Proje bazlı malzeme takibi, firma kayıtları, stok hareketleri, fatura ve irsaliye yönetimi için sade ve kullanışlı bir ofis otomasyon sistemi.
+            İnşaat ofisleri için geliştirilen modern yönetim sistemiyle; proje takibi,
+            malzeme hareketleri, firma kayıtları, fatura ve irsaliye süreçlerini
+            güçlü, düzenli ve kurumsal bir yapıya taşıyın.
         </p>
+
         <div class="hero-actions">
-            <a class="btn btn-primary btn-lg" asp-controller="Account" asp-action="Login">Giriş Yap</a>
-            <a class="btn btn-light btn-lg" asp-controller="Account" asp-action="Register">Üye Ol</a>
+            <a class="premium-btn primary" asp-controller="Account" asp-action="Login">Sisteme Giriş Yap</a>
+            <a class="premium-btn secondary" asp-controller="Account" asp-action="Register">Hemen Üye Ol</a>
+        </div>
+
+        <div class="hero-stats">
+            <div>
+                <strong>360°</strong>
+                <span>Ofis Yönetimi</span>
+            </div>
+            <div>
+                <strong>ERP</strong>
+                <span>Kurumsal Altyapı</span>
+            </div>
+            <div>
+                <strong>Tek Panel</strong>
+                <span>Proje & Stok Takibi</span>
+            </div>
         </div>
     </div>
 </section>
 
-<section class="intro-section">
-    <div>
-        <p class="eyebrow">Bu Sistem Ne İşe Yarar?</p>
-        <h2>İnşaat ofisindeki dağınık kayıtları düzenli bir yapıya çevirir.</h2>
-    </div>
+<section class="premium-intro">
+    <p class="eyebrow">Akıllı Yönetim Deneyimi</p>
+    <h2>Dağınık Excel dosyaları, kağıt fişler ve sözlü takip yerine profesyonel bir sistem.</h2>
     <p>
-        Kağıt fişler, Excel dosyaları ve sözlü takip yerine; hangi projeye hangi malzeme alındı, hangi firmadan ne geldi, stokta ne kadar kaldı ve evraklar nereye bağlı gibi bilgileri tek merkezden yönetmeyi sağlar.
+        Hangi projeye hangi malzeme alındı, hangi firmadan ne geldi, stokta ne kaldı,
+        hangi evrak hangi projeye ait; tüm kritik bilgiler tek ekrandan takip edilir.
     </p>
 </section>
 
-<section class="feature-grid" aria-label="Öne çıkan özellikler">
-    <article class="feature-card">
-        <span class="feature-number">01</span>
-        <h2>Proje Bazlı Takip</h2>
-        <p>Her gider, malzeme hareketi ve evrak ilgili projeye bağlanır.</p>
+<section class="premium-grid">
+    <article class="premium-card">
+        <span>01</span>
+        <h3>Proje Bazlı Yönetim</h3>
+        <p>Giderleri, malzemeleri ve evrakları doğrudan ilgili projeye bağlayın.</p>
     </article>
 
-    <article class="feature-card">
-        <span class="feature-number">02</span>
-        <h2>Malzeme ve Stok</h2>
-        <p>Çimento, demir, boya ve benzeri malzemelerin stok giriş-çıkışları izlenir.</p>
+    <article class="premium-card">
+        <span>02</span>
+        <h3>Stok Hareketleri</h3>
+        <p>Giriş, çıkış ve mevcut stok bilgilerini kontrollü şekilde yönetin.</p>
     </article>
 
-    <article class="feature-card">
-        <span class="feature-number">03</span>
-        <h2>Firma Kayıtları</h2>
-        <p>Tedarikçilerin iletişim, adres ve vergi bilgileri düzenli tutulur.</p>
+    <article class="premium-card">
+        <span>03</span>
+        <h3>Firma & Tedarikçi</h3>
+        <p>Tedarikçi bilgilerini, iletişim ve vergi kayıtlarını düzenli tutun.</p>
     </article>
 
-    <article class="feature-card">
-        <span class="feature-number">04</span>
-        <h2>Fatura ve İrsaliye</h2>
-        <p>Fiş, fatura ve irsaliye kayıtları proje ve firma bilgileriyle saklanır.</p>
+    <article class="premium-card">
+        <span>04</span>
+        <h3>Fatura & İrsaliye</h3>
+        <p>Evrak süreçlerini proje ve firma bilgileriyle ilişkilendirin.</p>
     </article>
 </section>
 
-<section class="audience-band">
+<section class="premium-band">
     <div>
-        <p class="eyebrow">Kimler Kullanır?</p>
-        <h2>Müteahhit ofisleri, küçük inşaat ekipleri ve proje takibi yapan işletmeler için tasarlandı.</h2>
+        <p class="eyebrow">Kimler İçin?</p>
+        <h2>Müteahhit ofisleri, muhasebe ekipleri ve proje sorumluları için tasarlandı.</h2>
     </div>
-    <div class="audience-list">
+
+    <div class="premium-tags">
         <span>Müteahhitler</span>
-        <span>Muhasebe ekibi</span>
-        <span>Ofis personeli</span>
-        <span>Proje sorumluları</span>
+        <span>Muhasebe Ekibi</span>
+        <span>Ofis Personeli</span>
+        <span>Proje Sorumluları</span>
     </div>
 </section>
 
-<section class="cta-section">
-    <div>
-        <h2>Projeyi kullanmaya başlayın</h2>
-        <p>Hesabınıza giriş yaparak kayıtları yönetebilir ya da yeni kullanıcı hesabı oluşturabilirsiniz.</p>
+<section class="premium-cta">
+    <h2>Ofis yönetimini daha profesyonel hale getirin.</h2>
+    <p>Hesabınıza giriş yapın veya yeni kullanıcı oluşturarak sistemi kullanmaya başlayın.</p>
+
+    <div class="hero-actions">
+        <a class="premium-btn primary" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+        <a class="premium-btn secondary" asp-controller="Account" asp-action="Register">Üye Ol</a>
     </div>
-    <div class="cta-actions">
-        <a class="btn btn-primary" asp-controller="Account" asp-action="Login">Giriş Yap</a>
-        <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Register">Üye Ol</a>
+</section>
+
+<section class="faq-section">
+    <div class="faq-header">
+        <p class="eyebrow">Sıkça Sorulan Sorular</p>
+        <h2>OfisYonetim ERP hakkında merak edilenler</h2>
+        <p>
+            İnşaat ofisleri için geliştirilen bu sistemin proje, stok, firma ve evrak
+            yönetiminde nasıl avantaj sağladığını inceleyin.
+        </p>
+    </div>
+
+    <div class="faq-container">
+        <details class="faq-item">
+            <summary>OfisYonetim ERP sistemi ne işe yarar?</summary>
+            <p>Proje takibi, stok hareketleri, firma kayıtları, fatura ve irsaliye süreçlerini tek panelden yönetmenizi sağlar.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Bu sistem hangi işletmeler için uygundur?</summary>
+            <p>Müteahhit ofisleri, küçük ve orta ölçekli inşaat firmaları, muhasebe ekipleri ve proje sorumluları için uygundur.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Malzeme ve stok takibi yapılabilir mi?</summary>
+            <p>Evet. Malzeme giriş-çıkışları, mevcut stok miktarı ve hangi projeye ne kadar malzeme kullanıldığı takip edilebilir.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Fatura ve irsaliyeler projelere bağlanabilir mi?</summary>
+            <p>Evet. Evrak kayıtları ilgili proje, firma ve malzeme hareketleriyle ilişkilendirilerek düzenli şekilde saklanabilir.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Birden fazla kullanıcı sistemi kullanabilir mi?</summary>
+            <p>Evet. Yönetici, muhasebe, personel ve proje sorumlusu gibi farklı rollerle kullanıcı yönetimi yapılabilir.</p>
+        </details>
+
+        <details class="faq-item">
+            <summary>Sistem ileride geliştirilebilir mi?</summary>
+            <p>Evet. Modüler yapısı sayesinde raporlama, gider yönetimi, yetkilendirme ve yeni ERP modülleri sonradan eklenebilir.</p>
+        </details>
     </div>
 </section>
