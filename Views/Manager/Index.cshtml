@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Mudur Paneli";
+    var recentLogs = ViewBag.RecentActivityLogs as IEnumerable<OfisYonetimSistemi.Models.ActivityLog> ?? Enumerable.Empty<OfisYonetimSistemi.Models.ActivityLog>();
 }
 
 <section class="dashboard-page">
@@ -11,7 +12,10 @@
             <h1>Mudur ana sayfasi</h1>
             <p>Personel hesaplarini buradan olusturabilir ve sistemdeki temel kayitlari takip edebilirsiniz.</p>
         </div>
-        <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+        <div class="hero-actions">
+            <a class="btn btn-outline-secondary" asp-controller="ActivityLogs" asp-action="Index">Tum Islemler</a>
+            <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -36,6 +40,59 @@
             <span>@ViewBag.ExpenseCount</span>
             <p>Gider</p>
         </div>
+    </div>
+
+    <div class="premium-list-panel">
+        <div class="premium-list-header">
+            <div>
+                <span class="premium-panel-label">Denetim</span>
+                <h2>Son islemler</h2>
+            </div>
+            <a class="btn btn-outline-primary btn-sm" asp-controller="ActivityLogs" asp-action="Index">Tumunu Gor</a>
+        </div>
+
+        @if (!recentLogs.Any())
+        {
+            <div class="premium-empty-state">
+                <span>i</span>
+                <h3>Henuz islem logu yok</h3>
+                <p>Proje, gider, evrak, satis veya giris islemleri yapildikca burada gorunecek.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Tarih</th>
+                            <th>Kullanici</th>
+                            <th>Modul</th>
+                            <th>Islem</th>
+                            <th>Durum</th>
+                            <th>Aciklama</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var log in recentLogs)
+                        {
+                            <tr>
+                                <td>@log.CreatedAt.ToString("dd.MM HH:mm")</td>
+                                <td>@log.UserFullName</td>
+                                <td>@log.ModuleName</td>
+                                <td>@log.Action</td>
+                                <td>
+                                    <span class="status-pill @(log.IsSuccessful ? "" : "status-danger")">
+                                        @(log.IsSuccessful ? "Basarili" : "Basarisiz")
+                                    </span>
+                                </td>
+                                <td>@log.Description</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 
     <div class="premium-list-panel">

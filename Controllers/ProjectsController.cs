@@ -3,12 +3,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
 
 public class ProjectsController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly ActivityLogService _activityLogService;
 
     private static readonly string[] ProjectStatuses =
     {
@@ -24,9 +26,10 @@ public class ProjectsController : Controller
         "Gorsel"
     };
 
-    public ProjectsController(AppDbContext context)
+    public ProjectsController(AppDbContext context, ActivityLogService activityLogService)
     {
         _context = context;
+        _activityLogService = activityLogService;
     }
 
     public async Task<IActionResult> Index()
@@ -116,6 +119,7 @@ public class ProjectsController : Controller
 
         _context.Projects.Add(project);
         await _context.SaveChangesAsync();
+        await _activityLogService.LogAsync("Ekleme", "Projeler", project.Id, $"{project.Name} projesi olusturuldu.");
 
         if (project.ApartmentCount > 0)
         {
@@ -423,6 +427,7 @@ public class ProjectsController : Controller
 
         _context.Invoices.Add(invoice);
         await _context.SaveChangesAsync();
+        await _activityLogService.LogAsync("EvrakYukleme", "Evraklar", invoice.Id, $"{project.Name} projesine evrak yuklendi: {invoice.DocumentNumber}");
 
         TempData["SuccessMessage"] = "Projeye evrak eklendi.";
         return RedirectToAction(nameof(Details), new { id = model.ProjectId });
@@ -459,6 +464,7 @@ public class ProjectsController : Controller
     {
         if (!IsManager())
         {
+            await _activityLogService.LogAsync("YetkisizDeneme", "Daireler", projectId, "Daire oda tipi toplu guncelleme yetkisiz denendi.", false);
             return RedirectToAction("Login", "Account");
         }
 

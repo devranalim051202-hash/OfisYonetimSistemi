@@ -60,8 +60,15 @@ namespace OfisYonetimSistemi.Models
                 .WithMany()
                 .HasForeignKey(l => l.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ActivityLog>()
+                .HasOne(l => l.User)
+                .WithMany()
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
 
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
         public DbSet<ChatBotLog> ChatBotLogs { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Expense> Expenses { get; set; }

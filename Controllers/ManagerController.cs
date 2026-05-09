@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
 
 public class ManagerController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly ActivityLogService _activityLogService;
 
-    public ManagerController(AppDbContext context)
+    public ManagerController(AppDbContext context, ActivityLogService activityLogService)
     {
         _context = context;
+        _activityLogService = activityLogService;
     }
 
     public async Task<IActionResult> Index()
@@ -26,6 +29,10 @@ public class ManagerController : Controller
         ViewBag.ProjectCount = await _context.Projects.CountAsync();
         ViewBag.InvoiceCount = await _context.Invoices.CountAsync();
         ViewBag.ExpenseCount = await _context.Expenses.CountAsync();
+        ViewBag.RecentActivityLogs = await _context.ActivityLogs
+            .OrderByDescending(l => l.CreatedAt)
+            .Take(8)
+            .ToListAsync();
 
         var users = await _context.Users
             .Include(u => u.Role)
@@ -40,6 +47,7 @@ public class ManagerController : Controller
     {
         if (!IsManager())
         {
+            await _activityLogService.LogAsync("YetkisizDeneme", "Personeller", null, "Personel olusturma sayfasina yetkisiz erisim denendi.", false);
             return RedirectToAction("Login", "Account");
         }
 
@@ -53,6 +61,7 @@ public class ManagerController : Controller
     {
         if (!IsManager())
         {
+            await _activityLogService.LogAsync("YetkisizDeneme", "Personeller", null, "Personel olusturma islemi yetkisiz denendi.", false);
             return RedirectToAction("Login", "Account");
         }
 
@@ -82,6 +91,7 @@ public class ManagerController : Controller
 
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
+        await _activityLogService.LogAsync("Ekleme", "Personeller", user.Id, $"{user.FullName} personel hesabi olusturuldu.");
 
         TempData["SuccessMessage"] = "Personel hesabi olusturuldu.";
         return RedirectToAction(nameof(Index));

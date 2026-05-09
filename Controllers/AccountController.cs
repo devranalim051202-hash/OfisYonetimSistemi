@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Services;
 using System.Text.Json;
 
 namespace OfisYonetimSistemi.Controllers;
@@ -9,10 +10,12 @@ namespace OfisYonetimSistemi.Controllers;
 public class AccountController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly ActivityLogService _activityLogService;
 
-    public AccountController(AppDbContext context)
+    public AccountController(AppDbContext context, ActivityLogService activityLogService)
     {
         _context = context;
+        _activityLogService = activityLogService;
     }
 
     public IActionResult Login()
@@ -36,9 +39,11 @@ public class AccountController : Controller
         if (user?.Role?.Name == "Admin" || user?.Role?.Name == "Mudur")
         {
             SetSession(user);
+            await _activityLogService.LogLoginAsync(user, "Giris", "Admin/Mudur girisi yapildi.", true);
             return RedirectToAction("Index", "Manager");
         }
 
+        await _activityLogService.LogLoginAsync(user, "GirisDenemesi", $"Basarisiz admin/mudur girisi: {email}", false);
         ViewBag.Message = "Admin veya mudur hesabi bulunamadi.";
         return View();
     }
@@ -59,15 +64,18 @@ public class AccountController : Controller
         if (user?.Role?.Name != null && user.Role.Name != "Admin" && user.Role.Name != "Mudur")
         {
             SetSession(user);
+            await _activityLogService.LogLoginAsync(user, "Giris", "Personel girisi yapildi.", true);
             return RedirectToAction("Index", "Personnel");
         }
 
+        await _activityLogService.LogLoginAsync(user, "GirisDenemesi", $"Basarisiz personel girisi: {email}", false);
         ViewBag.Message = "Calisan hesabi bulunamadi.";
         return View();
     }
 
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
+        await _activityLogService.LogAsync("Cikis", "Oturum", HttpContext.Session.GetInt32("UserId"), "Kullanici sistemden cikis yapti.");
         HttpContext.Session.Clear();
         return RedirectToAction("Index", "Home");
     }

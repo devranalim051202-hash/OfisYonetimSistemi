@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
+using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
 
 public class ExpensesController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly ActivityLogService _activityLogService;
 
-    public ExpensesController(AppDbContext context)
+    public ExpensesController(AppDbContext context, ActivityLogService activityLogService)
     {
         _context = context;
+        _activityLogService = activityLogService;
     }
 
     public IActionResult Index()
@@ -115,6 +118,7 @@ public class ExpensesController : Controller
 
         _context.Expenses.Add(expense);
         await _context.SaveChangesAsync();
+        await _activityLogService.LogAsync("Ekleme", "Giderler", expense.Id, $"{expense.Title} gideri eklendi. Tutar: {expense.Amount:N2} TL");
 
         TempData["SuccessMessage"] = "Gider kaydi olusturuldu.";
         if (expense.ProjectId.HasValue)
