@@ -1,4 +1,4 @@
-@model OfisYonetimSistemi.Models.Project
+@model OfisYonetimSistemi.Models.ViewModels.ProjectFormViewModel
 
 <div class="col-md-8">
     <label asp-for="Name" class="form-label">Proje adi</label>
@@ -46,4 +46,46 @@
     <label asp-for="Description" class="form-label">Aciklama</label>
     <textarea asp-for="Description" class="form-control" rows="4"></textarea>
     <span asp-validation-for="Description" class="text-danger"></span>
+</div>
+
+@if (Model.ExistingImages.Any())
+{
+    <div class="col-md-12">
+        <label class="form-label">Mevcut proje gorselleri</label>
+        <div class="row g-3">
+            @foreach (var image in Model.ExistingImages)
+            {
+                <div class="col-md-4">
+                    <div class="border rounded p-2 h-100">
+                        <img src="@image.FilePath" alt="@image.OriginalFileName" class="img-fluid rounded mb-2" style="height: 140px; width: 100%; object-fit: cover;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" asp-for="CoverImageId" value="@image.Id" id="cover_@image.Id">
+                            <label class="form-check-label" for="cover_@image.Id">Kapak gorseli</label>
+                        </div>
+                        <button type="submit"
+                                class="btn btn-outline-danger btn-sm mt-2"
+                                formaction="@Url.Action("DeleteImage", "Projects", new { id = image.Id })"
+                                formmethod="post">
+                            Sil
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+        <span asp-validation-for="CoverImageId" class="text-danger"></span>
+    </div>
+}
+
+<div class="col-md-12">
+    <label asp-for="ProjectImages" class="form-label">Proje gorselleri</label>
+    <input asp-for="ProjectImages" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="form-control">
+    <div class="form-text">JPG, PNG veya WEBP dosyasi yukleyin. Her dosya en fazla 5 MB olabilir.</div>
+    <span asp-validation-for="ProjectImages" class="text-danger"></span>
+</div>
+
+<div class="col-md-12">
+    <div class="form-check">
+        <input asp-for="MakeFirstImageCover" class="form-check-input">
+        <label asp-for="MakeFirstImageCover" class="form-check-label">Yuklenen ilk gorseli kapak yap</label>
+    </div>
 </div>

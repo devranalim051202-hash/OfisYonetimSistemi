@@ -11,6 +11,8 @@ public class ProjectsController : Controller
 {
     private readonly AppDbContext _context;
     private readonly ActivityLogService _activityLogService;
+    private readonly IProjectImageService _projectImageService;
+    private readonly ILogger<ProjectsController> _logger;
 
     private static readonly string[] ProjectStatuses =
     {
@@ -26,10 +28,16 @@ public class ProjectsController : Controller
         "Gorsel"
     };
 
-    public ProjectsController(AppDbContext context, ActivityLogService activityLogService)
+    public ProjectsController(
+        AppDbContext context,
+        ActivityLogService activityLogService,
+        IProjectImageService projectImageService,
+        ILogger<ProjectsController> logger)
     {
         _context = context;
         _activityLogService = activityLogService;
+        _projectImageService = projectImageService;
+        _logger = logger;
     }
 
     public async Task<IActionResult> Index()
@@ -40,6 +48,7 @@ public class ProjectsController : Controller
         }
 
         var projects = await _context.Projects
+            .Include(p => p.ProjectImages)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
 
@@ -66,6 +75,7 @@ public class ProjectsController : Controller
                 .ThenInclude(e => e.User)
             .Include(p => p.Apartments)
                 .ThenInclude(a => a.Sale)
+            .Include(p => p.ProjectImages)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (project == null)
@@ -89,37 +99,53 @@ public class ProjectsController : Controller
         }
 
         FillStatuses();
-        return View(new Project { StartDate = DateTime.Today });
+        return View(new ProjectFormViewModel { StartDate = DateTime.Today });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Project project)
+    public async Task<IActionResult> Create(ProjectFormViewModel model)
     {
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
         }
 
-        if (!ProjectStatuses.Contains(project.Status))
+        if (!ProjectStatuses.Contains(model.Status))
         {
-            ModelState.AddModelError(nameof(project.Status), "Gecerli bir proje durumu secin.");
+            ModelState.AddModelError(nameof(model.Status), "Gecerli bir proje durumu secin.");
         }
 
-        ValidateProjectDates(project);
-        ValidateApartmentPlan(project);
+        ValidateProjectDates(model);
+        ValidateApartmentPlan(model);
 
         if (!ModelState.IsValid)
         {
-            FillStatuses(project.Status);
-            return View(project);
+            FillStatuses(model.Status);
+            return View(model);
         }
 
+        var project = model.ToProject();
         project.CreatedAt = DateTime.Now;
 
-        _context.Projects.Add(project);
-        await _context.SaveChangesAsync();
-        await _activityLogService.LogAsync("Ekleme", "Projeler", project.Id, $"{project.Name} projesi olusturuldu.");
+        try
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            _context.Projects.Add(project);
+            await _context.SaveChangesAsync();
+
+            await _projectImageService.AddImagesAsync(project.Id, model.ProjectImages, model.MakeFirstImageCover);
+            await _activityLogService.LogAsync("Ekleme", "Projeler", project.Id, $"{project.Name} projesi olusturuldu.");
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Project could not be created with images.");
+            ModelState.AddModelError(string.Empty, "Proje kaydi olusturulurken hata olustu.");
+            FillStatuses(model.Status);
+            return View(model);
+        }
 
         if (project.ApartmentCount > 0)
         {
@@ -137,7 +163,9 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        var project = await _context.Projects.FindAsync(id);
+        var project = await _context.Projects
+            .Include(p => p.ProjectImages)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
         if (project == null)
         {
@@ -145,54 +173,73 @@ public class ProjectsController : Controller
         }
 
         FillStatuses(project.Status);
-        return View(project);
+        return View(ProjectFormViewModel.FromProject(project));
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, Project project)
+    public async Task<IActionResult> Edit(int id, ProjectFormViewModel model)
     {
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
         }
 
-        if (id != project.Id)
+        if (id != model.Id)
         {
             return NotFound();
         }
 
-        if (!ProjectStatuses.Contains(project.Status))
+        if (!ProjectStatuses.Contains(model.Status))
         {
-            ModelState.AddModelError(nameof(project.Status), "Gecerli bir proje durumu secin.");
+            ModelState.AddModelError(nameof(model.Status), "Gecerli bir proje durumu secin.");
         }
 
-        ValidateProjectDates(project);
-        ValidateApartmentPlan(project);
+        ValidateProjectDates(model);
+        ValidateApartmentPlan(model);
 
         if (!ModelState.IsValid)
         {
-            FillStatuses(project.Status);
-            return View(project);
+            FillStatuses(model.Status);
+            await FillExistingImagesAsync(model);
+            return View(model);
         }
 
-        var existingProject = await _context.Projects.FindAsync(id);
+        var existingProject = await _context.Projects
+            .Include(p => p.ProjectImages)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
         if (existingProject == null)
         {
             return NotFound();
         }
 
-        existingProject.Name = project.Name;
-        existingProject.Description = project.Description;
-        existingProject.Location = project.Location;
-        existingProject.StartDate = project.StartDate;
-        existingProject.EndDate = project.EndDate;
-        existingProject.Status = project.Status;
-        existingProject.FloorCount = project.FloorCount;
-        existingProject.ApartmentCount = project.ApartmentCount;
+        existingProject.Name = model.Name;
+        existingProject.Description = model.Description;
+        existingProject.Location = model.Location;
+        existingProject.StartDate = model.StartDate;
+        existingProject.EndDate = model.EndDate;
+        existingProject.Status = model.Status;
+        existingProject.FloorCount = model.FloorCount;
+        existingProject.ApartmentCount = model.ApartmentCount;
 
-        await _context.SaveChangesAsync();
+        try
+        {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            await _context.SaveChangesAsync();
+            await _projectImageService.SetCoverImageAsync(existingProject.Id, model.CoverImageId);
+            await _projectImageService.AddImagesAsync(existingProject.Id, model.ProjectImages, model.MakeFirstImageCover);
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Project {ProjectId} could not be updated with images.", existingProject.Id);
+            ModelState.AddModelError(string.Empty, "Proje kaydi guncellenirken hata olustu.");
+            FillStatuses(model.Status);
+            await FillExistingImagesAsync(model);
+            return View(model);
+        }
 
         if (existingProject.ApartmentCount > 0)
         {
@@ -235,6 +282,7 @@ public class ProjectsController : Controller
             .Include(p => p.Invoices)
             .Include(p => p.Expenses)
             .Include(p => p.Apartments)
+            .Include(p => p.ProjectImages)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (project == null)
@@ -248,11 +296,51 @@ public class ProjectsController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        _context.Projects.Remove(project);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _projectImageService.DeleteImagesForProjectAsync(project.Id);
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Project {ProjectId} could not be deleted with images.", project.Id);
+            TempData["ErrorMessage"] = "Proje silinirken hata olustu.";
+            return RedirectToAction(nameof(Index));
+        }
 
         TempData["SuccessMessage"] = "Proje kaydi silindi.";
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteImage(int id)
+    {
+        if (!IsLoggedIn())
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var image = await _context.ProjectImages.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id);
+
+        if (image == null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            await _projectImageService.DeleteImageAsync(id);
+            TempData["SuccessMessage"] = "Proje gorseli silindi.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Project image {ProjectImageId} could not be deleted.", id);
+            TempData["ErrorMessage"] = "Proje gorseli silinirken hata olustu.";
+        }
+
+        return RedirectToAction(nameof(Edit), new { id = image.ProjectId });
     }
 
     public async Task<IActionResult> AddMaterial(int projectId)
@@ -519,7 +607,7 @@ public class ProjectsController : Controller
         ViewBag.Statuses = new SelectList(ProjectStatuses, selectedStatus);
     }
 
-    private void ValidateProjectDates(Project project)
+    private void ValidateProjectDates(ProjectFormViewModel project)
     {
         if (project.EndDate.HasValue && project.EndDate.Value.Date < project.StartDate.Date)
         {
@@ -527,7 +615,7 @@ public class ProjectsController : Controller
         }
     }
 
-    private void ValidateApartmentPlan(Project project)
+    private void ValidateApartmentPlan(ProjectFormViewModel project)
     {
         if (project.ApartmentCount > 0 && project.FloorCount <= 0)
         {
@@ -584,6 +672,15 @@ public class ProjectsController : Controller
         ViewBag.Project = project;
         ViewBag.Materials = new SelectList(materials, "Id", "Name", materialId);
         ViewBag.Companies = new SelectList(companies, "Id", "Name", companyId);
+    }
+
+    private async Task FillExistingImagesAsync(ProjectFormViewModel model)
+    {
+        model.ExistingImages = await _context.ProjectImages
+            .Where(i => i.ProjectId == model.Id)
+            .OrderByDescending(i => i.IsCover)
+            .ThenBy(i => i.CreatedAt)
+            .ToListAsync();
     }
 
     private static bool IsAllowedProjectDocument(IFormFile file)

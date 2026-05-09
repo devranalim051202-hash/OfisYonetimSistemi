@@ -13,6 +13,9 @@ builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<ChatBotCommandService>();
+builder.Services.AddScoped<IProjectImageRepository, ProjectImageRepository>();
+builder.Services.AddScoped<IProjectFileStorageService, ProjectFileStorageService>();
+builder.Services.AddScoped<IProjectImageService, ProjectImageService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 

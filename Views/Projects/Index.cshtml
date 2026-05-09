@@ -48,8 +48,13 @@
                 @foreach (var project in Model)
                 {
                     var finishDate = project.EndDate?.ToString("dd.MM.yyyy") ?? "Devam ediyor";
+                    var coverImage = project.ProjectImages.FirstOrDefault(i => i.IsCover) ?? project.ProjectImages.FirstOrDefault();
                     <article class="project-card">
                         <div class="project-card-glow"></div>
+                        @if (coverImage != null)
+                        {
+                            <img src="@coverImage.FilePath" alt="@project.Name" class="img-fluid rounded mb-3" style="height: 180px; width: 100%; object-fit: cover;">
+                        }
                         <div class="project-card-top">
                             <span class="project-monogram">@project.Name.Substring(0, 1).ToUpper()</span>
                             <span class="status-pill premium-status">@project.Status</span>

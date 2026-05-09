@@ -1,4 +1,4 @@
-@model OfisYonetimSistemi.Models.Project
+@model OfisYonetimSistemi.Models.ViewModels.ProjectFormViewModel
 
 @{
     ViewData["Title"] = "Proje Ekle";
@@ -11,7 +11,7 @@
         <h1>Proje ekle</h1>
         <p class="auth-help">Yeni proje kaydi olusturun. Malzeme, gider ve evrak kayitlari daha sonra bu projeye baglanacak.</p>
 
-        <form asp-controller="Projects" asp-action="Create" method="post" class="row g-3">
+        <form asp-controller="Projects" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 

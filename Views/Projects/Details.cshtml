@@ -87,6 +87,11 @@
             <div class="table-panel-header">
                 <h2>Proje ozeti</h2>
             </div>
+            @if (Model.ProjectImages.Any())
+            {
+                var coverImage = Model.ProjectImages.FirstOrDefault(i => i.IsCover) ?? Model.ProjectImages.First();
+                <img src="@coverImage.FilePath" alt="@Model.Name" class="img-fluid rounded mb-3" style="max-height: 360px; width: 100%; object-fit: cover;">
+            }
             <dl class="project-info-list">
                 <dt>Proje adi</dt>
                 <dd>@Model.Name</dd>
