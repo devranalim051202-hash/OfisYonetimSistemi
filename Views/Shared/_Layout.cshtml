@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+@inject IConfiguration Configuration
 @{
     var roleName = Context.Session.GetString("RoleName");
     var fullName = Context.Session.GetString("FullName");
@@ -138,6 +139,27 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @{
+        var tawkEnabled = Configuration.GetValue<bool>("TawkTo:Enabled");
+        var tawkPropertyId = Configuration["TawkTo:PropertyId"];
+        var tawkWidgetId = Configuration["TawkTo:WidgetId"];
+    }
+    @if (tawkEnabled && !string.IsNullOrWhiteSpace(tawkPropertyId) && !string.IsNullOrWhiteSpace(tawkWidgetId))
+    {
+        <script>
+            var Tawk_API = Tawk_API || {};
+            var Tawk_LoadStart = new Date();
+            (function () {
+                var s1 = document.createElement("script");
+                var s0 = document.getElementsByTagName("script")[0];
+                s1.async = true;
+                s1.src = "https://embed.tawk.to/@tawkPropertyId/@tawkWidgetId";
+                s1.charset = "UTF-8";
+                s1.setAttribute("crossorigin", "*");
+                s0.parentNode.insertBefore(s1, s0);
+            })();
+        </script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

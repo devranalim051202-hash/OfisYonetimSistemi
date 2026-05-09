@@ -11,7 +11,7 @@
             <h1>@Model.Title</h1>
             <p>Bu gider kaydini silmek istediginize emin misiniz?</p>
         </div>
-        <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Giderlere Don</a>
+        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
     </div>
 
     <div class="table-panel">
@@ -32,7 +32,7 @@
 
         <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex gap-2">
             <button type="submit" class="btn btn-danger">Sil</button>
-            <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Iptal</a>
+            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
         </form>
     </div>
 </section>

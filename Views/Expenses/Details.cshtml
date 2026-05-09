@@ -9,10 +9,10 @@
         <div>
             <p class="eyebrow">Gider Detay</p>
             <h1>@Model.Title</h1>
-            <p>@(Model.Description ?? "Bu gider icin aciklama girilmemis.")</p>
+            <p>@Model.Description</p>
         </div>
         <div class="hero-actions">
-            <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Giderlere Don</a>
+            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
             <a class="btn btn-primary" asp-controller="Expenses" asp-action="Edit" asp-route-id="@Model.Id">Duzenle</a>
         </div>
     </div>
@@ -45,19 +45,28 @@
                 <dt>Proje</dt>
                 <dd>@(Model.Project?.Name ?? "-")</dd>
                 <dt>Firma / tedarikci</dt>
-                <dd>@(Model.SupplierName ?? "-")</dd>
+                <dd>@Model.SupplierName</dd>
                 <dt>Miktar</dt>
                 <dd>@Model.Quantity.ToString("N2")</dd>
                 <dt>Birim fiyat</dt>
                 <dd>@Model.UnitPrice.ToString("N2") TL</dd>
                 <dt>Kaydeden kullanici</dt>
                 <dd>@(Model.User?.FullName ?? "-")</dd>
-                <dt>Belge numarasi</dt>
-                <dd>@(Model.DocumentNumber ?? "-")</dd>
+                <dt>Fis / belge</dt>
+                <dd>
+                    @if (!string.IsNullOrWhiteSpace(Model.DocumentFilePath))
+                    {
+                        <a href="@Model.DocumentFilePath" target="_blank">@Model.DocumentOriginalFileName</a>
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </dd>
                 <dt>Kayit tarihi</dt>
                 <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
                 <dt>Aciklama</dt>
-                <dd>@(Model.Description ?? "-")</dd>
+                <dd>@Model.Description</dd>
             </dl>
         </div>
     </div>

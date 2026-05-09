@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Http;
 
 namespace OfisYonetimSistemi.Models
 {
@@ -25,8 +26,9 @@ namespace OfisYonetimSistemi.Models
         [StringLength(150)]
         public string Title { get; set; } = string.Empty;
 
+        [Required]
         [StringLength(150)]
-        public string? SupplierName { get; set; }
+        public string SupplierName { get; set; } = string.Empty;
 
         [Required]
         [StringLength(50)]
@@ -37,7 +39,7 @@ namespace OfisYonetimSistemi.Models
         public decimal Quantity { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
-        [Range(0, 100000000)]
+        [Range(0.01, 100000000)]
         public decimal UnitPrice { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
@@ -45,6 +47,7 @@ namespace OfisYonetimSistemi.Models
         public decimal Amount { get; set; }
 
         [DataType(DataType.Date)]
+        [Required]
         public DateTime ExpenseDate { get; set; } = DateTime.Today;
 
         [Required]
@@ -54,8 +57,23 @@ namespace OfisYonetimSistemi.Models
         [StringLength(100)]
         public string? DocumentNumber { get; set; }
 
+        [Required]
+        [StringLength(250)]
+        public string DocumentFilePath { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(250)]
+        public string DocumentOriginalFileName { get; set; } = string.Empty;
+
+        [StringLength(100)]
+        public string? DocumentContentType { get; set; }
+
+        [NotMapped]
+        public IFormFile? DocumentFile { get; set; }
+
+        [Required]
         [StringLength(500)]
-        public string? Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }

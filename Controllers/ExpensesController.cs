@@ -81,10 +81,20 @@ public class ExpensesController : Controller
 
         SetCurrentUser(expense);
         NormalizeExpense(expense);
+        ClearDocumentMetadataValidation();
 
         if (!expense.ProjectId.HasValue)
         {
             ModelState.AddModelError(nameof(expense.ProjectId), "Gider kaydi bir projeye bagli olmalidir.");
+        }
+
+        if (expense.DocumentFile == null)
+        {
+            ModelState.AddModelError(nameof(expense.DocumentFile), "Fis / belge dosyasi zorunludur.");
+        }
+        else if (!IsAllowedExpenseDocument(expense.DocumentFile))
+        {
+            ModelState.AddModelError(nameof(expense.DocumentFile), "Sadece PDF veya gorsel dosyasi yukleyebilirsiniz.");
         }
 
         if (!ModelState.IsValid)
@@ -96,6 +106,11 @@ public class ExpensesController : Controller
             return View(expense);
         }
 
+        var document = await SaveExpenseDocumentAsync(expense.DocumentFile!);
+        expense.DocumentFilePath = document.FilePath;
+        expense.DocumentOriginalFileName = document.OriginalFileName;
+        expense.DocumentContentType = document.ContentType;
+        expense.DocumentNumber = null;
         expense.CreatedAt = DateTime.Now;
 
         _context.Expenses.Add(expense);
@@ -147,6 +162,23 @@ public class ExpensesController : Controller
 
         SetCurrentUser(expense);
         NormalizeExpense(expense);
+        ClearDocumentMetadataValidation();
+
+        var existingExpense = await _context.Expenses.FindAsync(id);
+
+        if (existingExpense == null)
+        {
+            return NotFound();
+        }
+
+        if (expense.DocumentFile != null && !IsAllowedExpenseDocument(expense.DocumentFile))
+        {
+            ModelState.AddModelError(nameof(expense.DocumentFile), "Sadece PDF veya gorsel dosyasi yukleyebilirsiniz.");
+        }
+        else if (expense.DocumentFile == null && string.IsNullOrWhiteSpace(existingExpense.DocumentFilePath))
+        {
+            ModelState.AddModelError(nameof(expense.DocumentFile), "Fis / belge dosyasi zorunludur.");
+        }
 
         if (!ModelState.IsValid)
         {
@@ -154,14 +186,18 @@ public class ExpensesController : Controller
             ViewBag.Project = expense.ProjectId.HasValue
                 ? await _context.Projects.FindAsync(expense.ProjectId.Value)
                 : null;
+            expense.DocumentFilePath = existingExpense.DocumentFilePath;
+            expense.DocumentOriginalFileName = existingExpense.DocumentOriginalFileName;
+            expense.DocumentContentType = existingExpense.DocumentContentType;
             return View(expense);
         }
 
-        var existingExpense = await _context.Expenses.FindAsync(id);
-
-        if (existingExpense == null)
+        if (expense.DocumentFile != null)
         {
-            return NotFound();
+            var document = await SaveExpenseDocumentAsync(expense.DocumentFile);
+            existingExpense.DocumentFilePath = document.FilePath;
+            existingExpense.DocumentOriginalFileName = document.OriginalFileName;
+            existingExpense.DocumentContentType = document.ContentType;
         }
 
         existingExpense.ProjectId = expense.ProjectId;
@@ -175,12 +211,17 @@ public class ExpensesController : Controller
         existingExpense.Amount = expense.Amount;
         existingExpense.ExpenseDate = expense.ExpenseDate;
         existingExpense.PaymentStatus = expense.PaymentStatus;
-        existingExpense.DocumentNumber = expense.DocumentNumber;
+        existingExpense.DocumentNumber = null;
         existingExpense.Description = expense.Description;
 
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Gider kaydi guncellendi.";
+        if (existingExpense.ProjectId.HasValue)
+        {
+            return RedirectToAction("Details", "Projects", new { id = existingExpense.ProjectId.Value });
+        }
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -221,10 +262,17 @@ public class ExpensesController : Controller
             return NotFound();
         }
 
+        var projectId = expense.ProjectId;
+
         _context.Expenses.Remove(expense);
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = "Gider kaydi silindi.";
+        if (projectId.HasValue)
+        {
+            return RedirectToAction("Details", "Projects", new { id = projectId.Value });
+        }
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -246,8 +294,39 @@ public class ExpensesController : Controller
         expense.CompanyId = null;
         expense.ExpenseType = "Malzeme";
         expense.PaymentStatus = "Odendi";
+        expense.DocumentNumber = null;
 
         expense.Amount = expense.Quantity * expense.UnitPrice;
+    }
+
+    private void ClearDocumentMetadataValidation()
+    {
+        ModelState.Remove(nameof(Expense.DocumentFilePath));
+        ModelState.Remove(nameof(Expense.DocumentOriginalFileName));
+        ModelState.Remove(nameof(Expense.DocumentContentType));
+    }
+
+    private static bool IsAllowedExpenseDocument(IFormFile file)
+    {
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var allowedExtensions = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".webp" };
+
+        return file.Length > 0 && allowedExtensions.Contains(extension);
+    }
+
+    private static async Task<(string FilePath, string OriginalFileName, string ContentType)> SaveExpenseDocumentAsync(IFormFile file)
+    {
+        var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "expense-documents");
+        Directory.CreateDirectory(uploadsPath);
+
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        var safeFileName = $"{Guid.NewGuid():N}{extension}";
+        var physicalPath = Path.Combine(uploadsPath, safeFileName);
+
+        await using var stream = System.IO.File.Create(physicalPath);
+        await file.CopyToAsync(stream);
+
+        return ($"/uploads/expense-documents/{safeFileName}", Path.GetFileName(file.FileName), file.ContentType);
     }
 
     private bool IsLoggedIn()

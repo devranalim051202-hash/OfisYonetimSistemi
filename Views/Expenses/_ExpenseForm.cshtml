@@ -7,6 +7,9 @@
 
 <input type="hidden" asp-for="ExpenseType" value="Malzeme">
 <input type="hidden" asp-for="PaymentStatus" value="Odendi">
+<input type="hidden" asp-for="DocumentFilePath">
+<input type="hidden" asp-for="DocumentOriginalFileName">
+<input type="hidden" asp-for="DocumentContentType">
 
 <div class="col-md-6">
     <label asp-for="Title" class="form-label">Alinan malzeme / urun</label>
@@ -28,7 +31,7 @@
 
 <div class="col-md-4">
     <label asp-for="UnitPrice" class="form-label">Birim fiyat</label>
-    <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="form-control" placeholder="Orn: 120">
+    <input asp-for="UnitPrice" type="number" step="0.01" min="0.01" class="form-control" placeholder="Orn: 120">
     <span asp-validation-for="UnitPrice" class="text-danger"></span>
 </div>
 
@@ -44,10 +47,17 @@
     <span asp-validation-for="ExpenseDate" class="text-danger"></span>
 </div>
 
-<div class="col-md-6">
-    <label asp-for="DocumentNumber" class="form-label">Fis / belge no</label>
-    <input asp-for="DocumentNumber" class="form-control">
-    <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+<div class="col-md-8">
+    <label asp-for="DocumentFile" class="form-label">Fis / belge</label>
+    <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,image/*" required="@(string.IsNullOrWhiteSpace(Model.DocumentFilePath) ? "required" : null)">
+    <span asp-validation-for="DocumentFile" class="text-danger"></span>
+    @if (!string.IsNullOrWhiteSpace(Model.DocumentFilePath))
+    {
+        <small class="text-muted d-block mt-1">
+            Kayitli belge:
+            <a href="@Model.DocumentFilePath" target="_blank">@Model.DocumentOriginalFileName</a>
+        </small>
+    }
 </div>
 
 <div class="col-md-12">

@@ -199,19 +199,21 @@
     <div class="detail-section">
         <div class="table-panel">
             <div class="table-panel-header">
-                <h2>Projeye ait giderler</h2>
+                <h2>Projeye ait gider ve belgeler</h2>
                 <a class="btn btn-outline-primary btn-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id">Gider Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Malzeme / urun</th>
+                            <th>Alinan malzeme</th>
                             <th>Firma / tedarikci</th>
                             <th>Miktar</th>
                             <th>Birim fiyat</th>
                             <th>Toplam fiyat</th>
+                            <th>Fis / belge</th>
                             <th>Tarih</th>
+                            <th class="text-end">Islem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -219,55 +221,24 @@
                         {
                             <tr>
                                 <td>@expense.Title</td>
-                                <td>@(expense.SupplierName ?? "-")</td>
+                                <td>@expense.SupplierName</td>
                                 <td>@expense.Quantity.ToString("N2")</td>
                                 <td>@expense.UnitPrice.ToString("N2") TL</td>
                                 <td>@expense.Amount.ToString("N2") TL</td>
-                                <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Projeye ait evraklar ve belgeler</h2>
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddDocument" asp-route-projectId="@Model.Id">Belge Ekle</a>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Belge turu</th>
-                            <th>Dosya / evrak no</th>
-                            <th>Tarih</th>
-                            <th class="text-end">Islem</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var invoice in Model.Invoices.OrderByDescending(i => i.DocumentDate))
-                        {
-                            <tr>
-                                <td>@invoice.DocumentType</td>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(invoice.FilePath))
+                                    @if (!string.IsNullOrWhiteSpace(expense.DocumentFilePath))
                                     {
-                                        <a href="@invoice.FilePath" target="_blank">@invoice.DocumentNumber</a>
+                                        <a href="@expense.DocumentFilePath" target="_blank">Fis / belge</a>
                                     }
                                     else
                                     {
-                                        @invoice.DocumentNumber
+                                        <span class="text-muted">Yok</span>
                                     }
                                 </td>
-                                <td>@invoice.DocumentDate.ToString("dd.MM.yyyy")</td>
+                                <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
                                 <td class="text-end">
-                                    <form asp-controller="Projects" asp-action="RemoveDocument" asp-route-id="@invoice.Id" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">Cikart</button>
-                                    </form>
+                                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Expenses" asp-action="Edit" asp-route-id="@expense.Id">Duzenle</a>
+                                    <a class="btn btn-outline-danger btn-sm" asp-controller="Expenses" asp-action="Delete" asp-route-id="@expense.Id">Sil</a>
                                 </td>
                             </tr>
                         }

@@ -15,7 +15,7 @@
     </div>
 
     <div class="table-panel">
-        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" class="row g-3">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="row g-3">
             <input type="hidden" asp-for="Id">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <partial name="_ExpenseForm" model="Model" />

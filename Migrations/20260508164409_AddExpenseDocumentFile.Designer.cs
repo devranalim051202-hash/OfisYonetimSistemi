@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OfisYonetimSistemi.Models;
 
@@ -11,9 +12,11 @@ using OfisYonetimSistemi.Models;
 namespace OfisYonetimSistemi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508164409_AddExpenseDocumentFile")]
+    partial class AddExpenseDocumentFile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,45 +126,6 @@ namespace OfisYonetimSistemi.Migrations
                         .IsUnique();
 
                     b.ToTable("ApartmentSales");
-                });
-
-            modelBuilder.Entity("OfisYonetimSistemi.Models.ChatBotLog", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CommandText")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DetectedAction")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsSuccessful")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ResponseText")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ChatBotLogs");
                 });
 
             modelBuilder.Entity("OfisYonetimSistemi.Models.Company", b =>
@@ -641,17 +605,6 @@ namespace OfisYonetimSistemi.Migrations
                         .IsRequired();
 
                     b.Navigation("Apartment");
-                });
-
-            modelBuilder.Entity("OfisYonetimSistemi.Models.ChatBotLog", b =>
-                {
-                    b.HasOne("OfisYonetimSistemi.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("OfisYonetimSistemi.Models.Expense", b =>

@@ -15,7 +15,7 @@
     </div>
 
     <div class="table-panel">
-        <form asp-action="Create" method="post" class="row g-3">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <partial name="_ExpenseForm" model="Model" />
             <div class="col-12 d-flex gap-2">

@@ -54,8 +54,15 @@ namespace OfisYonetimSistemi.Models
                 .WithOne(a => a.Sale)
                 .HasForeignKey<ApartmentSale>(s => s.ApartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ChatBotLog>()
+                .HasOne(l => l.User)
+                .WithMany()
+                .HasForeignKey(l => l.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
+        public DbSet<ChatBotLog> ChatBotLogs { get; set; }
         public DbSet<Company> Companies { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Invoice> Invoices { get; set; }

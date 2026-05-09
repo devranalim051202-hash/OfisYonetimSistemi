@@ -6,18 +6,77 @@
     <div class="dashboard-header ai-hero-panel">
         <div>
             <p class="eyebrow">AI Asistan</p>
-            <h1>Akilli ofis yardimcisi</h1>
-            <p>Proje, gider ve evrak sureclerinde ekip kararlarini hizlandiracak asistan alani burada konumlandirilacak.</p>
+            <h1>Komut destekli ofis yardimcisi</h1>
+            <p>Proje, gider ve daire durumlarini rol yetkilerine uygun sekilde sorgular. Yetkiniz olmayan islemleri yapmaz.</p>
         </div>
     </div>
 
-    <div class="assistant-preview">
-        <div class="assistant-orb">AI</div>
-        <div>
-            <span class="premium-panel-label">Hazirlik Modu</span>
-            <h2>Yakinda aktif olacak</h2>
-            <p>Bu ekran su an panel navigasyonunun calismasi icin hazirlandi. Ilerleyen adimda proje ozetleri, gider yorumlari ve evrak hatirlatmalari buradan yonetilebilir.</p>
+    <div class="assistant-chat-panel">
+        <div class="assistant-chat-header">
+            <div>
+                <span class="premium-panel-label">Backend komut motoru</span>
+                <h2>Chatbot</h2>
+            </div>
+            <span class="app-status-pill">Log aktif</span>
         </div>
-        <a class="btn btn-primary" asp-controller="Projects" asp-action="Index">Projelere Don</a>
+
+        <div id="chatMessages" class="assistant-chat-messages" aria-live="polite">
+            <div class="assistant-message assistant-message-bot">
+                Merhaba. Ornek komutlar: "Projeleri listele", "Bos daireleri listele", "Bu ayki giderleri goster".
+            </div>
+        </div>
+
+        <form id="assistantForm" class="assistant-chat-form">
+            @Html.AntiForgeryToken()
+            <input id="commandText" class="form-control" maxlength="1000" placeholder="Komut yazin..." autocomplete="off" required>
+            <button type="submit" class="btn btn-primary">Gonder</button>
+        </form>
     </div>
 </section>
+
+@section Scripts {
+    <script>
+        (() => {
+            const form = document.getElementById("assistantForm");
+            const input = document.getElementById("commandText");
+            const messages = document.getElementById("chatMessages");
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+
+            const addMessage = (text, type) => {
+                const message = document.createElement("div");
+                message.className = `assistant-message assistant-message-${type}`;
+                message.textContent = text;
+                messages.appendChild(message);
+                messages.scrollTop = messages.scrollHeight;
+            };
+
+            form?.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const commandText = input.value.trim();
+                if (!commandText) {
+                    return;
+                }
+
+                addMessage(commandText, "user");
+                input.value = "";
+
+                try {
+                    const response = await fetch("@Url.Action("Send", "Assistant")", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "RequestVerificationToken": token
+                        },
+                        body: JSON.stringify({ commandText })
+                    });
+
+                    const data = await response.json();
+                    addMessage(data.responseText || "Cevap alinamadi.", data.isSuccessful ? "bot" : "error");
+                } catch {
+                    addMessage("Chatbot su anda cevap veremiyor.", "error");
+                }
+            });
+        })();
+    </script>
+}
