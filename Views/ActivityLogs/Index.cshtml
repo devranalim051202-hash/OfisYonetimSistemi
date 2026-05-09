@@ -1,0 +1,58 @@
+@model IEnumerable<OfisYonetimSistemi.Models.ActivityLog>
+
+@{
+    ViewData["Title"] = "Islem Loglari";
+}
+
+<section class="dashboard-page">
+    <div class="dashboard-header">
+        <div>
+            <p class="eyebrow">Denetim Kayitlari</p>
+            <h1>Islem Loglari</h1>
+            <p>Sistemde kullanicilarin yaptigi onemli islemleri buradan takip edebilirsiniz.</p>
+        </div>
+        <a class="btn btn-outline-secondary" asp-controller="Manager" asp-action="Index">Panele Don</a>
+    </div>
+
+    <div class="table-panel">
+        <div class="table-panel-header">
+            <h2>Tum loglar</h2>
+            <span class="premium-count">@Model.Count() kayit</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Tarih</th>
+                        <th>Kullanici</th>
+                        <th>Rol</th>
+                        <th>Modul</th>
+                        <th>Islem</th>
+                        <th>Durum</th>
+                        <th>Aciklama</th>
+                        <th>IP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td>@log.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@log.UserFullName</td>
+                            <td>@log.UserRole</td>
+                            <td>@log.ModuleName</td>
+                            <td>@log.Action</td>
+                            <td>
+                                <span class="status-pill @(log.IsSuccessful ? "" : "status-danger")">
+                                    @(log.IsSuccessful ? "Basarili" : "Basarisiz")
+                                </span>
+                            </td>
+                            <td>@log.Description</td>
+                            <td>@(log.IpAddress ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

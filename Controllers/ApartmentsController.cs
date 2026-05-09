@@ -3,22 +3,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
 
 public class ApartmentsController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly ActivityLogService _activityLogService;
 
-    public ApartmentsController(AppDbContext context)
+    public ApartmentsController(AppDbContext context, ActivityLogService activityLogService)
     {
         _context = context;
+        _activityLogService = activityLogService;
     }
 
     public async Task<IActionResult> Details(int id)
     {
         if (!IsManager())
         {
+            await _activityLogService.LogAsync("YetkisizDeneme", "Daireler", id, "Daire satis sayfasina yetkisiz erisim denendi.", false);
             return RedirectToAction("Login", "Account");
         }
 
@@ -39,6 +43,7 @@ public class ApartmentsController : Controller
     {
         if (!IsManager())
         {
+            await _activityLogService.LogAsync("YetkisizDeneme", "DaireSatislari", id, "Daire satis sayfasina yetkisiz erisim denendi.", false);
             return RedirectToAction("Login", "Account");
         }
 
@@ -197,6 +202,7 @@ public class ApartmentsController : Controller
 
         _context.ApartmentSales.Add(sale);
         await _context.SaveChangesAsync();
+        await _activityLogService.LogAsync("Satis", "DaireSatislari", sale.Id, $"{apartment.Project?.Name ?? "-"} projesinde {apartment.ApartmentNumber} numarali daire {model.SalePrice:N2} TL bedelle satildi.");
 
         TempData["SuccessMessage"] = "Daire satisi tamamlandi ve sozlesme bilgisi olusturuldu.";
         return RedirectToAction(nameof(Details), new { id = apartment.Id });
