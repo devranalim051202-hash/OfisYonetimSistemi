@@ -77,7 +77,8 @@
                         <button type="submit"
                                 class="btn btn-outline-danger btn-sm mt-2"
                                 formaction="@Url.Action("DeleteImage", "Projects", new { id = image.Id })"
-                                formmethod="post">
+                                formmethod="post"
+                                formnovalidate>
                             Sil
                         </button>
                     </div>
@@ -89,9 +90,15 @@
 }
 
 <div class="col-md-12">
-    <label asp-for="ProjectImages" class="form-label">Proje gorselleri</label>
-    <input asp-for="ProjectImages" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="form-control">
-    <div class="form-text">JPG, PNG veya WEBP dosyasi yukleyin. Her dosya en fazla 5 MB olabilir.</div>
+    <label asp-for="ProjectImages" class="form-label">Proje görselleri <span class="text-muted fw-normal">(isteğe bağlı)</span></label>
+    <div class="project-upload-box">
+        <div>
+            <strong><i class="bi bi-images me-2"></i>Fotoğraf ekle</strong>
+            <p>İsterseniz projeye bir veya birden fazla görsel ekleyebilirsiniz.</p>
+        </div>
+        <input asp-for="ProjectImages" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="form-control">
+    </div>
+    <div class="form-text">Fotoğraf yüklemek zorunlu değildir. JPG, PNG veya WEBP dosyası yükleyebilirsiniz. Her dosya en fazla 5 MB olabilir.</div>
     <span asp-validation-for="ProjectImages" class="text-danger"></span>
 </div>
 

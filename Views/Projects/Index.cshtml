@@ -49,12 +49,9 @@
                 {
                     var finishDate = project.EndDate?.ToString("dd.MM.yyyy") ?? "Devam ediyor";
                     var coverImage = project.ProjectImages.FirstOrDefault(i => i.IsCover) ?? project.ProjectImages.FirstOrDefault();
-                    <article class="project-card">
-                        <div class="project-card-glow"></div>
-                        @if (coverImage != null)
-                        {
-                            <img src="@coverImage.FilePath" alt="@project.Name" class="img-fluid rounded mb-3" style="height: 180px; width: 100%; object-fit: cover;">
-                        }
+                    var cardStyle = coverImage != null ? $"background-image: url('{coverImage.FilePath}');" : "";
+                    <article class="project-card project-card-photo @(coverImage != null ? "has-project-photo" : "no-project-photo")" style="@cardStyle">
+                        <div class="project-card-photo-overlay"></div>
                         <div class="project-card-top">
                             <span class="project-monogram shadow-sm">@project.Name.Substring(0, 1).ToUpper()</span>
                             <span class="status-pill premium-status shadow-sm"><i class="bi bi-activity me-2"></i>@project.Status</span>

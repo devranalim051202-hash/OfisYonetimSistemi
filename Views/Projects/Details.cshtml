@@ -8,6 +8,12 @@
     var maxApartmentColumnCount = Model.Apartments.Any()
         ? Model.Apartments.GroupBy(a => a.FloorNumber).Max(g => g.Count())
         : 0;
+    var projectImages = Model.ProjectImages
+        .OrderByDescending(i => i.IsCover)
+        .ThenBy(i => i.CreatedAt)
+        .ToList();
+    var previewImages = projectImages.Take(3).ToList();
+    var hiddenImageCount = Math.Max(projectImages.Count - previewImages.Count, 0);
     var remainingText = "-";
 
     if (Model.EndDate.HasValue)
@@ -87,16 +93,39 @@
         <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
     }
 
+    @if (projectImages.Any())
+    {
+        <div class="project-gallery-strip">
+            <div>
+                <p class="eyebrow mb-1"><i class="bi bi-images me-2"></i>Proje Görselleri</p>
+                <h2>@projectImages.Count görsel yüklendi</h2>
+            </div>
+            <div class="project-gallery-preview">
+                @foreach (var image in previewImages)
+                {
+                    <button type="button" class="project-gallery-thumb" data-bs-toggle="modal" data-bs-target="#projectImagesModal" aria-label="@image.OriginalFileName görselini aç">
+                        <img src="@image.FilePath" alt="@image.OriginalFileName">
+                    </button>
+                }
+                @if (hiddenImageCount > 0)
+                {
+                    <button type="button" class="project-gallery-more" data-bs-toggle="modal" data-bs-target="#projectImagesModal">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>@hiddenImageCount görsel daha</span>
+                    </button>
+                }
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectImagesModal">
+                    <i class="bi bi-images me-2"></i>Proje Görsellerini Gör
+                </button>
+            </div>
+        </div>
+    }
+
     <div class="detail-section">
         <div class="table-panel shadow-sm">
             <div class="table-panel-header border-bottom pb-2 mb-3">
                 <h2><i class="bi bi-card-text me-2"></i>Proje özeti</h2>
             </div>
-            @if (Model.ProjectImages.Any())
-            {
-                var coverImage = Model.ProjectImages.FirstOrDefault(i => i.IsCover) ?? Model.ProjectImages.First();
-                <img src="@coverImage.FilePath" alt="@Model.Name" class="img-fluid rounded mb-3" style="max-height: 360px; width: 100%; object-fit: cover;">
-            }
             <dl class="project-info-list">
                 <dt>Proje adi</dt>
                 <dd>@Model.Name</dd>
@@ -261,3 +290,47 @@
         </div>
     </div>
 </section>
+
+@if (projectImages.Any())
+{
+    <div class="modal fade" id="projectImagesModal" tabindex="-1" aria-labelledby="projectImagesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content project-gallery-modal">
+                <div class="modal-header">
+                    <div>
+                        <p class="eyebrow mb-1">Galeri</p>
+                        <h2 class="modal-title fs-4" id="projectImagesModalLabel">@Model.Name görselleri</h2>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="projectImagesCarousel" class="carousel slide project-gallery-carousel" data-bs-ride="false">
+                        <div class="carousel-inner">
+                            @for (var i = 0; i < projectImages.Count; i++)
+                            {
+                                var image = projectImages[i];
+                                <div class="carousel-item @(i == 0 ? "active" : "")">
+                                    <img src="@image.FilePath" alt="@image.OriginalFileName">
+                                    <div class="project-gallery-carousel-caption">
+                                        <strong>@(i + 1) / @projectImages.Count</strong>
+                                        <span>@image.OriginalFileName</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+                        @if (projectImages.Count > 1)
+                        {
+                            <button class="carousel-control-prev project-gallery-control" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="prev" aria-label="Önceki görsel">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            </button>
+                            <button class="carousel-control-next project-gallery-control" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="next" aria-label="Sonraki görsel">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

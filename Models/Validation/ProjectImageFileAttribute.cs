@@ -56,7 +56,7 @@ public class ProjectImageFileAttribute : ValidationAttribute
     {
         if (file.Length <= 0)
         {
-            return new ValidationResult("Bos dosya yuklenemez.");
+            return ValidationResult.Success;
         }
 
         if (file.Length > MaxFileSize)

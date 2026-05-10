@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <BaseOutputPath>$(USERPROFILE)\.ofis-yonetim-build\bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(USERPROFILE)\.ofis-yonetim-build\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin\**;obj\**</DefaultItemExcludes>
+  </PropertyGroup>
+</Project>
