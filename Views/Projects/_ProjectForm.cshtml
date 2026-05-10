@@ -1,33 +1,43 @@
 @model OfisYonetimSistemi.Models.ViewModels.ProjectFormViewModel
 
 <div class="col-md-8">
-    <label asp-for="Name" class="form-label">Proje adi</label>
-    <input asp-for="Name" class="form-control">
-    <span asp-validation-for="Name" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="Name" class="form-control ps-4" placeholder="Proje adi">
+        <label asp-for="Name" class="ps-4"><i class="bi bi-building me-2 text-muted"></i>Proje Adı</label>
+    </div>
+    <span asp-validation-for="Name" class="text-danger small"></span>
 </div>
 
 <div class="col-md-4">
-    <label asp-for="Status" class="form-label">Durum</label>
-    <select asp-for="Status" asp-items="ViewBag.Statuses" class="form-select"></select>
-    <span asp-validation-for="Status" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <select asp-for="Status" asp-items="ViewBag.Statuses" class="form-select ps-4"></select>
+        <label asp-for="Status" class="ps-4"><i class="bi bi-activity me-2 text-muted"></i>Durum</label>
+    </div>
+    <span asp-validation-for="Status" class="text-danger small"></span>
 </div>
 
 <div class="col-md-12">
-    <label asp-for="Location" class="form-label">Konum</label>
-    <input asp-for="Location" class="form-control">
-    <span asp-validation-for="Location" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="Location" class="form-control ps-4" placeholder="Konum">
+        <label asp-for="Location" class="ps-4"><i class="bi bi-geo-alt me-2 text-muted"></i>Konum</label>
+    </div>
+    <span asp-validation-for="Location" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
-    <label asp-for="StartDate" class="form-label">Baslangic tarihi</label>
-    <input asp-for="StartDate" type="date" class="form-control">
-    <span asp-validation-for="StartDate" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="StartDate" type="date" class="form-control ps-4">
+        <label asp-for="StartDate" class="ps-4"><i class="bi bi-calendar-event me-2 text-muted"></i>Başlangıç Tarihi</label>
+    </div>
+    <span asp-validation-for="StartDate" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
-    <label asp-for="EndDate" class="form-label">Bitis tarihi</label>
-    <input asp-for="EndDate" type="date" class="form-control">
-    <span asp-validation-for="EndDate" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="EndDate" type="date" class="form-control ps-4">
+        <label asp-for="EndDate" class="ps-4"><i class="bi bi-calendar-x me-2 text-muted"></i>Bitiş Tarihi</label>
+    </div>
+    <span asp-validation-for="EndDate" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
@@ -43,9 +53,11 @@
 </div>
 
 <div class="col-md-12">
-    <label asp-for="Description" class="form-label">Aciklama</label>
-    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-    <span asp-validation-for="Description" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="Aciklama"></textarea>
+        <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>Açıklama</label>
+    </div>
+    <span asp-validation-for="Description" class="text-danger small"></span>
 </div>
 
 @if (Model.ExistingImages.Any())

@@ -5,20 +5,22 @@
 }
 
 <section class="form-page">
-    <div class="form-panel">
-        <a class="auth-back-link" asp-controller="Projects" asp-action="Index">Projelere don</a>
-        <p class="eyebrow">Proje Yonetimi</p>
-        <h1>Proje ekle</h1>
-        <p class="auth-help">Yeni proje kaydi olusturun. Malzeme, gider ve evrak kayitlari daha sonra bu projeye baglanacak.</p>
+    <div class="form-panel shadow-sm border-0">
+        <a class="auth-back-link mb-4 d-inline-block" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Projelere dön</a>
+        <div class="mb-4">
+            <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>Proje Yönetimi</p>
+            <h1>Proje Ekle</h1>
+            <p class="text-muted">Yeni proje kaydı oluşturun. Malzeme, gider ve evrak kayıtları daha sonra bu projeye bağlanacak.</p>
+        </div>
 
-        <form asp-controller="Projects" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
+        <form asp-controller="Projects" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <partial name="_ProjectForm" model="Model" />
 
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Proje kaydet</button>
+            <div class="col-12 mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary px-4 py-2"><i class="bi bi-save me-2"></i>Proje Kaydet</button>
             </div>
         </form>
     </div>

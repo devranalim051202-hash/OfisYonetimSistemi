@@ -37,37 +37,42 @@
 }
 
 <section class="dashboard-page">
-    <div class="dashboard-header">
+    <div class="dashboard-header border-bottom pb-3 mb-4">
         <div>
-            <p class="eyebrow">Proje Detay</p>
+            <p class="eyebrow"><i class="bi bi-info-circle me-2"></i>Proje Detay</p>
             <h1>@Model.Name</h1>
-            <p>@(Model.Description ?? "Bu proje icin aciklama girilmemis.")</p>
+            <p class="text-muted">@(Model.Description ?? "Bu proje icin aciklama girilmemis.")</p>
         </div>
         <div class="hero-actions">
-            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Index">Projelere Don</a>
-            <a class="btn btn-primary" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id">Duzenle</a>
+            <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Projelere Don</a>
+            <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square me-2"></i>Duzenle</a>
         </div>
     </div>
 
-    <div class="detail-grid">
-        <div class="detail-card">
-            <span>Durum</span>
+    <div class="detail-grid mb-5">
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-activity position-absolute text-primary opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-circle-fill me-2 text-primary" style="font-size: 0.5rem; vertical-align: middle;"></i>Durum</span>
             <strong>@Model.Status</strong>
         </div>
-        <div class="detail-card">
-            <span>Baslangic</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-calendar-event position-absolute text-success opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-calendar-check me-2 text-success"></i>Baslangic</span>
             <strong>@Model.StartDate.ToString("dd.MM.yyyy")</strong>
         </div>
-        <div class="detail-card">
-            <span>Bitis</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-calendar-x position-absolute text-danger opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-calendar-x me-2 text-danger"></i>Bitis</span>
             <strong>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</strong>
         </div>
-        <div class="detail-card">
-            <span>Toplam gider</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-cash-stack position-absolute text-warning opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-wallet2 me-2 text-warning"></i>Toplam gider</span>
             <strong>@totalExpense.ToString("N2") TL</strong>
         </div>
-        <div class="detail-card">
-            <span>Kalan sure</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-hourglass-split position-absolute text-info opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-clock-history me-2 text-info"></i>Kalan sure</span>
             <strong>@remainingText</strong>
         </div>
     </div>
@@ -83,9 +88,9 @@
     }
 
     <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Proje ozeti</h2>
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header border-bottom pb-2 mb-3">
+                <h2><i class="bi bi-card-text me-2"></i>Proje özeti</h2>
             </div>
             @if (Model.ProjectImages.Any())
             {
@@ -114,13 +119,16 @@
     </div>
 
     <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Daire satis takip tablosu</h2>
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header border-bottom pb-2 mb-3">
+                <h2><i class="bi bi-building me-2"></i>Daire satis takip tablosu</h2>
             </div>
             @if (!Model.Apartments.Any())
             {
-                <p>Bu proje icin daire kaydi bulunmuyor.</p>
+                <div class="premium-empty-state">
+                    <span><i class="bi bi-info-circle"></i></span>
+                    <p>Bu proje için daire kaydı bulunmuyor.</p>
+                </div>
             }
             else
             {
@@ -130,33 +138,33 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="projectId" value="@Model.Id" />
                         <div class="col-md-3">
-                            <label class="form-label">Secim tipi</label>
+                            <label class="form-label text-muted small">Seçim tipi</label>
                             <select name="selectionType" class="form-select">
-                                <option value="column">Sutun sec</option>
-                                <option value="row">Satir sec</option>
+                                <option value="column">Sütun seç</option>
+                                <option value="row">Satır seç</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Satir / sutun no</label>
+                            <label class="form-label text-muted small">Satır / Sütun no</label>
                             <input name="selectionNumber" type="number" min="1" class="form-control" value="1">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Oda tipi</label>
+                            <label class="form-label text-muted small">Oda tipi</label>
                             <input name="roomType" class="form-control" placeholder="2+1, 3+1, 4+1">
                         </div>
                         <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100">Oda Tipini Guncelle</button>
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-pencil-square me-2"></i>Oda Tipini Güncelle</button>
                         </div>
                     </form>
                 }
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle text-center">
-                        <thead>
+                        <thead class="table-light">
                             <tr>
                                 <th>Kat</th>
                                 @for (var i = 1; i <= maxApartmentColumnCount; i++)
                                 {
-                                    <th>Sutun @i</th>
+                                    <th>Sütun @i</th>
                                 }
                             </tr>
                         </thead>
@@ -169,22 +177,22 @@
                                     {
                                         var cellColor = apartment.IsSold ? "#198754" : "#ffffff";
                                         var textColor = apartment.IsSold ? "#ffffff" : "#111111";
-                                        <td style="background-color:@cellColor; color:@textColor;">
+                                        <td style="background-color:@cellColor; color:@textColor; border-radius: 4px; padding: 10px;">
                                             @if (canManageApartmentSales)
                                             {
                                                 <a asp-controller="Apartments" asp-action="Details" asp-route-id="@apartment.Id" style="display:block; color:inherit; text-decoration:none;">
                                                     <strong>No @apartment.ApartmentNumber</strong><br>
-                                                    <span>@apartment.RoomType</span><br>
-                                                    <span>@apartment.Price.ToString("N0") TL</span><br>
-                                                    <span>@(apartment.IsSold ? "SATILDI" : "BOS")</span>
+                                                    <span class="small">@apartment.RoomType</span><br>
+                                                    <span class="small">@apartment.Price.ToString("N0") TL</span><br>
+                                                    <span class="badge @(apartment.IsSold ? "bg-light text-success" : "bg-secondary") mt-1">@(apartment.IsSold ? "SATILDI" : "BOS")</span>
                                                 </a>
                                             }
                                             else
                                             {
                                                 <strong>No @apartment.ApartmentNumber</strong><br>
-                                                <span>@apartment.RoomType</span><br>
-                                                <span>@apartment.Price.ToString("N0") TL</span><br>
-                                                <span>@(apartment.IsSold ? "SATILDI" : "BOS")</span>
+                                                <span class="small">@apartment.RoomType</span><br>
+                                                <span class="small">@apartment.Price.ToString("N0") TL</span><br>
+                                                <span class="badge @(apartment.IsSold ? "bg-light text-success" : "bg-secondary") mt-1">@(apartment.IsSold ? "SATILDI" : "BOS")</span>
                                             }
                                         </td>
                                     }
@@ -202,23 +210,23 @@
     </div>
 
     <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Projeye ait gider ve belgeler</h2>
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id">Gider Ekle</a>
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header border-bottom pb-2 mb-3">
+                <h2><i class="bi bi-receipt me-2"></i>Projeye ait gider ve belgeler</h2>
+                <a class="btn btn-outline-primary btn-sm shadow-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id"><i class="bi bi-plus-lg me-1"></i>Gider Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
                     <thead>
                         <tr>
-                            <th>Alinan malzeme</th>
-                            <th>Firma / tedarikci</th>
+                            <th>Alınan Malzeme</th>
+                            <th>Firma / Tedarikçi</th>
                             <th>Miktar</th>
-                            <th>Birim fiyat</th>
-                            <th>Toplam fiyat</th>
-                            <th>Fis / belge</th>
+                            <th>Birim Fiyat</th>
+                            <th>Toplam Fiyat</th>
+                            <th>Fiş / Belge</th>
                             <th>Tarih</th>
-                            <th class="text-end">Islem</th>
+                            <th class="text-end">İşlem</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -229,21 +237,21 @@
                                 <td>@expense.SupplierName</td>
                                 <td>@expense.Quantity.ToString("N2")</td>
                                 <td>@expense.UnitPrice.ToString("N2") TL</td>
-                                <td>@expense.Amount.ToString("N2") TL</td>
+                                <td><strong>@expense.Amount.ToString("N2") TL</strong></td>
                                 <td>
                                     @if (!string.IsNullOrWhiteSpace(expense.DocumentFilePath))
                                     {
-                                        <a href="@expense.DocumentFilePath" target="_blank">Fis / belge</a>
+                                        <a href="@expense.DocumentFilePath" target="_blank" class="text-primary text-decoration-none"><i class="bi bi-file-earmark-text me-1"></i>Belge</a>
                                     }
                                     else
                                     {
-                                        <span class="text-muted">Yok</span>
+                                        <span class="text-muted small"><i class="bi bi-dash"></i>Yok</span>
                                     }
                                 </td>
                                 <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
                                 <td class="text-end">
-                                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Expenses" asp-action="Edit" asp-route-id="@expense.Id">Duzenle</a>
-                                    <a class="btn btn-outline-danger btn-sm" asp-controller="Expenses" asp-action="Delete" asp-route-id="@expense.Id">Sil</a>
+                                    <a class="btn btn-outline-secondary btn-sm border-0" asp-controller="Expenses" asp-action="Edit" asp-route-id="@expense.Id" title="Düzenle"><i class="bi bi-pencil"></i></a>
+                                    <a class="btn btn-outline-danger btn-sm border-0" asp-controller="Expenses" asp-action="Delete" asp-route-id="@expense.Id" title="Sil"><i class="bi bi-trash"></i></a>
                                 </td>
                             </tr>
                         }

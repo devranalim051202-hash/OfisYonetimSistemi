@@ -12,56 +12,70 @@
 <input type="hidden" asp-for="DocumentContentType">
 
 <div class="col-md-6">
-    <label asp-for="Title" class="form-label">Alinan malzeme / urun</label>
-    <input asp-for="Title" class="form-control" placeholder="Orn: Cimento">
-    <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="Title" class="form-control ps-4" placeholder="Orn: Cimento">
+        <label asp-for="Title" class="ps-4"><i class="bi bi-box me-2 text-muted"></i>Alınan Malzeme / Ürün</label>
+    </div>
+    <span asp-validation-for="Title" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
-    <label asp-for="SupplierName" class="form-label">Firma / tedarikci</label>
-    <input asp-for="SupplierName" class="form-control" placeholder="Orn: ABC Insaat Malzemeleri">
-    <span asp-validation-for="SupplierName" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="SupplierName" class="form-control ps-4" placeholder="Orn: ABC Insaat Malzemeleri">
+        <label asp-for="SupplierName" class="ps-4"><i class="bi bi-shop me-2 text-muted"></i>Firma / Tedarikçi</label>
+    </div>
+    <span asp-validation-for="SupplierName" class="text-danger small"></span>
 </div>
 
 <div class="col-md-4">
-    <label asp-for="Quantity" class="form-label">Miktar</label>
-    <input asp-for="Quantity" type="number" step="0.01" min="0.01" class="form-control" placeholder="Orn: 50">
-    <span asp-validation-for="Quantity" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="Quantity" type="number" step="0.01" min="0.01" class="form-control ps-4" placeholder="Orn: 50">
+        <label asp-for="Quantity" class="ps-4"><i class="bi bi-layers me-2 text-muted"></i>Miktar</label>
+    </div>
+    <span asp-validation-for="Quantity" class="text-danger small"></span>
 </div>
 
 <div class="col-md-4">
-    <label asp-for="UnitPrice" class="form-label">Birim fiyat</label>
-    <input asp-for="UnitPrice" type="number" step="0.01" min="0.01" class="form-control" placeholder="Orn: 120">
-    <span asp-validation-for="UnitPrice" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="form-control ps-4" placeholder="Orn: 120">
+        <label asp-for="UnitPrice" class="ps-4"><i class="bi bi-tag me-2 text-muted"></i>Birim Fiyat</label>
+    </div>
+    <span asp-validation-for="UnitPrice" class="text-danger small"></span>
 </div>
 
 <div class="col-md-4">
-    <label asp-for="Amount" class="form-label">Toplam fiyat</label>
-    <input asp-for="Amount" type="number" step="0.01" min="0.01" class="form-control" readonly>
-    <span asp-validation-for="Amount" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="Amount" type="number" step="0.01" min="0.01" class="form-control ps-4 bg-light" readonly placeholder="Toplam">
+        <label asp-for="Amount" class="ps-4"><i class="bi bi-currency-dollar me-2 text-muted"></i>Toplam Fiyat</label>
+    </div>
+    <span asp-validation-for="Amount" class="text-danger small"></span>
 </div>
 
 <div class="col-md-4">
-    <label asp-for="ExpenseDate" class="form-label">Eklenme tarihi</label>
-    <input asp-for="ExpenseDate" type="date" class="form-control">
-    <span asp-validation-for="ExpenseDate" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <input asp-for="ExpenseDate" type="date" class="form-control ps-4">
+        <label asp-for="ExpenseDate" class="ps-4"><i class="bi bi-calendar-date me-2 text-muted"></i>Eklenme Tarihi</label>
+    </div>
+    <span asp-validation-for="ExpenseDate" class="text-danger small"></span>
 </div>
 
 <div class="col-md-8">
-    <label asp-for="DocumentFile" class="form-label">Fis / belge</label>
+    <label asp-for="DocumentFile" class="form-label"><i class="bi bi-file-earmark-arrow-up me-2 text-muted"></i>Fiş / Belge Yükle</label>
     <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,image/*" required="@(string.IsNullOrWhiteSpace(Model.DocumentFilePath) ? "required" : null)">
-    <span asp-validation-for="DocumentFile" class="text-danger"></span>
+    <span asp-validation-for="DocumentFile" class="text-danger small"></span>
     @if (!string.IsNullOrWhiteSpace(Model.DocumentFilePath))
     {
         <small class="text-muted d-block mt-1">
-            Kayitli belge:
-            <a href="@Model.DocumentFilePath" target="_blank">@Model.DocumentOriginalFileName</a>
+            Kayıtlı belge:
+            <a href="@Model.DocumentFilePath" target="_blank"><i class="bi bi-link-45deg"></i>@Model.DocumentOriginalFileName</a>
         </small>
     }
 </div>
 
 <div class="col-md-12">
-    <label asp-for="Description" class="form-label">Aciklama</label>
-    <textarea asp-for="Description" class="form-control" rows="4"></textarea>
-    <span asp-validation-for="Description" class="text-danger"></span>
+    <div class="form-floating position-relative">
+        <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="Aciklama"></textarea>
+        <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>Açıklama</label>
+    </div>
+    <span asp-validation-for="Description" class="text-danger small"></span>
 </div>

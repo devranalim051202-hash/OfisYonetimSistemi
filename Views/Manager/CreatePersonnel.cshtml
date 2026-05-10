@@ -5,48 +5,60 @@
 }
 
 <section class="form-page">
-    <div class="form-panel">
-        <a class="auth-back-link" asp-controller="Manager" asp-action="Index">Mudur paneline don</a>
-        <p class="eyebrow">Personel Hesabi</p>
-        <h1>Personel ekle</h1>
-        <p class="auth-help">Calisan sisteme sadece burada olusturulan mail ve sifreyle girebilir. Sirket bilgisi mudur hesabindan otomatik alinir.</p>
+    <div class="form-panel shadow-sm border-0">
+        <a class="auth-back-link mb-4 d-inline-block" asp-controller="Manager" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Müdür paneline dön</a>
+        <div class="mb-4">
+            <p class="eyebrow"><i class="bi bi-person-badge me-2"></i>Personel Hesabı</p>
+            <h1>Personel Ekle</h1>
+            <p class="text-muted">Çalışan sisteme sadece burada oluşturulan mail ve şifreyle girebilir. Şirket bilgisi müdür hesabından otomatik alınır.</p>
+        </div>
 
-        <form asp-controller="Manager" asp-action="CreatePersonnel" method="post" class="row g-3">
+        <form asp-controller="Manager" asp-action="CreatePersonnel" method="post" class="row g-4">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="col-md-6">
-                <label asp-for="FirstName" class="form-label">Ad</label>
-                <input asp-for="FirstName" class="form-control">
-                <span asp-validation-for="FirstName" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="FirstName" class="form-control ps-4" placeholder="Ad">
+                    <label asp-for="FirstName" class="ps-4"><i class="bi bi-person me-2 text-muted"></i>Ad</label>
+                </div>
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="LastName" class="form-label">Soyad</label>
-                <input asp-for="LastName" class="form-control">
-                <span asp-validation-for="LastName" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="LastName" class="form-control ps-4" placeholder="Soyad">
+                    <label asp-for="LastName" class="ps-4"><i class="bi bi-person me-2 text-muted"></i>Soyad</label>
+                </div>
+                <span asp-validation-for="LastName" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Email" class="form-label">Mail</label>
-                <input asp-for="Email" type="email" class="form-control">
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="Email" type="email" class="form-control ps-4" placeholder="Mail">
+                    <label asp-for="Email" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>E-posta Adresi</label>
+                </div>
+                <span asp-validation-for="Email" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="RoleId" class="form-label">Rol</label>
-                <select asp-for="RoleId" asp-items="ViewBag.Roles" class="form-select"></select>
-                <span asp-validation-for="RoleId" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <select asp-for="RoleId" asp-items="ViewBag.Roles" class="form-select ps-4" placeholder="Rol"></select>
+                    <label asp-for="RoleId" class="ps-4"><i class="bi bi-diagram-2 me-2 text-muted"></i>Rol</label>
+                </div>
+                <span asp-validation-for="RoleId" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Password" class="form-label">Sifre</label>
-                <input asp-for="Password" type="text" class="form-control">
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="Password" type="text" class="form-control ps-4" placeholder="Şifre">
+                    <label asp-for="Password" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>Geçici Şifre</label>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
 
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Personel hesabi olustur</button>
+            <div class="col-12 mt-4 pt-2">
+                <button type="submit" class="btn btn-primary px-4 py-2"><i class="bi bi-person-plus-fill me-2"></i>Personel Hesabı Oluştur</button>
             </div>
         </form>
     </div>
