@@ -70,8 +70,8 @@ public class AssistantController : Controller
             return Json(new ChatCommandResponse
             {
                 Action = "SistemHatasi",
-                ResponseText = "Chatbot su anda komutu isleyemedi ama sistem calismaya devam ediyor. Lutfen daha kisa bir komutla tekrar deneyin.",
-                IsSuccessful = false
+                ResponseText = "Uzgunum, su anda bu komutu isleyemiyorum. Lutfen farkli kelimelerle veya biraz daha kisa bir sekilde tekrar dener misiniz?",
+                IsSuccessful = true
             });
         }
     }
