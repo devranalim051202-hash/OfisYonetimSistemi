@@ -42,6 +42,26 @@ public class ChatBotCommandService
             return Success("BosKomut", "Lutfen bir sey yazin. Neler yapabildigimi gormek icin 'yardim' yazabilirsiniz.");
         }
 
+        if (IsGreeting(normalized))
+        {
+            return Success("Selamlama", "Merhaba. Ben Ofis Yonetim Sistemi AI Asistaniyim. Proje, gider, satis, daire, personel ve kar-zarar sorularina rol yetkinize gore cevap verebilirim.");
+        }
+
+        if (IsIdentityQuestion(normalized))
+        {
+            return Introduce(roleName);
+        }
+
+        if (IsHelpQuestion(normalized))
+        {
+            return Help(roleName);
+        }
+
+        if (IsPersonnelCommand(normalized))
+        {
+            return await ListPersonnelAsync(roleName);
+        }
+
         if (IsProjectListCommand(normalized))
         {
             return await ListProjectsAsync(roleName);
@@ -107,11 +127,6 @@ public class ChatBotCommandService
             return await ListExpensesAsync(normalized, roleName);
         }
 
-        if (IsPersonnelCommand(normalized))
-        {
-            return await ListPersonnelAsync(roleName);
-        }
-
         if (IsDashboardSummaryCommand(normalized))
         {
             return await ShowSystemSummaryAsync(roleName);
@@ -125,21 +140,6 @@ public class ChatBotCommandService
         if (IsProjectCreateCommand(normalized))
         {
             return ProjectCreateHelp(roleName);
-        }
-
-        if (IsGreeting(normalized))
-        {
-            return Success("Selamlama", "Merhaba. Ben Ofis Yonetim Sistemi AI Asistaniyim. Proje, gider, satis, daire, personel ve kar-zarar sorularina rol yetkinize gore cevap verebilirim.");
-        }
-
-        if (IsIdentityQuestion(normalized))
-        {
-            return Introduce(roleName);
-        }
-
-        if (IsHelpQuestion(normalized))
-        {
-            return Help(roleName);
         }
 
         return SmartFallback(normalized, roleName);
@@ -595,6 +595,13 @@ public class ChatBotCommandService
 
     private ChatCommandResponse SmartFallback(string normalized, string roleName)
     {
+        if (HasPersonnelIntent(normalized))
+        {
+            return CanViewPersonnel(roleName)
+                ? Success("Oneri", "Personel ile ilgili sordugunuzu anladim. Personel listesini ve gorevlerini gormek icin 'personeller ne is yapiyor' veya 'calisan listesi' yazabilirsiniz.")
+                : Unauthorized("PersonelListeleme");
+        }
+
         if (ContainsAny(normalized, "proje", "insaat", "santiye"))
         {
             return Success("Oneri", "Proje ile ilgili bir sey sordugunuzu anliyorum ancak tam olarak ne istediginizi cikaramadim. Sunlari deneyebilirsiniz: 'projeleri listele', 'wan projesi ne durumda', 'wan kar zarar'.");
@@ -761,11 +768,11 @@ public class ChatBotCommandService
     private static bool IsIdentityQuestion(string value) => ContainsAll(value, "kendini", "tanit") || ContainsAny(value, "sen kimsin", "nesin", "ne yaparsin", "kendinden bahset", "gorevin ne", "kimsiniz");
     private static bool IsHelpQuestion(string value) => ContainsAny(value, "yardim", "komutlar", "neler yapabilirsin", "ne yapabilirsin", "ornek komut", "nasil kullanilir", "neler sorabilirim");
     private static bool IsProjectListCommand(string value) => ContainsAll(value, "proje", "liste") || ContainsAll(value, "proje", "goster") || ContainsAny(value, "projeleri getir", "proje sorgula", "tum projeler", "hangi projeler var", "projeleri sirala", "mevcut projeler", "projelerimiz neler", "butun projeler");
-    private static bool IsProjectInfoCommand(string value) => ContainsAny(value, "ne durumda", "proje bilgisi", "proje ozeti", "detay", "hakkinda bilgi", "nasil gidiyor", "son durum", "bilgi ver") || ContainsAll(value, "projem", "ne durumda") || ContainsAll(value, "proje", "durum") || ContainsAny(value, "projem nasil", "projemiz ne alemde");
+    private static bool IsProjectInfoCommand(string value) => HasProjectIntent(value) && (ContainsAny(value, "ne durumda", "proje bilgisi", "proje ozeti", "detay", "hakkinda bilgi", "nasil gidiyor", "son durum", "bilgi ver") || ContainsAll(value, "proje", "durum") || ContainsAny(value, "projem nasil", "projemiz ne alemde"));
     private static bool IsApartmentSalesCommand(string value) => ContainsAny(value, "yapilan daire satis", "daire satislarini", "satislari goster", "satis raporu", "satilan daire satis", "ne kadar ev satildi", "satislari getir", "satis listesi", "satislar nasil") || ContainsAll(value, "daire", "satis", "liste");
     private static bool IsProfitLossCommand(string value) => ContainsAny(value, "kar zarar", "kar/zarar", "karlilik", "zarar durumu", "kazanc nedir", "ne kadar kazandik", "kar mi zarar mi", "gelir gider dengesi", "karimiz ne", "maliyet") || ContainsAll(value, "satis", "gider", "fark") || ContainsAll(value, "gelir", "gider", "hesapla");
     private static bool IsSupplierExpenseCommand(string value) => ContainsAny(value, "hangi firmadan ne alinmis", "firmadan ne alinmis", "firma gider", "tedarikci gider", "nerde gider olmus", "nerede gider olmus", "kimden ne aldik", "hangi tedarikci", "firma listesi", "firmalara ne odedik", "sirketlere odenen", "kimlere para gitti", "alinan ne", "hangi malzemeyi aldik", "hangi malzemeleri", "hangi firma", "nerden alindi", "nereden aldik") || ContainsAll(value, "firma", "gider") || ContainsAll(value, "tedarikci", "alinan");
-    private static bool IsPersonnelCommand(string value) => ContainsAny(value, "personeller ne is yapiyor", "personel gorev", "personelleri goster", "kim ne is yapiyor", "calisanlar ne is yapiyor", "personel listesi", "kimler calisiyor", "calisan listesi", "personel durum", "elemanlar", "ekipler", "kadro", "is bolumu") || ContainsAll(value, "personel", "liste");
+    private static bool IsPersonnelCommand(string value) => HasPersonnelIntent(value) && ContainsAny(value, "ne is yapiyor", "gorev", "goster", "liste", "kimler", "calisiyor", "durum", "eleman", "ekip", "kadro", "is bolumu", "rol");
     private static bool IsEmptyApartmentCommand(string value) => ContainsAll(value, "bos", "daire") || ContainsAll(value, "satilmayan", "daire") || ContainsAny(value, "uygun daire", "musait daire", "satilmamis ev", "bos ev", "elde kalan", "satilik ev");
     private static bool IsSoldApartmentCommand(string value) => ContainsAll(value, "satilan", "daire") || ContainsAll(value, "satilmis", "daire") || ContainsAny(value, "satilmis ev", "sahipli daire", "satisi biten", "satilan ev");
     private static bool IsExpenseQueryCommand(string value) => ContainsAll(value, "gider", "goster") || ContainsAll(value, "gider", "liste") || ContainsAny(value, "gider sorgula", "bu ayki gider", "aylik gider", "harcamalari goster", "masraflari goster", "ne harcadik", "toplam masraf", "gider raporu", "para nereye gitti", "ne kadar giderimiz", "masraflari sirala");
@@ -775,6 +782,9 @@ public class ChatBotCommandService
     private static bool IsBuyerListCommand(string value) => ContainsAny(value, "kimlere satis yapildi", "kimlere daire satildi", "musteri listesi", "kimler aldi", "alan kisiler", "alanlar kimler", "daire alanlar");
     private static bool IsLowStockCommand(string value) => ContainsAny(value, "stok durumu", "azalan malzemeler", "kritik stok", "neyimiz bitti", "ne bitti", "malzeme durumu", "stokta ne var");
     private static bool IsTopExpenseCategoryCommand(string value) => ContainsAny(value, "en cok gider", "en yuksek harcama", "nereye para harcadik", "en fazla masraf", "gider kalemleri");
+
+    private static bool HasProjectIntent(string value) => ContainsAny(value, "proje", "projem", "projemiz", "insaat", "santiye");
+    private static bool HasPersonnelIntent(string value) => ContainsAny(value, "personel", "personeller", "personler", "calisan", "calisanlar", "eleman", "elemanlar", "ekip", "kadro");
 
     private async Task<Project?> FindProjectFromCommandAsync(string normalizedCommand, bool fallbackToLatest = false)
     {
