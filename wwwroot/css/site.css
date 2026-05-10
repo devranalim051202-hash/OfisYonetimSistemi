@@ -2578,10 +2578,60 @@ body {
   background: #ffffff;
 }
 
+.brand-logo-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.brand-logo {
+  display: block;
+  width: auto;
+  object-fit: contain;
+}
+
+.brand-logo-public {
+  height: 62px;
+}
+
+.brand-logo-sidebar {
+  max-width: 204px;
+  height: 74px;
+}
+
+.brand-logo-mobile {
+  max-width: 148px;
+  height: 44px;
+}
+
+.public-header {
+  position: relative;
+  z-index: 20;
+  width: min(1180px, 100%);
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 12px 0;
+  margin: 0 auto 10px;
+}
+
+.public-brand {
+  flex: 0 0 auto;
+}
+
+.public-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 /* Public landing and auth */
 .premium-hero {
   min-height: 620px;
-  margin: 18px 0 28px;
+  margin: 0 0 28px;
   padding: 0;
   overflow: hidden;
   border: 1px solid var(--office-border);
@@ -2995,11 +3045,13 @@ body {
 }
 
 .sidebar-brand a {
+  min-height: 96px;
+  justify-content: center;
   padding: 12px;
   color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  background: #172033;
+  background: #ffffff;
   box-shadow: none;
 }
 
@@ -3145,6 +3197,10 @@ body {
 
 .app-mobile-brand {
   color: var(--office-text);
+}
+
+.app-mobile-brand.brand-logo-link {
+  min-width: 0;
 }
 
 /* Dashboard and content surfaces */
@@ -4026,6 +4082,29 @@ body {
 }
 
 @media (max-width: 767.98px) {
+  .public-header {
+    min-height: auto;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px 0;
+  }
+
+  .public-brand {
+    justify-content: center;
+  }
+
+  .brand-logo-public {
+    height: 52px;
+  }
+
+  .public-header-actions {
+    width: 100%;
+  }
+
+  .public-header-actions .btn {
+    flex: 1;
+  }
+
   .premium-hero {
     min-height: 560px;
   }
@@ -4111,6 +4190,11 @@ body {
 }
 
 @media (max-width: 575.98px) {
+  .brand-logo-mobile {
+    max-width: 116px;
+    height: 34px;
+  }
+
   .auth-choice-page,
   .auth-page,
   .form-page {

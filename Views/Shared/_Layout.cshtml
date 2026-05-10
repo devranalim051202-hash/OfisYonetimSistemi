@@ -39,24 +39,22 @@
                 <button class="btn app-menu-button" type="button" data-bs-toggle="offcanvas" data-bs-target="#appSidebar" aria-controls="appSidebar" aria-label="Menüyü aç">
                     <span class="app-menu-lines"></span>
                 </button>
-                <a class="app-mobile-brand" asp-controller="@homeController" asp-action="Index">Ofis Yönetim</a>
+                <a class="app-mobile-brand brand-logo-link" asp-controller="@homeController" asp-action="Index">
+                    <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="brand-logo brand-logo-mobile" />
+                </a>
                 <span class="app-mobile-user">@fullName</span>
             </div>
 
             <aside class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="appSidebar" aria-labelledby="appSidebarLabel">
                 <div class="offcanvas-header app-sidebar-header d-lg-none">
-                    <h5 class="offcanvas-title" id="appSidebarLabel">Ofis Yönetim</h5>
+                    <h5 class="offcanvas-title" id="appSidebarLabel">Smart Office</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#appSidebar" aria-label="Kapat"></button>
                 </div>
 
                 <div class="offcanvas-body app-sidebar-body">
                     <div class="sidebar-brand d-none d-lg-block">
                         <a asp-controller="@homeController" asp-action="Index">
-                            <span class="sidebar-brand-mark"><i class="bi bi-building"></i></span>
-                            <span>
-                                <strong>Ofis Yönetim</strong>
-                                <small>Proje Paneli</small>
-                            </span>
+                            <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="brand-logo brand-logo-sidebar" />
                         </a>
                     </div>
 

@@ -2,6 +2,16 @@
     ViewData["Title"] = "Ana Sayfa";
 }
 
+<header class="public-header">
+    <a class="brand-logo-link public-brand" asp-controller="Home" asp-action="Index">
+        <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="brand-logo brand-logo-public" />
+    </a>
+    <nav class="public-header-actions" aria-label="Ana sayfa işlemleri">
+        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Giriş Yap</a>
+        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Üye Ol</a>
+    </nav>
+</header>
+
 <section class="premium-hero">
     <div class="hero-slider">
         <span style="background-image:url('/images/landing/hero-1.png')"></span>
@@ -23,11 +33,6 @@
             malzeme hareketleri, firma kayıtları, fatura ve irsaliye süreçlerini
             düzenli ve anlaşılır bir yapıda takip edin.
         </p>
-
-        <div class="hero-actions">
-            <a class="premium-btn primary" asp-controller="Account" asp-action="Login">Sisteme Giriş Yap</a>
-            <a class="premium-btn secondary" asp-controller="Account" asp-action="Register">Hemen Üye Ol</a>
-        </div>
 
         <div class="hero-stats">
             <div>
