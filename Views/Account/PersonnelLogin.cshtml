@@ -2,29 +2,38 @@
     ViewData["Title"] = "Personel Girişi";
 }
 
-<section class="auth-page">
-    <div class="auth-panel">
-        <a class="auth-back-link" asp-controller="Account" asp-action="Login">Giriş seçimine dön</a>
-        <p class="eyebrow">Personel Paneli</p>
-        <h1>Personel Girişi</h1>
-        <p class="auth-help">Ofis personeli günlük kayıt ve takip işlemleri için buradan giriş yapar.</p>
+<section class="auth-split-page">
+    <div class="auth-split-media">
+        <div class="auth-split-caption">
+            <span>Akıllı Ofis</span>
+            <strong>Günlük işlemleri düzenli, hızlı ve okunabilir bir panelden takip edin.</strong>
+        </div>
+    </div>
 
-        @if (ViewBag.Message != null)
-        {
-            <div class="alert alert-info">@ViewBag.Message</div>
-        }
+    <div class="auth-split-content">
+        <div class="auth-panel auth-split-panel">
+            <a class="auth-back-link" asp-controller="Account" asp-action="Login">Giriş seçimine dön</a>
+            <p class="eyebrow">Personel Paneli</p>
+            <h1>Personel Girişi</h1>
+            <p class="auth-help">Ofis personeli günlük kayıt ve takip işlemleri için buradan giriş yapar.</p>
 
-        <form asp-controller="Account" asp-action="PersonnelLogin" method="post" class="auth-form">
-            @Html.AntiForgeryToken()
-            <div class="form-floating mb-3 position-relative">
-                <input id="email" name="email" type="email" class="form-control ps-4" placeholder="personel@ornek.com" required>
-                <label for="email" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>E-posta Adresi</label>
-            </div>
-            <div class="form-floating mb-4 position-relative">
-                <input id="password" name="password" type="password" class="form-control ps-4" placeholder="Şifrenizi girin" required>
-                <label for="password" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>Şifre</label>
-            </div>
-            <button type="submit" class="btn btn-primary w-100 py-2 fs-5"><i class="bi bi-box-arrow-in-right me-2"></i>Personel Girişi Yap</button>
-        </form>
+            @if (ViewBag.Message != null)
+            {
+                <div class="alert alert-info">@ViewBag.Message</div>
+            }
+
+            <form asp-controller="Account" asp-action="PersonnelLogin" method="post" class="auth-form">
+                @Html.AntiForgeryToken()
+                <div class="form-floating mb-3 position-relative">
+                    <input id="email" name="email" type="email" class="form-control ps-4" placeholder="personel@ornek.com" required>
+                    <label for="email" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>E-posta Adresi</label>
+                </div>
+                <div class="form-floating mb-4 position-relative">
+                    <input id="password" name="password" type="password" class="form-control ps-4" placeholder="Şifrenizi girin" required>
+                    <label for="password" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>Şifre</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-5"><i class="bi bi-box-arrow-in-right me-2"></i>Personel Girişi Yap</button>
+            </form>
+        </div>
     </div>
 </section>

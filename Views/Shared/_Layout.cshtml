@@ -4,11 +4,14 @@
     var roleName = Context.Session.GetString("RoleName");
     var fullName = Context.Session.GetString("FullName");
     var companyName = Context.Session.GetString("CompanyName");
-    var isLoggedIn = !string.IsNullOrEmpty(roleName);
-    var isManager = roleName == "Admin" || roleName == "Mudur";
-    var homeController = isManager ? "Manager" : "Personnel";
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var isAuthFlow = string.Equals(currentController, "Account", StringComparison.OrdinalIgnoreCase)
+        && new[] { "Login", "AdminLogin", "PersonnelLogin", "Register", "VerifyEmail" }
+            .Contains(currentAction, StringComparer.OrdinalIgnoreCase);
+    var isLoggedIn = !string.IsNullOrEmpty(roleName) && !isAuthFlow;
+    var isManager = roleName == "Admin" || roleName == "Mudur";
+    var homeController = isManager ? "Manager" : "Personnel";
 
     Func<string, bool> isActiveController = controller =>
         string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase);
