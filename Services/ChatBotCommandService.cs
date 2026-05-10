@@ -237,12 +237,12 @@ public class ChatBotCommandService
             .ToListAsync();
 
         var text = new StringBuilder();
-        if (!normalizedCommand.Contains(Normalize(project.Name))) 
+        if (!TextMatches(normalizedCommand, Normalize(project.Name))) 
         {
             text.AppendLine($"(Proje adi belirtilmedigi icin en guncel proje baz alindi)");
         }
         
-        text.AppendLine($"🏗️ {project.Name} Proje Ozeti:");
+        text.AppendLine($"{project.Name} Proje Ozeti:");
         text.AppendLine($"- Durum: {project.Status}");
         text.AppendLine($"- Konum: {project.Location ?? "-"}");
         text.AppendLine($"- Gelir (Satislar): {salesIncome:N2} TL");
@@ -616,7 +616,7 @@ public class ChatBotCommandService
                 : Unauthorized("PersonelListeleme");
         }
 
-        return Success("Bilinmeyen", "Uzgunum, ne demek istediginizi tam olarak anlayamadim. Sorunuzu biraz daha farkli ve basit kelimelerle sormayi dener misiniz? Hangi konularda yardimci olabilecegimi gormek icin 'yardim' yazabilirsiniz.");
+        return Success("Bilinmeyen", "Komutunuzu tam netlestiremedim ama ana kelimelerden anlamaya calisiyorum. Proje, gider, firma, satis, daire, personel, kar-zarar veya sistem ozeti gibi konularda soruyu biraz daha acik yazabilirsiniz.");
     }
 
     private async Task<ChatCommandResponse> ShowSpecificSupplierExpensesAsync(string supplierName, string roleName)
@@ -722,7 +722,7 @@ public class ChatBotCommandService
             .Distinct()
             .ToListAsync();
 
-        return suppliers.FirstOrDefault(s => !string.IsNullOrEmpty(s) && normalizedCommand.Contains(Normalize(s)));
+        return suppliers.FirstOrDefault(s => !string.IsNullOrEmpty(s) && TextMatches(normalizedCommand, Normalize(s)));
     }
 
     private async Task<string?> FindBuyerNameInCommandAsync(string normalizedCommand)
@@ -732,7 +732,7 @@ public class ChatBotCommandService
             .Distinct()
             .ToListAsync();
 
-        return buyers.FirstOrDefault(b => !string.IsNullOrEmpty(b) && normalizedCommand.Contains(Normalize(b)));
+        return buyers.FirstOrDefault(b => !string.IsNullOrEmpty(b) && TextMatches(normalizedCommand, Normalize(b)));
     }
 
     private async Task SafeLogAsync(int userId, string commandText, ChatCommandResponse response)
@@ -782,7 +782,7 @@ public class ChatBotCommandService
         foreach (var project in projects)
         {
             var name = Normalize(project.Name);
-            if (normalizedCommand.Contains(name))
+            if (TextMatches(normalizedCommand, name))
             {
                 return project;
             }
@@ -793,7 +793,7 @@ public class ChatBotCommandService
             .ToList();
 
         var bestMatch = projects
-            .Select(p => new { Project = p, Score = tokens.Count(t => Normalize(p.Name).Contains(t)) })
+            .Select(p => new { Project = p, Score = tokens.Count(t => TextMatches(Normalize(p.Name), t)) })
             .Where(x => x.Score > 0)
             .OrderByDescending(x => x.Score)
             .Select(x => x.Project)
@@ -850,9 +850,93 @@ public class ChatBotCommandService
         return Regex.Replace(normalized, @"\s+", " ").Trim();
     }
 
-    private static bool ContainsAny(string value, params string[] needles) => needles.Any(value.Contains);
-    private static bool ContainsAll(string value, params string[] needles) => needles.All(value.Contains);
-    private static bool IsExactAny(string value, params string[] options) => options.Any(option => string.Equals(value, option, StringComparison.OrdinalIgnoreCase));
+    private static bool ContainsAny(string value, params string[] needles) => needles.Any(needle => TextMatches(value, needle));
+    private static bool ContainsAll(string value, params string[] needles) => needles.All(needle => TextMatches(value, needle));
+    private static bool IsExactAny(string value, params string[] options) => options.Any(option => TextMatches(value, option));
+
+    private static bool TextMatches(string value, string query)
+    {
+        value = Normalize(value);
+        query = Normalize(query);
+
+        if (string.IsNullOrWhiteSpace(value) || string.IsNullOrWhiteSpace(query))
+        {
+            return false;
+        }
+
+        if (value.Contains(query))
+        {
+            return true;
+        }
+
+        var valueTokens = GetSearchTokens(value);
+        var queryTokens = GetSearchTokens(query);
+        if (!queryTokens.Any())
+        {
+            return false;
+        }
+
+        return queryTokens.All(queryToken => valueTokens.Any(valueToken => IsSimilarToken(valueToken, queryToken)));
+    }
+
+    private static List<string> GetSearchTokens(string value)
+    {
+        return Normalize(value)
+            .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+            .Where(token => token.Length > 1 && !KeywordStopWords.Contains(token))
+            .Distinct()
+            .ToList();
+    }
+
+    private static bool IsSimilarToken(string left, string right)
+    {
+        if (left == right || left.Contains(right) || right.Contains(left))
+        {
+            return true;
+        }
+
+        if (left.Length < 4 || right.Length < 4)
+        {
+            return false;
+        }
+
+        var distance = LevenshteinDistance(left, right);
+        var maxLength = Math.Max(left.Length, right.Length);
+        var tolerance = maxLength <= 5 ? 1 : 2;
+
+        return distance <= tolerance;
+    }
+
+    private static int LevenshteinDistance(string left, string right)
+    {
+        var costs = new int[right.Length + 1];
+        for (var j = 0; j <= right.Length; j++)
+        {
+            costs[j] = j;
+        }
+
+        for (var i = 1; i <= left.Length; i++)
+        {
+            var previousDiagonal = costs[0];
+            costs[0] = i;
+
+            for (var j = 1; j <= right.Length; j++)
+            {
+                var previousCost = costs[j];
+                var substitutionCost = left[i - 1] == right[j - 1] ? previousDiagonal : previousDiagonal + 1;
+                costs[j] = Math.Min(Math.Min(costs[j] + 1, costs[j - 1] + 1), substitutionCost);
+                previousDiagonal = previousCost;
+            }
+        }
+
+        return costs[right.Length];
+    }
+
+    private static readonly HashSet<string> KeywordStopWords = new()
+    {
+        "ve", "veya", "ile", "bir", "bu", "su", "o", "ne", "mi", "mu", "mı", "mü", "de", "da", "ki", "icin", "gibi",
+        "bana", "ben", "sen", "sana", "lutfen", "acaba", "olan", "olarak", "var", "yok"
+    };
 
     private static ChatCommandResponse Unauthorized(string action) => new()
     {
