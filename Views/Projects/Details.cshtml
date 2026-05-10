@@ -33,37 +33,42 @@
 }
 
 <section class="dashboard-page">
-    <div class="dashboard-header">
+    <div class="dashboard-header border-bottom pb-3 mb-4">
         <div>
-            <p class="eyebrow">Proje Detay</p>
+            <p class="eyebrow"><i class="bi bi-info-circle me-2"></i>Proje Detay</p>
             <h1>@Model.Name</h1>
-            <p>@(Model.Description ?? "Bu proje icin aciklama girilmemis.")</p>
+            <p class="text-muted">@(Model.Description ?? "Bu proje icin aciklama girilmemis.")</p>
         </div>
         <div class="hero-actions">
-            <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Index">Projelere Don</a>
-            <a class="btn btn-primary" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id">Duzenle</a>
+            <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Projelere Don</a>
+            <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square me-2"></i>Duzenle</a>
         </div>
     </div>
 
-    <div class="detail-grid">
-        <div class="detail-card">
-            <span>Durum</span>
+    <div class="detail-grid mb-5">
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-activity position-absolute text-primary opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-circle-fill me-2 text-primary" style="font-size: 0.5rem; vertical-align: middle;"></i>Durum</span>
             <strong>@Model.Status</strong>
         </div>
-        <div class="detail-card">
-            <span>Baslangic</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-calendar-event position-absolute text-success opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-calendar-check me-2 text-success"></i>Baslangic</span>
             <strong>@Model.StartDate.ToString("dd.MM.yyyy")</strong>
         </div>
-        <div class="detail-card">
-            <span>Bitis</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-calendar-x position-absolute text-danger opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-calendar-x me-2 text-danger"></i>Bitis</span>
             <strong>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</strong>
         </div>
-        <div class="detail-card">
-            <span>Toplam gider</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-cash-stack position-absolute text-warning opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-wallet2 me-2 text-warning"></i>Toplam gider</span>
             <strong>@totalExpense.ToString("N2") TL</strong>
         </div>
-        <div class="detail-card">
-            <span>Kalan sure</span>
+        <div class="detail-card position-relative overflow-hidden">
+            <i class="bi bi-hourglass-split position-absolute text-info opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+            <span><i class="bi bi-clock-history me-2 text-info"></i>Kalan sure</span>
             <strong>@remainingText</strong>
         </div>
     </div>
@@ -79,9 +84,9 @@
     }
 
     <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Proje ozeti</h2>
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header border-bottom pb-2 mb-3">
+                <h2><i class="bi bi-card-text me-2"></i>Proje özeti</h2>
             </div>
             <dl class="project-info-list">
                 <dt>Proje adi</dt>
@@ -103,10 +108,10 @@
     </div>
 
     <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Projeye ait giderler</h2>
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id">Gider Ekle</a>
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header border-bottom pb-2 mb-3">
+                <h2><i class="bi bi-receipt me-2"></i>Projeye ait giderler</h2>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id"><i class="bi bi-plus-lg me-1"></i>Gider Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
@@ -139,10 +144,10 @@
     </div>
 
     <div class="detail-section">
-        <div class="table-panel">
-            <div class="table-panel-header">
-                <h2>Projeye ait evraklar ve belgeler</h2>
-                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddDocument" asp-route-projectId="@Model.Id">Belge Ekle</a>
+        <div class="table-panel shadow-sm">
+            <div class="table-panel-header border-bottom pb-2 mb-3">
+                <h2><i class="bi bi-file-earmark-text me-2"></i>Projeye ait evraklar ve belgeler</h2>
+                <a class="btn btn-outline-primary btn-sm" asp-controller="Projects" asp-action="AddDocument" asp-route-projectId="@Model.Id"><i class="bi bi-file-earmark-plus me-1"></i>Belge Ekle</a>
             </div>
             <div class="table-responsive">
                 <table class="table align-middle">
@@ -172,7 +177,7 @@
                                 <td>@invoice.DocumentDate.ToString("dd.MM.yyyy")</td>
                                 <td class="text-end">
                                     <form asp-controller="Projects" asp-action="RemoveDocument" asp-route-id="@invoice.Id" method="post" class="d-inline">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">Cikart</button>
+                                        <button type="submit" class="btn btn-outline-danger btn-sm border-0" title="Çıkart"><i class="bi bi-trash"></i></button>
                                     </form>
                                 </td>
                             </tr>

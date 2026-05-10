@@ -16,49 +16,63 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="col-md-6">
-                <label asp-for="FirstName" class="form-label">Ad</label>
-                <input asp-for="FirstName" class="form-control">
-                <span asp-validation-for="FirstName" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="FirstName" class="form-control ps-4" placeholder="Ad">
+                    <label asp-for="FirstName" class="ps-4"><i class="bi bi-person me-2 text-muted"></i>Ad</label>
+                </div>
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="LastName" class="form-label">Soyad</label>
-                <input asp-for="LastName" class="form-control">
-                <span asp-validation-for="LastName" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="LastName" class="form-control ps-4" placeholder="Soyad">
+                    <label asp-for="LastName" class="ps-4"><i class="bi bi-person me-2 text-muted"></i>Soyad</label>
+                </div>
+                <span asp-validation-for="LastName" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="PhoneNumber" class="form-label">Telefon numarasi</label>
-                <input asp-for="PhoneNumber" class="form-control">
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="PhoneNumber" class="form-control ps-4" placeholder="Telefon">
+                    <label asp-for="PhoneNumber" class="ps-4"><i class="bi bi-telephone me-2 text-muted"></i>Telefon Numarası</label>
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
             </div>
 
             <div class="col-md-6">
-                <label asp-for="Email" class="form-label">Mail</label>
-                <input asp-for="Email" type="email" class="form-control">
-                <span asp-validation-for="Email" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="Email" type="email" class="form-control ps-4" placeholder="Mail">
+                    <label asp-for="Email" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>E-posta Adresi</label>
+                </div>
+                <span asp-validation-for="Email" class="text-danger small"></span>
             </div>
 
             <div class="col-md-8">
-                <label asp-for="CompanyName" class="form-label">Sirket ismi</label>
-                <input asp-for="CompanyName" class="form-control">
-                <span asp-validation-for="CompanyName" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="CompanyName" class="form-control ps-4" placeholder="Şirket">
+                    <label asp-for="CompanyName" class="ps-4"><i class="bi bi-building me-2 text-muted"></i>Şirket İsmi</label>
+                </div>
+                <span asp-validation-for="CompanyName" class="text-danger small"></span>
             </div>
 
             <div class="col-md-4">
-                <label asp-for="CompanySize" class="form-label">Sirket buyuklugu</label>
-                <input asp-for="CompanySize" type="number" min="1" class="form-control">
-                <span asp-validation-for="CompanySize" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="CompanySize" type="number" min="1" class="form-control ps-4" placeholder="Büyüklük">
+                    <label asp-for="CompanySize" class="ps-4"><i class="bi bi-people me-2 text-muted"></i>Şirket Büyüklüğü</label>
+                </div>
+                <span asp-validation-for="CompanySize" class="text-danger small"></span>
             </div>
 
             <div class="col-md-12">
-                <label asp-for="Password" class="form-label">Sifre</label>
-                <input asp-for="Password" type="password" class="form-control">
-                <span asp-validation-for="Password" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="Password" type="password" class="form-control ps-4" placeholder="Şifre">
+                    <label asp-for="Password" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>Şifre</label>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
 
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Dogrulama kodu gonder</button>
+            <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-5"><i class="bi bi-send me-2"></i>Doğrulama Kodu Gönder</button>
             </div>
         </form>
     </div>
