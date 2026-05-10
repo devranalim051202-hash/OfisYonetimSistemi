@@ -771,7 +771,7 @@ public class ChatBotCommandService
     private static bool IsProjectInfoCommand(string value) => HasProjectIntent(value) && (ContainsAny(value, "ne durumda", "proje bilgisi", "proje ozeti", "detay", "hakkinda bilgi", "nasil gidiyor", "son durum", "bilgi ver") || ContainsAll(value, "proje", "durum") || ContainsAny(value, "projem nasil", "projemiz ne alemde"));
     private static bool IsApartmentSalesCommand(string value) =>
         HasApartmentIntent(value) && HasSalesIntent(value) &&
-        (ContainsAny(value, "ne durumda", "goster", "liste", "rapor", "kimlere", "kime", "kimler", "nasil", "durum", "sorgula", "getir", "satildi", "sattim", "sattik") ||
+        (ContainsAny(value, "ne durumda", "goster", "liste", "rapor", "kimlere", "kimle", "kime", "kimler", "nasil", "durum", "sorgula", "getir", "satildi", "sattim", "sattik") ||
          ContainsAny(value, "yapilan daire satis", "daire satislarini", "satislari goster", "satis raporu", "satilan daire satis", "ne kadar ev satildi", "satislari getir", "satis listesi", "satislar nasil"));
     private static bool IsProfitLossCommand(string value) => ContainsAny(value, "kar zarar", "kar/zarar", "karlilik", "zarar durumu", "kazanc nedir", "ne kadar kazandik", "kar mi zarar mi", "gelir gider dengesi", "karimiz ne", "maliyet") || ContainsAll(value, "satis", "gider", "fark") || ContainsAll(value, "gelir", "gider", "hesapla");
     private static bool IsSupplierExpenseCommand(string value) => ContainsAny(value, "hangi firmadan ne alinmis", "firmadan ne alinmis", "firma gider", "tedarikci gider", "nerde gider olmus", "nerede gider olmus", "kimden ne aldik", "hangi tedarikci", "firma listesi", "firmalara ne odedik", "sirketlere odenen", "kimlere para gitti", "alinan ne", "hangi malzemeyi aldik", "hangi malzemeleri", "hangi firma", "nerden alindi", "nereden aldik") || ContainsAll(value, "firma", "gider") || ContainsAll(value, "tedarikci", "alinan");
@@ -782,7 +782,7 @@ public class ChatBotCommandService
     private static bool IsDashboardSummaryCommand(string value) => ContainsAny(value, "sistem ozeti", "genel ozet", "dashboard", "durum ozeti", "durum nedir", "genel durum", "ozet gec", "neler yapiyoruz", "isler nasil", "kisa ozet", "bana ozet ver");
     private static bool IsProjectCreateCommand(string value) => ContainsAll(value, "proje", "ekle") || ContainsAll(value, "yeni", "proje");
     private static bool LooksLikeExpenseCreate(string value) => ContainsAny(value, "gider ekle", "geldi", "alindi", "eklendi", "aldik", "gelmis", "dokuldu") && ContainsAny(value, "tl", "lira", "tanesi", "birim", "fiyati", "adet");
-    private static bool IsBuyerListCommand(string value) => HasApartmentIntent(value) && ContainsAny(value, "kimlere", "kime", "kimler", "musteri", "alici", "alan kisiler", "alanlar kimler", "daire alanlar", "sattim", "sattik");
+    private static bool IsBuyerListCommand(string value) => HasApartmentIntent(value) && ContainsAny(value, "kimlere", "kimle", "kime", "kimler", "musteri", "alici", "alan kisiler", "alanlar kimler", "daire alanlar", "sattim", "sattik");
     private static bool IsLowStockCommand(string value) => ContainsAny(value, "stok durumu", "azalan malzemeler", "kritik stok", "neyimiz bitti", "ne bitti", "malzeme durumu", "stokta ne var");
     private static bool IsTopExpenseCategoryCommand(string value) => ContainsAny(value, "en cok gider", "en yuksek harcama", "nereye para harcadik", "en fazla masraf", "gider kalemleri");
 
@@ -868,7 +868,7 @@ public class ChatBotCommandService
 
     private static bool ContainsAny(string value, params string[] needles) => needles.Any(needle => TextMatches(value, needle));
     private static bool ContainsAll(string value, params string[] needles) => needles.All(needle => TextMatches(value, needle));
-    private static bool IsExactAny(string value, params string[] options) => options.Any(option => TextMatches(value, option));
+    private static bool IsExactAny(string value, params string[] options) => options.Any(option => string.Equals(Normalize(value), Normalize(option), StringComparison.OrdinalIgnoreCase));
 
     private static bool TextMatches(string value, string query)
     {
@@ -880,7 +880,7 @@ public class ChatBotCommandService
             return false;
         }
 
-        if (value.Contains(query))
+        if (query.Length >= 3 && value.Contains(query))
         {
             return true;
         }
@@ -906,7 +906,7 @@ public class ChatBotCommandService
 
     private static bool IsSimilarToken(string left, string right)
     {
-        if (left == right || left.Contains(right) || right.Contains(left))
+        if (left == right || (right.Length >= 3 && left.Contains(right)) || (left.Length >= 3 && right.Contains(left)))
         {
             return true;
         }
