@@ -77,6 +77,11 @@ public class ChatBotCommandService
             return await ListLowStockMaterialsAsync(roleName);
         }
 
+        if (IsMaterialExpenseSummaryCommand(normalized))
+        {
+            return await ShowMaterialExpenseSummaryAsync(normalized, roleName);
+        }
+
         if (IsTopExpenseCategoryCommand(normalized))
         {
             return await ShowTopExpenseCategoriesAsync(roleName);
@@ -434,6 +439,102 @@ public class ChatBotCommandService
         return Success("GiderListeleme", $"Gider toplam: {total:N2} TL\n" + string.Join("\n", lines));
     }
 
+    private async Task<ChatCommandResponse> ShowMaterialExpenseSummaryAsync(string normalizedCommand, string roleName)
+    {
+        if (!CanViewExpenses(roleName))
+        {
+            return Unauthorized("MalzemeGiderOzeti");
+        }
+
+        var project = await FindProjectFromCommandAsync(normalizedCommand);
+        var query = _context.Expenses.AsNoTracking().Include(e => e.Project).AsQueryable();
+
+        if (IsCurrentMonthQuery(normalizedCommand))
+        {
+            var today = DateTime.Today;
+            query = query.Where(e => e.ExpenseDate.Month == today.Month && e.ExpenseDate.Year == today.Year);
+        }
+
+        if (project != null && !ContainsAny(normalizedCommand, "butun projeler", "tum projeler", "her projede", "tum projelerde"))
+        {
+            query = query.Where(e => e.ProjectId == project.Id);
+        }
+
+        var expenses = await query
+            .OrderByDescending(e => e.ExpenseDate)
+            .Select(e => new
+            {
+                ProjectName = e.Project != null ? e.Project.Name : "-",
+                e.Title,
+                e.SupplierName,
+                e.Quantity,
+                e.UnitPrice,
+                e.Amount,
+                e.ExpenseDate
+            })
+            .ToListAsync();
+
+        if (!expenses.Any())
+        {
+            return Success("MalzemeGiderOzeti", "Bu kriterlere uygun malzeme gideri bulunamadi.");
+        }
+
+        var materialTitle = await FindMaterialTitleInCommandAsync(normalizedCommand);
+        if (!string.IsNullOrWhiteSpace(materialTitle))
+        {
+            expenses = expenses
+                .Where(e => TextMatches(Normalize(e.Title), Normalize(materialTitle)))
+                .ToList();
+
+            if (!expenses.Any())
+            {
+                return Success("MalzemeGiderOzeti", $"{materialTitle} icin kayitli gider bulunamadi.");
+            }
+
+            var totalQuantity = expenses.Sum(e => e.Quantity);
+            var totalAmount = expenses.Sum(e => e.Amount);
+            var averageUnitPrice = totalQuantity > 0 ? totalAmount / totalQuantity : 0;
+            var period = IsCurrentMonthQuery(normalizedCommand) ? "Bu ay" : "Toplam";
+
+            var projectLines = expenses
+                .GroupBy(e => e.ProjectName)
+                .OrderByDescending(g => g.Sum(e => e.Amount))
+                .Take(8)
+                .Select(g => $"- {g.Key}: {g.Sum(e => e.Quantity):N2} adet | {g.Sum(e => e.Amount):N2} TL");
+
+            return Success(
+                "MalzemeGiderOzeti",
+                $"{period} {materialTitle} ozeti:\n" +
+                $"- Toplam miktar: {totalQuantity:N2}\n" +
+                $"- Toplam fiyat: {totalAmount:N2} TL\n" +
+                $"- Ortalama birim fiyat: {averageUnitPrice:N2} TL\n" +
+                "Proje dagilimi:\n" + string.Join("\n", projectLines));
+        }
+
+        var grouped = expenses
+            .GroupBy(e => e.Title)
+            .Select(g => new
+            {
+                Title = g.Key,
+                TotalQuantity = g.Sum(e => e.Quantity),
+                TotalAmount = g.Sum(e => e.Amount),
+                AverageUnitPrice = g.Sum(e => e.Quantity) > 0 ? g.Sum(e => e.Amount) / g.Sum(e => e.Quantity) : 0,
+                ProjectCount = g.Select(e => e.ProjectName).Distinct().Count()
+            })
+            .OrderByDescending(g => g.TotalAmount)
+            .Take(15)
+            .ToList();
+
+        var title = IsCurrentMonthQuery(normalizedCommand)
+            ? "Bu ay kullanilan malzemeler ve giderleri:"
+            : "Tum projelerde kullanilan malzemeler ve giderleri:";
+
+        var lines = grouped.Select(g =>
+            $"- {g.Title}: {g.TotalQuantity:N2} adet | {g.TotalAmount:N2} TL | Ortalama: {g.AverageUnitPrice:N2} TL | Proje: {g.ProjectCount}");
+
+        return Success("MalzemeGiderOzeti", title + "\n" + string.Join("\n", lines));
+    }
+
     private async Task<ChatCommandResponse> ListApartmentsAsync(string normalizedCommand, string roleName, bool isSold)
     {
         if (!CanViewSales(roleName))
@@ -742,6 +843,19 @@ public class ChatBotCommandService
         return buyers.FirstOrDefault(b => !string.IsNullOrEmpty(b) && TextMatches(normalizedCommand, Normalize(b)));
     }
 
+    private async Task<string?> FindMaterialTitleInCommandAsync(string normalizedCommand)
+    {
+        var titles = await _context.Expenses.AsNoTracking()
+            .Select(e => e.Title)
+            .Distinct()
+            .ToListAsync();
+
+        return titles
+            .Where(title => !string.IsNullOrWhiteSpace(title))
+            .OrderByDescending(title => title.Length)
+            .FirstOrDefault(title => TextMatches(normalizedCommand, Normalize(title)));
+    }
+
     private async Task SafeLogAsync(int userId, string commandText, ChatCommandResponse response)
     {
         try
@@ -779,6 +893,9 @@ public class ChatBotCommandService
     private static bool IsEmptyApartmentCommand(string value) => ContainsAll(value, "bos", "daire") || ContainsAll(value, "satilmayan", "daire") || ContainsAny(value, "uygun daire", "musait daire", "satilmamis ev", "bos ev", "elde kalan", "satilik ev");
     private static bool IsSoldApartmentCommand(string value) => !HasSalesQuestionIntent(value) && (ContainsAll(value, "satilan", "daire") || ContainsAll(value, "satilmis", "daire") || ContainsAny(value, "satilmis ev", "sahipli daire", "satisi biten", "satilan ev"));
     private static bool IsExpenseQueryCommand(string value) => ContainsAll(value, "gider", "goster") || ContainsAll(value, "gider", "liste") || ContainsAny(value, "gider sorgula", "bu ayki gider", "aylik gider", "harcamalari goster", "masraflari goster", "ne harcadik", "toplam masraf", "gider raporu", "para nereye gitti", "ne kadar giderimiz", "masraflari sirala");
+    private static bool IsMaterialExpenseSummaryCommand(string value) =>
+        ContainsAny(value, "malzeme", "malzemeleri", "malzemeler", "kullandim", "kullandigim", "kullandik", "aldim", "aldik", "alinan", "toplam ne kadar", "miktar", "adet") &&
+        ContainsAny(value, "gider", "fiyat", "tutar", "toplam", "ne kadar", "goster", "liste", "kullandim", "aldim", "aldik");
     private static bool IsDashboardSummaryCommand(string value) => ContainsAny(value, "sistem ozeti", "genel ozet", "dashboard", "durum ozeti", "durum nedir", "genel durum", "ozet gec", "neler yapiyoruz", "isler nasil", "kisa ozet", "bana ozet ver");
     private static bool IsProjectCreateCommand(string value) => ContainsAll(value, "proje", "ekle") || ContainsAll(value, "yeni", "proje");
     private static bool LooksLikeExpenseCreate(string value) => ContainsAny(value, "gider ekle", "geldi", "alindi", "eklendi", "aldik", "gelmis", "dokuldu") && ContainsAny(value, "tl", "lira", "tanesi", "birim", "fiyati", "adet");
@@ -791,6 +908,7 @@ public class ChatBotCommandService
     private static bool HasApartmentIntent(string value) => ContainsAny(value, "daire", "daireler", "daireleri", "ev", "evler", "konut");
     private static bool HasSalesIntent(string value) => ContainsAny(value, "satis", "satislar", "satislari", "satilan", "satildi", "satilmis", "sattim", "sattik", "satildi", "alici", "musteri");
     private static bool HasSalesQuestionIntent(string value) => HasSalesIntent(value) && ContainsAny(value, "ne durumda", "kimlere", "kime", "kimler", "satislari", "satislar", "rapor", "liste", "goster", "durum");
+    private static bool IsCurrentMonthQuery(string value) => ContainsAny(value, "bu ay", "aylik", "ayki", "bu ayki");
 
     private async Task<Project?> FindProjectFromCommandAsync(string normalizedCommand, bool fallbackToLatest = false)
     {
