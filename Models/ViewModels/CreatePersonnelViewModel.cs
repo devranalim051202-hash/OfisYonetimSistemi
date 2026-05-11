@@ -18,6 +18,11 @@ namespace OfisYonetimSistemi.Models.ViewModels
         public string Email { get; set; } = string.Empty;
 
         [Required]
+        [Phone]
+        [StringLength(30)]
+        public string PhoneNumber { get; set; } = string.Empty;
+
+        [Required]
         public int RoleId { get; set; } = 4;
 
         [Required]

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
+using OfisYonetimSistemi.Security;
 using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
@@ -19,7 +20,7 @@ public class ExpensesController : Controller
 
     public IActionResult Index()
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -29,7 +30,7 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -50,7 +51,7 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Create(int? projectId = null)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -77,7 +78,7 @@ public class ExpensesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Expense expense)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -135,7 +136,7 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -158,7 +159,7 @@ public class ExpensesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Expense expense)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -245,7 +246,7 @@ public class ExpensesController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -268,7 +269,7 @@ public class ExpensesController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseExpenses())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -356,8 +357,8 @@ public class ExpensesController : Controller
         return ($"/uploads/expense-documents/{safeFileName}", Path.GetFileName(file.FileName), file.ContentType);
     }
 
-    private bool IsLoggedIn()
+    private bool CanUseExpenses()
     {
-        return !string.IsNullOrEmpty(HttpContext.Session.GetString("RoleName"));
+        return RolePermissions.CanManageProjectExpenses(HttpContext.Session.GetString("RoleName"));
     }
 }

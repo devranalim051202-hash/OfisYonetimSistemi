@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
+using OfisYonetimSistemi.Security;
 
 namespace OfisYonetimSistemi.Controllers;
 
@@ -29,7 +30,7 @@ public class DocumentsController : Controller
 
     public async Task<IActionResult> Create()
     {
-        if (!IsLoggedIn())
+        if (!CanUseDocuments())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -42,7 +43,7 @@ public class DocumentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Invoice invoice)
     {
-        if (!IsLoggedIn())
+        if (!CanUseDocuments())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -86,8 +87,8 @@ public class DocumentsController : Controller
         ViewBag.Companies = new SelectList(companies, "Id", "Name", selectedCompanyId);
     }
 
-    private bool IsLoggedIn()
+    private bool CanUseDocuments()
     {
-        return !string.IsNullOrEmpty(HttpContext.Session.GetString("RoleName"));
+        return RolePermissions.CanManageProjectDocuments(HttpContext.Session.GetString("RoleName"));
     }
 }

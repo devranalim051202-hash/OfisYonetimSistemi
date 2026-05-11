@@ -17,8 +17,13 @@ namespace OfisYonetimSistemi.Models
                 new Role { Id = 2, Name = "Sekreter", Description = "Proje, evrak ve firma kayitlarini yonetir." },
                 new Role { Id = 3, Name = "Muhasebeci", Description = "Fatura ve gider islemlerini yonetir." },
                 new Role { Id = 4, Name = "Personel", Description = "Sinirli goruntuleme ve islem yetkisine sahiptir." },
-                new Role { Id = 5, Name = "Mudur", Description = "Personel hesaplarini yonetir ve kayitlari kontrol eder." }
+                new Role { Id = 5, Name = "Mudur", Description = "Personel hesaplarini yonetir ve kayitlari kontrol eder." },
+                new Role { Id = 6, Name = "Emlak", Description = "Emlak ve daire satis sureclerini takip eder." }
             );
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
 
             modelBuilder.Entity<User>().HasData(
                 new User

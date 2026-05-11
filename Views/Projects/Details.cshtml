@@ -4,7 +4,10 @@
     ViewData["Title"] = "Proje Detay";
     decimal totalExpense = ViewBag.TotalExpense ?? 0m;
     decimal directExpenseTotal = ViewBag.DirectExpenseTotal ?? 0m;
+    bool canEditProject = ViewBag.CanEditProject ?? false;
+    bool canManageApartmentInfo = ViewBag.CanManageApartmentInfo ?? false;
     bool canManageApartmentSales = ViewBag.CanManageApartmentSales ?? false;
+    bool canManageProjectExpenses = ViewBag.CanManageProjectExpenses ?? false;
     var maxApartmentColumnCount = Model.Apartments.Any()
         ? Model.Apartments.GroupBy(a => a.FloorNumber).Max(g => g.Count())
         : 0;
@@ -51,7 +54,10 @@
         </div>
         <div class="hero-actions">
             <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Projelere Don</a>
-            <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square me-2"></i>Duzenle</a>
+            @if (canEditProject)
+            {
+                <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square me-2"></i>Duzenle</a>
+            }
         </div>
     </div>
 
@@ -71,11 +77,14 @@
             <span><i class="bi bi-calendar-x me-2 text-danger"></i>Bitis</span>
             <strong>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</strong>
         </div>
-        <div class="detail-card position-relative overflow-hidden">
-            <i class="bi bi-cash-stack position-absolute text-warning opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
-            <span><i class="bi bi-wallet2 me-2 text-warning"></i>Toplam gider</span>
-            <strong>@totalExpense.ToString("N2") TL</strong>
-        </div>
+        @if (canManageProjectExpenses)
+        {
+            <div class="detail-card position-relative overflow-hidden">
+                <i class="bi bi-cash-stack position-absolute text-warning opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
+                <span><i class="bi bi-wallet2 me-2 text-warning"></i>Toplam gider</span>
+                <strong>@totalExpense.ToString("N2") TL</strong>
+            </div>
+        }
         <div class="detail-card position-relative overflow-hidden">
             <i class="bi bi-hourglass-split position-absolute text-info opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
             <span><i class="bi bi-clock-history me-2 text-info"></i>Kalan sure</span>
@@ -139,8 +148,11 @@
                 <dd>@remainingText</dd>
                 <dt>Kayit tarihi</dt>
                 <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
-                <dt>Proje gider toplami</dt>
-                <dd>@directExpenseTotal.ToString("N2") TL</dd>
+                @if (canManageProjectExpenses)
+                {
+                    <dt>Proje gider toplami</dt>
+                    <dd>@directExpenseTotal.ToString("N2") TL</dd>
+                }
                 <dt>Kat / daire sayisi</dt>
                 <dd>@Model.FloorCount kat / @Model.ApartmentCount daire</dd>
             </dl>
@@ -161,7 +173,7 @@
             }
             else
             {
-                @if (canManageApartmentSales)
+                @if (canManageApartmentInfo)
                 {
                     <form asp-controller="Projects" asp-action="BulkUpdateApartmentRoomType" method="post" class="row g-2 align-items-end mb-3 apartment-bulk-form">
                         @Html.AntiForgeryToken()
@@ -207,22 +219,12 @@
                                         var cellColor = apartment.IsSold ? "#198754" : "#ffffff";
                                         var textColor = apartment.IsSold ? "#ffffff" : "#111111";
                                         <td class="apartment-cell @(apartment.IsSold ? "is-sold" : "is-empty")">
-                                            @if (canManageApartmentSales)
-                                            {
-                                                <a asp-controller="Apartments" asp-action="Details" asp-route-id="@apartment.Id" style="display:block; color:inherit; text-decoration:none;">
-                                                    <strong>No @apartment.ApartmentNumber</strong><br>
-                                                    <span class="small">@apartment.RoomType</span><br>
-                                                    <span class="small">@apartment.Price.ToString("N0") TL</span><br>
-                                                    <span class="badge @(apartment.IsSold ? "bg-light text-success" : "bg-secondary") mt-1">@(apartment.IsSold ? "SATILDI" : "BOS")</span>
-                                                </a>
-                                            }
-                                            else
-                                            {
+                                            <a asp-controller="Apartments" asp-action="Details" asp-route-id="@apartment.Id" style="display:block; color:inherit; text-decoration:none;">
                                                 <strong>No @apartment.ApartmentNumber</strong><br>
                                                 <span class="small">@apartment.RoomType</span><br>
                                                 <span class="small">@apartment.Price.ToString("N0") TL</span><br>
                                                 <span class="badge @(apartment.IsSold ? "bg-light text-success" : "bg-secondary") mt-1">@(apartment.IsSold ? "SATILDI" : "BOS")</span>
-                                            }
+                                            </a>
                                         </td>
                                     }
                                     @for (var emptyIndex = floorGroup.Count(); emptyIndex < maxApartmentColumnCount; emptyIndex++)
@@ -238,6 +240,8 @@
         </div>
     </div>
 
+    @if (canManageProjectExpenses)
+    {
     <div class="detail-section">
         <div class="table-panel shadow-sm project-expenses-panel">
             <div class="table-panel-header border-bottom pb-2 mb-3">
@@ -300,6 +304,7 @@
             </div>
         </div>
     </div>
+    }
 </section>
 
 @if (projectImages.Any())

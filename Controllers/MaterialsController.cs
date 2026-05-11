@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Security;
 
 namespace OfisYonetimSistemi.Controllers;
 
@@ -17,7 +18,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> Index()
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -34,7 +35,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -64,7 +65,7 @@ public class MaterialsController : Controller
 
     public IActionResult Create()
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -76,7 +77,7 @@ public class MaterialsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Material material)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -96,7 +97,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -115,7 +116,7 @@ public class MaterialsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Material material)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -151,7 +152,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> Delete(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -172,7 +173,7 @@ public class MaterialsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -201,7 +202,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> StockIn(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -221,7 +222,7 @@ public class MaterialsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> StockIn(StockMovementFormViewModel model)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -251,7 +252,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> StockOut(int id)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -272,7 +273,7 @@ public class MaterialsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> StockOut(StockMovementFormViewModel model)
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -308,7 +309,7 @@ public class MaterialsController : Controller
 
     public async Task<IActionResult> History()
     {
-        if (!IsLoggedIn())
+        if (!CanUseMaterials())
         {
             return RedirectToAction("Login", "Account");
         }
@@ -350,8 +351,8 @@ public class MaterialsController : Controller
         ViewBag.Projects = new SelectList(projects, "Id", "Name");
     }
 
-    private bool IsLoggedIn()
+    private bool CanUseMaterials()
     {
-        return !string.IsNullOrEmpty(HttpContext.Session.GetString("RoleName"));
+        return RolePermissions.CanManageProjectMaterials(HttpContext.Session.GetString("RoleName"));
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
@@ -11,11 +12,16 @@ public class AccountController : Controller
 {
     private readonly AppDbContext _context;
     private readonly ActivityLogService _activityLogService;
+    private readonly LoginAttemptTracker _loginAttemptTracker;
 
-    public AccountController(AppDbContext context, ActivityLogService activityLogService)
+    public AccountController(
+        AppDbContext context,
+        ActivityLogService activityLogService,
+        LoginAttemptTracker loginAttemptTracker)
     {
         _context = context;
         _activityLogService = activityLogService;
+        _loginAttemptTracker = loginAttemptTracker;
     }
 
     public IActionResult Login()
@@ -30,21 +36,40 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("LoginPolicy")]
     public async Task<IActionResult> AdminLogin(string email, string password)
     {
+        email = NormalizeEmail(email);
+        var ipAddress = ClientIpAddress();
+        var lockoutStatus = _loginAttemptTracker.GetLockoutStatus(email, ipAddress);
+
+        if (lockoutStatus.IsLocked)
+        {
+            ApplyMvcLockout(lockoutStatus);
+            return View();
+        }
+
         var user = await _context.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
 
         if (user?.Role?.Name == "Admin" || user?.Role?.Name == "Mudur")
         {
+            _loginAttemptTracker.ResetEmail(email);
             SetSession(user);
             await _activityLogService.LogLoginAsync(user, "Giris", "Admin/Mudur girisi yapildi.", true);
             return RedirectToAction("Index", "Manager");
         }
 
-        await _activityLogService.LogLoginAsync(user, "GirisDenemesi", $"Basarisiz admin/mudur girisi: {email}", false);
-        ViewBag.Message = "Admin veya mudur hesabi bulunamadi.";
+        var failedStatus = _loginAttemptTracker.RecordFailedAttempt(email, ipAddress);
+
+        if (failedStatus.IsLocked)
+        {
+            ApplyMvcLockout(failedStatus);
+            return View();
+        }
+
+        ViewBag.Message = "Email veya sifre hatali.";
         return View();
     }
 
@@ -55,21 +80,40 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [EnableRateLimiting("LoginPolicy")]
     public async Task<IActionResult> PersonnelLogin(string email, string password)
     {
+        email = NormalizeEmail(email);
+        var ipAddress = ClientIpAddress();
+        var lockoutStatus = _loginAttemptTracker.GetLockoutStatus(email, ipAddress);
+
+        if (lockoutStatus.IsLocked)
+        {
+            ApplyMvcLockout(lockoutStatus);
+            return View();
+        }
+
         var user = await _context.Users
             .Include(u => u.Role)
             .FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
 
         if (user?.Role?.Name != null && user.Role.Name != "Admin" && user.Role.Name != "Mudur")
         {
+            _loginAttemptTracker.ResetEmail(email);
             SetSession(user);
             await _activityLogService.LogLoginAsync(user, "Giris", "Personel girisi yapildi.", true);
             return RedirectToAction("Index", "Personnel");
         }
 
-        await _activityLogService.LogLoginAsync(user, "GirisDenemesi", $"Basarisiz personel girisi: {email}", false);
-        ViewBag.Message = "Calisan hesabi bulunamadi.";
+        var failedStatus = _loginAttemptTracker.RecordFailedAttempt(email, ipAddress);
+
+        if (failedStatus.IsLocked)
+        {
+            ApplyMvcLockout(failedStatus);
+            return View();
+        }
+
+        ViewBag.Message = "Email veya sifre hatali.";
         return View();
     }
 
@@ -82,6 +126,7 @@ public class AccountController : Controller
 
     public IActionResult Register()
     {
+        HttpContext.Session.Clear();
         return View(new RegisterViewModel());
     }
 
@@ -89,6 +134,8 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
+        model.Email = NormalizeEmail(model.Email);
+
         if (await _context.Users.AnyAsync(u => u.Email == model.Email))
         {
             ModelState.AddModelError(nameof(model.Email), "Bu mail adresi zaten kullaniliyor.");
@@ -162,13 +209,24 @@ public class AccountController : Controller
         };
 
         _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            _context.Users.Remove(user);
+            ModelState.AddModelError(nameof(RegisterViewModel.Email), "Bu mail adresi zaten kullaniliyor.");
+            return View(nameof(Register), registerModel);
+        }
 
         HttpContext.Session.Remove("PendingRegister");
         HttpContext.Session.Remove("VerificationCode");
+        user.Role = await _context.Roles.FindAsync(user.RoleId);
+        SetSession(user);
 
-        TempData["SuccessMessage"] = "Uyelik olusturuldu. Mudur girisi yapabilirsiniz.";
-        return RedirectToAction(nameof(AdminLogin));
+        TempData["SuccessMessage"] = "Uyelik olusturuldu. Yeni sirket hesabiniz acildi.";
+        return RedirectToAction("Index", "Manager");
     }
 
     private void SetSession(User user)
@@ -178,5 +236,23 @@ public class AccountController : Controller
         HttpContext.Session.SetString("RoleName", user.Role?.Name ?? string.Empty);
         HttpContext.Session.SetString("CompanyName", user.CompanyName);
         HttpContext.Session.SetInt32("CompanySize", user.CompanySize);
+    }
+
+    private static string NormalizeEmail(string? email)
+    {
+        return (email ?? string.Empty).Trim().ToLowerInvariant();
+    }
+
+    private string ClientIpAddress()
+    {
+        return HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+    }
+
+    private void ApplyMvcLockout(LoginLockoutStatus lockoutStatus)
+    {
+        var retryAfterSeconds = Math.Max(1, (int)Math.Ceiling(lockoutStatus.RetryAfter.TotalSeconds));
+        Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        Response.Headers.RetryAfter = retryAfterSeconds.ToString();
+        ViewBag.Message = $"Cok fazla hatali giris denemesi yapildi. Lutfen {Math.Ceiling(lockoutStatus.RetryAfter.TotalMinutes)} dakika sonra tekrar deneyin.";
     }
 }

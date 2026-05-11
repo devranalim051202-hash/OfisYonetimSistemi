@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OfisYonetimSistemi.Models;
 
@@ -11,9 +12,11 @@ using OfisYonetimSistemi.Models;
 namespace OfisYonetimSistemi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511104821_AddUniqueUserEmailIndex")]
+    partial class AddUniqueUserEmailIndex
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -591,12 +594,6 @@ namespace OfisYonetimSistemi.Migrations
                             Id = 5,
                             Description = "Personel hesaplarini yonetir ve kayitlari kontrol eder.",
                             Name = "Mudur"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Description = "Emlak ve daire satis sureclerini takip eder.",
-                            Name = "Emlak"
                         });
                 });
 

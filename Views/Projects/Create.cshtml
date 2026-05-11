@@ -10,7 +10,7 @@
         <div class="mb-4">
             <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>Proje Yönetimi</p>
             <h1>Proje Ekle</h1>
-            <p class="text-muted">Yeni proje kaydı oluşturun. Malzeme, gider ve evrak kayıtları daha sonra bu projeye bağlanacak.</p>
+            <p class="text-muted">Yeni proje kaydı oluşturun. Gider, evrak ve daire kayıtları daha sonra bu projeye bağlanacak.</p>
         </div>
 
         <form asp-controller="Projects" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4">
@@ -29,3 +29,4 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+

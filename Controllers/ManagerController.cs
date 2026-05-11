@@ -25,18 +25,32 @@ public class ManagerController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        ViewBag.PersonnelCount = await _context.Users.CountAsync(u => u.RoleId != 1);
+        var usersQuery = _context.Users
+            .Include(u => u.Role)
+            .Where(u => u.RoleId != 1);
+
+        var activityLogsQuery = _context.ActivityLogs
+            .Include(l => l.User)
+            .Where(l => l.IsSuccessful)
+            .AsQueryable();
+
+        if (!IsAdmin())
+        {
+            var companyName = CurrentCompanyName();
+            usersQuery = usersQuery.Where(u => u.CompanyName == companyName);
+            activityLogsQuery = activityLogsQuery.Where(l => l.User != null && l.User.CompanyName == companyName);
+        }
+
+        ViewBag.PersonnelCount = await usersQuery.CountAsync();
         ViewBag.ProjectCount = await _context.Projects.CountAsync();
         ViewBag.InvoiceCount = await _context.Invoices.CountAsync();
         ViewBag.ExpenseCount = await _context.Expenses.CountAsync();
-        ViewBag.RecentActivityLogs = await _context.ActivityLogs
+        ViewBag.RecentActivityLogs = await activityLogsQuery
             .OrderByDescending(l => l.CreatedAt)
             .Take(8)
             .ToListAsync();
 
-        var users = await _context.Users
-            .Include(u => u.Role)
-            .Where(u => u.RoleId != 1)
+        var users = await usersQuery
             .OrderByDescending(u => u.CreatedAt)
             .ToListAsync();
 
@@ -59,6 +73,8 @@ public class ManagerController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CreatePersonnel(CreatePersonnelViewModel model)
     {
+        model.Email = NormalizeEmail(model.Email);
+
         if (!IsManager())
         {
             await _activityLogService.LogAsync("YetkisizDeneme", "Personeller", null, "Personel olusturma islemi yetkisiz denendi.", false);
@@ -81,7 +97,7 @@ public class ManagerController : Controller
             FirstName = model.FirstName,
             LastName = model.LastName,
             FullName = $"{model.FirstName} {model.LastName}",
-            PhoneNumber = string.Empty,
+            PhoneNumber = model.PhoneNumber,
             CompanyName = HttpContext.Session.GetString("CompanyName") ?? string.Empty,
             CompanySize = HttpContext.Session.GetInt32("CompanySize") ?? 0,
             Email = model.Email,
@@ -90,7 +106,18 @@ public class ManagerController : Controller
         };
 
         _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            _context.Users.Remove(user);
+            ModelState.AddModelError(nameof(model.Email), "Bu mail adresi zaten kullaniliyor.");
+            await FillRolesAsync();
+            return View(model);
+        }
+
         await _activityLogService.LogAsync("Ekleme", "Personeller", user.Id, $"{user.FullName} personel hesabi olusturuldu.");
 
         TempData["SuccessMessage"] = "Personel hesabi olusturuldu.";
@@ -104,9 +131,17 @@ public class ManagerController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        var users = await _context.Users
+        var usersQuery = _context.Users
             .Include(u => u.Role)
-            .Where(u => u.RoleId != 1)
+            .Where(u => u.RoleId != 1);
+
+        if (!IsAdmin())
+        {
+            var companyName = CurrentCompanyName();
+            usersQuery = usersQuery.Where(u => u.CompanyName == companyName);
+        }
+
+        var users = await usersQuery
             .OrderByDescending(u => u.CreatedAt)
             .ToListAsync();
 
@@ -128,9 +163,17 @@ public class ManagerController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        var user = await _context.Users
+        var userQuery = _context.Users
             .Include(u => u.Expenses)
-            .FirstOrDefaultAsync(u => u.Id == id && u.RoleId != 1);
+            .Where(u => u.Id == id && u.RoleId != 1);
+
+        if (!IsAdmin())
+        {
+            var companyName = CurrentCompanyName();
+            userQuery = userQuery.Where(u => u.CompanyName == companyName);
+        }
+
+        var user = await userQuery.FirstOrDefaultAsync();
 
         if (user == null)
         {
@@ -167,13 +210,35 @@ public class ManagerController : Controller
         return roleName == "Admin" || roleName == "Mudur";
     }
 
+    private bool IsAdmin()
+    {
+        return HttpContext.Session.GetString("RoleName") == "Admin";
+    }
+
+    private string CurrentCompanyName()
+    {
+        return HttpContext.Session.GetString("CompanyName") ?? string.Empty;
+    }
+
+    private static string NormalizeEmail(string? email)
+    {
+        return (email ?? string.Empty).Trim().ToLowerInvariant();
+    }
+
     private async Task FillRolesAsync()
     {
         var roles = await _context.Roles
-            .Where(r => r.Name != "Admin" && r.Name != "Mudur")
+            .Where(r => r.Name != "Admin" && r.Name != "Personel")
             .OrderBy(r => r.Name)
             .ToListAsync();
 
-        ViewBag.Roles = new SelectList(roles, "Id", "Name");
+        ViewBag.Roles = new SelectList(
+            roles.Select(r => new
+            {
+                r.Id,
+                Name = r.Name == "Muhasebeci" ? "Muhasebe" : r.Name
+            }),
+            "Id",
+            "Name");
     }
 }

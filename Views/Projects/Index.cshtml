@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Projeler";
+    bool canCreateProject = ViewBag.CanCreateProject ?? false;
+    bool canEditProject = ViewBag.CanEditProject ?? false;
+    bool canDeleteProject = ViewBag.CanDeleteProject ?? false;
 }
 
 <section class="dashboard-page">
@@ -11,7 +14,10 @@
             <h1>Projeler</h1>
             <p>Ofiste takip edilen işleri proje bazlı kaydedin; gider, evrak, daire ve ekip süreçlerini tek portföy üzerinden izleyin.</p>
         </div>
-        <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Proje Ekle</a>
+        @if (canCreateProject)
+        {
+            <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Proje Ekle</a>
+        }
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -32,7 +38,10 @@
             </div>
             <div class="projects-panel-actions">
                 <span class="premium-count bg-light"><i class="bi bi-collection me-2"></i>@Model.Count() proje</span>
-                <a class="btn btn-primary btn-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Yeni Proje</a>
+                @if (canCreateProject)
+                {
+                    <a class="btn btn-primary btn-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Yeni Proje</a>
+                }
             </div>
         </div>
 
@@ -41,8 +50,11 @@
             <div class="premium-empty-state">
                 <span><i class="bi bi-folder-plus"></i></span>
                 <h3>Henuz proje eklenmedi</h3>
-                <p>Ilk projeyi olusturarak gider, evrak ve malzeme takiplerini proje icinde toplamaya baslayin.</p>
-                <a class="btn btn-primary" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Ilk Projeyi Ekle</a>
+                <p>Ilk projeyi olusturarak gider, evrak ve daire takiplerini proje icinde toplamaya baslayin.</p>
+                @if (canCreateProject)
+                {
+                    <a class="btn btn-primary" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Ilk Projeyi Ekle</a>
+                }
             </div>
         }
         else
@@ -89,8 +101,14 @@
 
                         <div class="project-card-actions mt-3">
                             <a class="btn btn-primary flex-grow-1" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><i class="bi bi-arrow-right-circle me-1"></i>Projeye Gir</a>
-                            <a class="btn btn-outline-secondary px-3" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id" title="Düzenle"><i class="bi bi-pencil-square"></i></a>
-                            <a class="btn btn-outline-danger px-3" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" title="Sil"><i class="bi bi-trash"></i></a>
+                            @if (canEditProject)
+                            {
+                                <a class="btn btn-outline-secondary px-3" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id" title="Düzenle"><i class="bi bi-pencil-square"></i></a>
+                            }
+                            @if (canDeleteProject)
+                            {
+                                <a class="btn btn-outline-danger px-3" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" title="Sil"><i class="bi bi-trash"></i></a>
+                            }
                         </div>
                     </article>
                 }

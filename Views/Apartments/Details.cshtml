@@ -2,19 +2,24 @@
 
 @{
     ViewData["Title"] = "Daire Detay";
+    bool canManageApartmentInfo = ViewBag.CanManageApartmentInfo ?? false;
+    bool canManageApartmentSales = ViewBag.CanManageApartmentSales ?? false;
 }
 
 <section class="dashboard-page">
     <div class="dashboard-header">
         <div>
             <p class="eyebrow">Daire Detay</p>
-            <h1>@Model.Project?.Name - No @Model.ApartmentNumber</h1>
-            <p>@Model.FloorNumber. kat, @Model.RoomType, @(Model.IsSold ? "Satildi" : "Bos")</p>
+            <h1 class="apartment-detail-title">@Model.Project?.Name - No @Model.ApartmentNumber</h1>
+            <p class="apartment-detail-summary">@Model.FloorNumber. kat, @Model.RoomType, @(Model.IsSold ? "Satildi" : "Bos")</p>
         </div>
         <div class="hero-actions">
             <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
-            <a class="btn btn-outline-primary" asp-controller="Apartments" asp-action="Edit" asp-route-id="@Model.Id">Daire Bilgilerini Duzenle</a>
-            @if (!Model.IsSold)
+            @if (canManageApartmentInfo)
+            {
+                <a class="btn btn-outline-primary" asp-controller="Apartments" asp-action="Edit" asp-route-id="@Model.Id">Daire Bilgilerini Duzenle</a>
+            }
+            @if (canManageApartmentSales && !Model.IsSold)
             {
                 <a class="btn btn-primary" asp-controller="Apartments" asp-action="Sell" asp-route-id="@Model.Id">Satis Yap</a>
             }
@@ -38,13 +43,13 @@
             </div>
             <dl class="project-info-list">
                 <dt>Proje</dt>
-                <dd>@(Model.Project?.Name ?? "-")</dd>
+                <dd class="apartment-field-value">@(Model.Project?.Name ?? "-")</dd>
                 <dt>Kat</dt>
-                <dd>@Model.FloorNumber</dd>
+                <dd class="apartment-field-value">@Model.FloorNumber</dd>
                 <dt>Daire no</dt>
-                <dd>@Model.ApartmentNumber</dd>
+                <dd class="apartment-field-value">@Model.ApartmentNumber</dd>
                 <dt>Oda tipi</dt>
-                <dd>@Model.RoomType</dd>
+                <dd class="apartment-field-value">@Model.RoomType</dd>
                 <dt>Brut alan</dt>
                 <dd>@Model.GrossArea.ToString("N2") m2</dd>
                 <dt>Net alan</dt>
@@ -88,7 +93,10 @@
                 <div class="table-panel-header">
                     <h2>Satis sozlesmesi</h2>
                     <div class="hero-actions">
-                        <a class="btn btn-outline-primary btn-sm" asp-controller="Apartments" asp-action="EditContract" asp-route-id="@Model.Id">Sozlesmeyi Duzenle</a>
+                        @if (canManageApartmentSales)
+                        {
+                            <a class="btn btn-outline-primary btn-sm" asp-controller="Apartments" asp-action="EditContract" asp-route-id="@Model.Id">Sozlesmeyi Duzenle</a>
+                        }
                         <button type="button" class="btn btn-outline-secondary btn-sm" onclick="window.print()">Yazdir</button>
                     </div>
                 </div>

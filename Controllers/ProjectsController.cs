@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Security;
 using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
@@ -52,6 +53,7 @@ public class ProjectsController : Controller
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
 
+        SetProjectPermissionViewBags();
         return View(projects);
     }
 
@@ -86,7 +88,7 @@ public class ProjectsController : Controller
         ViewBag.InvoiceTotal = project.Invoices.Sum(i => i.TotalAmount);
         ViewBag.DirectExpenseTotal = project.Expenses.Sum(e => e.Amount);
         ViewBag.TotalExpense = ViewBag.DirectExpenseTotal;
-        ViewBag.CanManageApartmentSales = IsManager();
+        SetProjectPermissionViewBags();
 
         return View(project);
     }
@@ -96,6 +98,12 @@ public class ProjectsController : Controller
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!RolePermissions.CanCreateProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Yeni proje olusturma yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Index));
         }
 
         FillStatuses();
@@ -109,6 +117,12 @@ public class ProjectsController : Controller
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!RolePermissions.CanCreateProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Yeni proje olusturma yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Index));
         }
 
         if (!ProjectStatuses.Contains(model.Status))
@@ -164,6 +178,12 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanEditProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Proje duzenleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
         var project = await _context.Projects
             .Include(p => p.ProjectImages)
             .FirstOrDefaultAsync(p => p.Id == id);
@@ -184,6 +204,12 @@ public class ProjectsController : Controller
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!RolePermissions.CanEditProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Proje duzenleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         if (id != model.Id)
@@ -259,6 +285,12 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanDeleteProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Proje silme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var project = await _context.Projects
             .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -277,6 +309,12 @@ public class ProjectsController : Controller
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!RolePermissions.CanDeleteProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Proje silme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Index));
         }
 
         var project = await _context.Projects
@@ -324,6 +362,14 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanEditProject(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Proje gorseli silme yetkiniz bulunmamaktadir.";
+            return projectId.HasValue
+                ? RedirectToAction(nameof(Edit), new { id = projectId.Value })
+                : RedirectToAction(nameof(Index));
+        }
+
         var image = await _context.ProjectImages.AsNoTracking().FirstOrDefaultAsync(i => i.Id == id);
 
         if (image == null)
@@ -355,6 +401,12 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanManageProjectMaterials(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Projeye malzeme ekleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = projectId });
+        }
+
         var project = await _context.Projects.FindAsync(projectId);
 
         if (project == null)
@@ -373,6 +425,12 @@ public class ProjectsController : Controller
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!RolePermissions.CanManageProjectMaterials(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Projeye malzeme ekleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = model.ProjectId });
         }
 
         var project = await _context.Projects.FindAsync(model.ProjectId);
@@ -430,6 +488,12 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanManageProjectMaterials(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Projeden malzeme kaldirma yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var movement = await _context.StockMovements
             .Include(sm => sm.Material)
             .FirstOrDefaultAsync(sm => sm.Id == id);
@@ -460,6 +524,12 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanManageProjectDocuments(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Projeye belge ekleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = projectId });
+        }
+
         var project = await _context.Projects.FindAsync(projectId);
 
         if (project == null)
@@ -478,6 +548,12 @@ public class ProjectsController : Controller
         if (!IsLoggedIn())
         {
             return RedirectToAction("Login", "Account");
+        }
+
+        if (!RolePermissions.CanManageProjectDocuments(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Projeye belge ekleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = model.ProjectId });
         }
 
         var project = await _context.Projects.FindAsync(model.ProjectId);
@@ -535,6 +611,12 @@ public class ProjectsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
+        if (!RolePermissions.CanManageProjectDocuments(CurrentRole()))
+        {
+            TempData["ErrorMessage"] = "Proje evraki kaldirma yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Index));
+        }
+
         var invoice = await _context.Invoices.FindAsync(id);
 
         if (invoice == null)
@@ -555,10 +637,11 @@ public class ProjectsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> BulkUpdateApartmentRoomType(int projectId, string selectionType, int selectionNumber, string roomType)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentInfo(CurrentRole()))
         {
             await _activityLogService.LogAsync("YetkisizDeneme", "Daireler", projectId, "Daire oda tipi toplu guncelleme yetkisiz denendi.", false);
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Daire bilgilerini toplu guncelleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = projectId });
         }
 
         if (string.IsNullOrWhiteSpace(roomType))
@@ -718,9 +801,21 @@ public class ProjectsController : Controller
         return !string.IsNullOrEmpty(HttpContext.Session.GetString("RoleName"));
     }
 
-    private bool IsManager()
+    private string? CurrentRole()
     {
-        var roleName = HttpContext.Session.GetString("RoleName");
-        return roleName == "Admin" || roleName == "Mudur";
+        return HttpContext.Session.GetString("RoleName");
+    }
+
+    private void SetProjectPermissionViewBags()
+    {
+        var roleName = CurrentRole();
+        ViewBag.CanCreateProject = RolePermissions.CanCreateProject(roleName);
+        ViewBag.CanEditProject = RolePermissions.CanEditProject(roleName);
+        ViewBag.CanDeleteProject = RolePermissions.CanDeleteProject(roleName);
+        ViewBag.CanManageApartmentInfo = RolePermissions.CanManageApartmentInfo(roleName);
+        ViewBag.CanManageApartmentSales = RolePermissions.CanManageApartmentSales(roleName);
+        ViewBag.CanManageProjectExpenses = RolePermissions.CanManageProjectExpenses(roleName);
+        ViewBag.CanManageProjectDocuments = RolePermissions.CanManageProjectDocuments(roleName);
+        ViewBag.CanManageProjectMaterials = RolePermissions.CanManageProjectMaterials(roleName);
     }
 }

@@ -43,6 +43,14 @@
 
             <div class="col-md-6">
                 <div class="form-floating position-relative">
+                    <input asp-for="PhoneNumber" type="tel" maxlength="30" class="form-control ps-4" placeholder="Telefon">
+                    <label asp-for="PhoneNumber" class="ps-4"><i class="bi bi-telephone me-2 text-muted"></i>Telefon Numarasi</label>
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <div class="form-floating position-relative">
                     <select asp-for="RoleId" asp-items="ViewBag.Roles" class="form-select ps-4" placeholder="Rol"></select>
                     <label asp-for="RoleId" class="ps-4"><i class="bi bi-diagram-2 me-2 text-muted"></i>Rol</label>
                 </div>

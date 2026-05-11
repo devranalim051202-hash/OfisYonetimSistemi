@@ -69,11 +69,31 @@
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
             const commandButtons = document.querySelectorAll("[data-command]");
 
-            const addMessage = (text, type) => {
+            const addMessage = (text, type, suggestions = []) => {
                 const message = document.createElement("div");
                 message.className = `assistant-message assistant-message-${type}`;
                 message.textContent = text;
                 messages.appendChild(message);
+
+                if (Array.isArray(suggestions) && suggestions.length > 0) {
+                    const suggestionList = document.createElement("div");
+                    suggestionList.className = "assistant-suggestion-chips";
+
+                    suggestions.forEach((suggestion) => {
+                        const chip = document.createElement("button");
+                        chip.type = "button";
+                        chip.className = "assistant-suggestion-chip";
+                        chip.textContent = suggestion;
+                        chip.addEventListener("click", () => {
+                            input.value = suggestion;
+                            input.focus();
+                        });
+                        suggestionList.appendChild(chip);
+                    });
+
+                    messages.appendChild(suggestionList);
+                }
+
                 messages.scrollTop = messages.scrollHeight;
             };
 
@@ -99,7 +119,7 @@
                     });
 
                     const data = await response.json();
-                    addMessage(data.responseText || "Cevap alınamadı.", data.isSuccessful ? "bot" : "error");
+                    addMessage(data.responseText || "Cevap alınamadı.", data.isSuccessful ? "bot" : "error", data.suggestions);
                 } catch {
                     addMessage("Smart Office AI Asistan şu anda cevap veremiyor.", "error");
                 }

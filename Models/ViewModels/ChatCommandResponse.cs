@@ -7,5 +7,7 @@ namespace OfisYonetimSistemi.Models.ViewModels
         public string ResponseText { get; set; } = string.Empty;
 
         public bool IsSuccessful { get; set; }
+
+        public List<string> Suggestions { get; set; } = new();
     }
 }

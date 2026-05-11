@@ -24,8 +24,18 @@ public class ActivityLogsController : Controller
             return RedirectToAction("Login", "Account");
         }
 
-        var logs = await _context.ActivityLogs
+        var logsQuery = _context.ActivityLogs
             .AsNoTracking()
+            .Include(l => l.User)
+            .Where(l => l.IsSuccessful);
+
+        if (!IsAdmin())
+        {
+            var companyName = CurrentCompanyName();
+            logsQuery = logsQuery.Where(l => l.User != null && l.User.CompanyName == companyName);
+        }
+
+        var logs = await logsQuery
             .OrderByDescending(l => l.CreatedAt)
             .Take(200)
             .ToListAsync();
@@ -37,5 +47,15 @@ public class ActivityLogsController : Controller
     {
         var roleName = HttpContext.Session.GetString("RoleName");
         return roleName == "Admin" || roleName == "Mudur";
+    }
+
+    private bool IsAdmin()
+    {
+        return HttpContext.Session.GetString("RoleName") == "Admin";
+    }
+
+    private string CurrentCompanyName()
+    {
+        return HttpContext.Session.GetString("CompanyName") ?? string.Empty;
     }
 }

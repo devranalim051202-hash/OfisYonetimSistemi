@@ -2,6 +2,8 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
+using Microsoft.ML.Data;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
 
@@ -55,6 +57,12 @@ public class ChatBotCommandService
         if (IsHelpQuestion(normalized))
         {
             return Help(roleName);
+        }
+
+        var intent = ChatIntentClassifier.Predict(normalized);
+        if (intent.IsConfident)
+        {
+            return await ExecuteIntentAsync(intent.Intent, command, normalized, userId, roleName);
         }
 
         if (IsPersonnelCommand(normalized))
@@ -150,6 +158,42 @@ public class ChatBotCommandService
         return SmartFallback(normalized, roleName);
     }
 
+    private async Task<ChatCommandResponse> ExecuteIntentAsync(string intent, string command, string normalized, int userId, string roleName)
+    {
+        return intent switch
+        {
+            IntentNames.Personnel => await ListPersonnelAsync(roleName),
+            IntentNames.ProjectList => await ListProjectsAsync(roleName),
+            IntentNames.ProjectInfo => await ShowProjectInfoAsync(normalized, roleName),
+            IntentNames.ExpenseList => await ListExpensesAsync(normalized, roleName),
+            IntentNames.SupplierExpense => await ShowSupplierExpensesAsync(normalized, roleName),
+            IntentNames.MaterialExpense => await ShowMaterialExpenseSummaryAsync(normalized, roleName),
+            IntentNames.ProfitLoss => await ShowProfitLossAsync(normalized, roleName),
+            IntentNames.ApartmentSales => await ExecuteApartmentSalesIntentAsync(normalized, roleName),
+            IntentNames.EmptyApartments => await ListApartmentsAsync(normalized, roleName, isSold: false),
+            IntentNames.SoldApartments => await ListApartmentsAsync(normalized, roleName, isSold: true),
+            IntentNames.BuyerList => await ListAllBuyersAsync(roleName),
+            IntentNames.LowStock => await ListLowStockMaterialsAsync(roleName),
+            IntentNames.TopExpenses => await ShowTopExpenseCategoriesAsync(roleName),
+            IntentNames.DashboardSummary => await ShowSystemSummaryAsync(roleName),
+            IntentNames.ExpenseCreate => await CreateExpenseFromCommandAsync(command, normalized, userId, roleName),
+            IntentNames.ProjectCreate => ProjectCreateHelp(roleName),
+            IntentNames.SmallTalk => SmallTalk(),
+            _ => SmartFallback(normalized, roleName)
+        };
+    }
+
+    private async Task<ChatCommandResponse> ExecuteApartmentSalesIntentAsync(string normalized, string roleName)
+    {
+        var buyerName = await FindBuyerNameInCommandAsync(normalized);
+        if (buyerName != null)
+        {
+            return await ShowSpecificBuyerSalesAsync(buyerName, roleName);
+        }
+
+        return await ListApartmentSalesAsync(normalized, roleName);
+    }
+
     private static ChatCommandResponse Introduce(string roleName)
     {
         return Success("KendiniTanitma",
@@ -187,6 +231,11 @@ public class ChatBotCommandService
         }
 
         return Success("Yardim", "Kullanabileceginiz komut ornekleri:\n" + string.Join("\n", commands));
+    }
+
+    private static ChatCommandResponse SmallTalk()
+    {
+        return Success("Sohbet", "Buradayim. Proje, gider, daire, satis ve personel sorularini cevaplayabilirim; istersen once genel bir ozetle baslayabiliriz.", Suggest(IntentNames.DashboardSummary, IntentNames.ProjectList, IntentNames.ExpenseList));
     }
 
     private async Task<ChatCommandResponse> ListProjectsAsync(string roleName)
@@ -699,32 +748,36 @@ public class ChatBotCommandService
         if (HasPersonnelIntent(normalized))
         {
             return CanViewPersonnel(roleName)
-                ? Success("Oneri", "Personel ile ilgili sordugunuzu anladim. Personel listesini ve gorevlerini gormek icin 'personeller ne is yapiyor' veya 'calisan listesi' yazabilirsiniz.")
+                ? Success("Oneri", "Personel ile ilgili sordugunuzu anladim. Personel listesini ve gorevlerini gormek icin 'personeller ne is yapiyor' veya 'calisan listesi' yazabilirsiniz.", Suggest(IntentNames.Personnel))
                 : Unauthorized("PersonelListeleme");
         }
 
         if (ContainsAny(normalized, "proje", "insaat", "santiye"))
         {
-            return Success("Oneri", "Proje ile ilgili bir sey sordugunuzu anliyorum ancak tam olarak ne istediginizi cikaramadim. Sunlari deneyebilirsiniz: 'projeleri listele', 'wan projesi ne durumda', 'wan kar zarar'.");
+            return Success("Oneri", "Proje ile ilgili bir sey sordugunuzu anliyorum ancak tam olarak ne istediginizi cikaramadim. Sunlari deneyebilirsiniz.", Suggest(IntentNames.ProjectList, IntentNames.ProjectInfo, IntentNames.ProfitLoss));
         }
         if (ContainsAny(normalized, "gider", "masraf", "harcama", "firma", "tedarikci", "malzeme", "fatura", "odeme"))
         {
-            return Success("Oneri", "Giderler veya masraflarla ilgili bir sorunuz var sanirim. Daha net sonuc icin sunlari deneyebilirsiniz: 'bu ayki giderleri goster' veya 'hangi firmadan ne alinmis'.");
+            return Success("Oneri", "Giderler veya masraflarla ilgili bir sorunuz var sanirim. Daha net sonuc icin sunlari deneyebilirsiniz.", Suggest(IntentNames.ExpenseList, IntentNames.SupplierExpense, IntentNames.MaterialExpense));
         }
         if (ContainsAny(normalized, "daire", "satis", "musteri", "alici", "ev"))
         {
             return CanViewSales(roleName)
-                ? Success("Oneri", "Daire veya satislarla ilgili bir bilgi ariyorsunuz. Ornegin sunlari yazabilirsiniz: 'yapilan daire satislari', 'bos daireleri listele', 'satilan daireleri goster'.")
+                ? Success("Oneri", "Daire veya satislarla ilgili bir bilgi ariyorsunuz. Sunlardan birini deneyebilirsiniz.", Suggest(IntentNames.ApartmentSales, IntentNames.EmptyApartments, IntentNames.SoldApartments))
                 : Unauthorized("SatisBilgisi");
         }
         if (ContainsAny(normalized, "personel", "calisan", "gorev", "kim", "eleman", "isci", "ekip"))
         {
             return CanViewPersonnel(roleName)
-                ? Success("Oneri", "Personel ile ilgili sordugunuzu anladim. Ornegin 'personeller ne is yapiyor' veya 'calisan listesi' yazabilirsiniz.")
+                ? Success("Oneri", "Personel ile ilgili sordugunuzu anladim. Orneklerden birini deneyebilirsiniz.", Suggest(IntentNames.Personnel))
                 : Unauthorized("PersonelListeleme");
         }
 
-        return Success("Bilinmeyen", "Komutunuzu tam netlestiremedim ama ana kelimelerden anlamaya calisiyorum. Proje, gider, firma, satis, daire, personel, kar-zarar veya sistem ozeti gibi konularda soruyu biraz daha acik yazabilirsiniz.");
+        var suggestions = ChatIntentClassifier.Suggest(normalized).Any()
+            ? ChatIntentClassifier.Suggest(normalized)
+            : Suggest(IntentNames.ProjectList, IntentNames.ExpenseList, IntentNames.DashboardSummary);
+
+        return Success("Bilinmeyen", "Bunu tam anlayamadim. Bunu mu demek istediniz?", suggestions);
     }
 
     private async Task<ChatCommandResponse> ShowSpecificSupplierExpensesAsync(string supplierName, string roleName)
@@ -948,6 +1001,201 @@ public class ChatBotCommandService
         "proje", "projesi", "projesinin", "projesinde", "goster", "listele", "hesapla", "durumu", "kar", "zarar", "gider", "satis"
     };
 
+    private static List<string> Suggest(params string[] intents)
+    {
+        return intents
+            .Select(intent => IntentNames.Examples.TryGetValue(intent, out var example) ? example : null)
+            .Where(example => !string.IsNullOrWhiteSpace(example))
+            .Cast<string>()
+            .Distinct()
+            .Take(4)
+            .ToList();
+    }
+
+    private static class IntentNames
+    {
+        public const string Personnel = "Personnel";
+        public const string ProjectList = "ProjectList";
+        public const string ProjectInfo = "ProjectInfo";
+        public const string ExpenseList = "ExpenseList";
+        public const string SupplierExpense = "SupplierExpense";
+        public const string MaterialExpense = "MaterialExpense";
+        public const string ProfitLoss = "ProfitLoss";
+        public const string ApartmentSales = "ApartmentSales";
+        public const string EmptyApartments = "EmptyApartments";
+        public const string SoldApartments = "SoldApartments";
+        public const string BuyerList = "BuyerList";
+        public const string LowStock = "LowStock";
+        public const string TopExpenses = "TopExpenses";
+        public const string DashboardSummary = "DashboardSummary";
+        public const string ExpenseCreate = "ExpenseCreate";
+        public const string ProjectCreate = "ProjectCreate";
+        public const string SmallTalk = "SmallTalk";
+
+        public static readonly IReadOnlyDictionary<string, string> Examples = new Dictionary<string, string>
+        {
+            [Personnel] = "Personeller ne is yapiyor?",
+            [ProjectList] = "Hangi projeler var?",
+            [ProjectInfo] = "Wan projesi ne durumda?",
+            [ExpenseList] = "Bu ayki giderleri goster",
+            [SupplierExpense] = "Hangi firmadan ne alinmis?",
+            [MaterialExpense] = "Cimento toplam ne kadar tuttu?",
+            [ProfitLoss] = "Wan projesinin kar zarar durumu",
+            [ApartmentSales] = "Yapilan daire satislarini goster",
+            [EmptyApartments] = "Bos daireleri listele",
+            [SoldApartments] = "Satilan daireleri goster",
+            [BuyerList] = "Daire alan musteriler kimler?",
+            [LowStock] = "Kritik stoklari goster",
+            [TopExpenses] = "En cok gider kalemleri neler?",
+            [DashboardSummary] = "Sistem ozeti ver",
+            [ExpenseCreate] = "Wan projesine bugun 5 cimento geldi tanesi 250 TL",
+            [ProjectCreate] = "Yeni proje eklemek istiyorum",
+            [SmallTalk] = "Nasilsin?"
+        };
+    }
+
+    private static class ChatIntentClassifier
+    {
+        private static readonly MLContext MlContext = new(seed: 7);
+        private static readonly object PredictionLock = new();
+        private static readonly Lazy<PredictionEngine<IntentTrainingSample, IntentPrediction>> PredictionEngine = new(CreatePredictionEngine);
+
+        public static IntentMatch Predict(string normalizedCommand)
+        {
+            if (string.IsNullOrWhiteSpace(normalizedCommand))
+            {
+                return IntentMatch.Unknown;
+            }
+
+            lock (PredictionLock)
+            {
+                var prediction = PredictionEngine.Value.Predict(new IntentTrainingSample { CommandText = normalizedCommand });
+                var score = prediction.Score?.Length > 0 ? prediction.Score.Max() : 0;
+                var intent = prediction.PredictedIntent ?? string.Empty;
+
+                if (score >= 0.34f && IntentNames.Examples.ContainsKey(intent))
+                {
+                    return new IntentMatch(intent, score, true);
+                }
+            }
+
+            var fuzzyIntent = FindNearestIntent(normalizedCommand);
+            return fuzzyIntent ?? IntentMatch.Unknown;
+        }
+
+        public static List<string> Suggest(string normalizedCommand)
+        {
+            var candidates = IntentTrainingData()
+                .Select(sample => new
+                {
+                    sample.Intent,
+                    sample.CommandText,
+                    Distance = TokenDistance(normalizedCommand, sample.CommandText)
+                })
+                .OrderBy(x => x.Distance)
+                .Select(x => x.Intent)
+                .Distinct()
+                .Take(3)
+                .ToArray();
+
+            return ChatBotCommandService.Suggest(candidates);
+        }
+
+        private static PredictionEngine<IntentTrainingSample, IntentPrediction> CreatePredictionEngine()
+        {
+            var data = MlContext.Data.LoadFromEnumerable(IntentTrainingData());
+            var pipeline = MlContext.Transforms.Conversion.MapValueToKey("Label", nameof(IntentTrainingSample.Intent))
+                .Append(MlContext.Transforms.Text.FeaturizeText("Features", nameof(IntentTrainingSample.CommandText)))
+                .Append(MlContext.MulticlassClassification.Trainers.SdcaMaximumEntropy("Label", "Features"))
+                .Append(MlContext.Transforms.Conversion.MapKeyToValue(nameof(IntentPrediction.PredictedIntent), "PredictedLabel"));
+
+            var model = pipeline.Fit(data);
+            return MlContext.Model.CreatePredictionEngine<IntentTrainingSample, IntentPrediction>(model);
+        }
+
+        private static IntentMatch? FindNearestIntent(string normalizedCommand)
+        {
+            var nearest = IntentTrainingData()
+                .Select(sample => new
+                {
+                    sample.Intent,
+                    Distance = TokenDistance(normalizedCommand, sample.CommandText)
+                })
+                .OrderBy(x => x.Distance)
+                .FirstOrDefault();
+
+            if (nearest == null || nearest.Distance > 4)
+            {
+                return null;
+            }
+
+            return new IntentMatch(nearest.Intent, 0.30f, true);
+        }
+
+        private static int TokenDistance(string command, string sample)
+        {
+            var commandTokens = GetSearchTokens(command);
+            var sampleTokens = GetSearchTokens(sample);
+
+            if (!commandTokens.Any() || !sampleTokens.Any())
+            {
+                return int.MaxValue;
+            }
+
+            return sampleTokens.Sum(sampleToken => commandTokens.Min(commandToken => LevenshteinDistance(commandToken, sampleToken)));
+        }
+
+        private static IEnumerable<IntentTrainingSample> IntentTrainingData()
+        {
+            return new[]
+            {
+                T(IntentNames.Personnel, "personeller ne is yapiyor"), T(IntentNames.Personnel, "prsonel listesini goster"), T(IntentNames.Personnel, "calisanlar kimler"), T(IntentNames.Personnel, "ekip gorevleri"),
+                T(IntentNames.ProjectList, "projeleri listele"), T(IntentNames.ProjectList, "hangi projeler var"), T(IntentNames.ProjectList, "mevcut projeleri goster"), T(IntentNames.ProjectList, "butun projeler"),
+                T(IntentNames.ProjectInfo, "proje ne durumda"), T(IntentNames.ProjectInfo, "wan projesi hakkinda bilgi ver"), T(IntentNames.ProjectInfo, "proje son durum"), T(IntentNames.ProjectInfo, "santiye nasil gidiyor"),
+                T(IntentNames.ExpenseList, "bu ayki giderleri goster"), T(IntentNames.ExpenseList, "harcamalari listele"), T(IntentNames.ExpenseList, "masraflar neler"), T(IntentNames.ExpenseList, "gider raporu"),
+                T(IntentNames.SupplierExpense, "hangi firmadan ne alinmis"), T(IntentNames.SupplierExpense, "tedarikci giderleri"), T(IntentNames.SupplierExpense, "firmalara ne odedik"), T(IntentNames.SupplierExpense, "kimden ne aldik"),
+                T(IntentNames.MaterialExpense, "cimento toplam ne kadar tuttu"), T(IntentNames.MaterialExpense, "malzeme gider ozeti"), T(IntentNames.MaterialExpense, "alinan malzemeleri goster"), T(IntentNames.MaterialExpense, "malzeme fiyati toplam"),
+                T(IntentNames.ProfitLoss, "kar zarar hesapla"), T(IntentNames.ProfitLoss, "gelir gider dengesi"), T(IntentNames.ProfitLoss, "ne kadar kazandik"), T(IntentNames.ProfitLoss, "proje kar mi zarar mi"),
+                T(IntentNames.ApartmentSales, "yapilan daire satislari"), T(IntentNames.ApartmentSales, "satis raporu"), T(IntentNames.ApartmentSales, "ev satislarini goster"), T(IntentNames.ApartmentSales, "kimlere daire sattik"),
+                T(IntentNames.EmptyApartments, "bos daireleri listele"), T(IntentNames.EmptyApartments, "satilmayan daireler"), T(IntentNames.EmptyApartments, "musait evler"), T(IntentNames.EmptyApartments, "elde kalan daire"),
+                T(IntentNames.SoldApartments, "satilan daireleri goster"), T(IntentNames.SoldApartments, "satilmis evler"), T(IntentNames.SoldApartments, "satisi biten daireler"),
+                T(IntentNames.BuyerList, "daire alan musteriler kimler"), T(IntentNames.BuyerList, "alicilari listele"), T(IntentNames.BuyerList, "musteri listesi"),
+                T(IntentNames.LowStock, "kritik stoklari goster"), T(IntentNames.LowStock, "neyimiz bitti"), T(IntentNames.LowStock, "stok durumu"),
+                T(IntentNames.TopExpenses, "en cok gider kalemleri"), T(IntentNames.TopExpenses, "en yuksek harcama"), T(IntentNames.TopExpenses, "nereye para harcadik"),
+                T(IntentNames.DashboardSummary, "sistem ozeti ver"), T(IntentNames.DashboardSummary, "genel durum nedir"), T(IntentNames.DashboardSummary, "dashboard ozeti"),
+                T(IntentNames.ExpenseCreate, "wan projesine bugun 5 cimento geldi tanesi 250 tl"), T(IntentNames.ExpenseCreate, "gider ekle"), T(IntentNames.ExpenseCreate, "malzeme alindi fiyat"),
+                T(IntentNames.ProjectCreate, "yeni proje ekle"), T(IntentNames.ProjectCreate, "proje olusturmak istiyorum"), T(IntentNames.ProjectCreate, "proje kaydi ac"),
+                T(IntentNames.SmallTalk, "nasilsin"), T(IntentNames.SmallTalk, "tesekkur ederim"), T(IntentNames.SmallTalk, "ne haber"), T(IntentNames.SmallTalk, "sohbet edelim")
+            };
+        }
+
+        private static IntentTrainingSample T(string intent, string text) => new()
+        {
+            Intent = intent,
+            CommandText = Normalize(text)
+        };
+    }
+
+    private sealed class IntentTrainingSample
+    {
+        public string CommandText { get; set; } = string.Empty;
+
+        public string Intent { get; set; } = string.Empty;
+    }
+
+    private sealed class IntentPrediction
+    {
+        [ColumnName("PredictedIntent")]
+        public string PredictedIntent { get; set; } = string.Empty;
+
+        public float[] Score { get; set; } = Array.Empty<float>();
+    }
+
+    private sealed record IntentMatch(string Intent, float Score, bool IsConfident)
+    {
+        public static readonly IntentMatch Unknown = new(string.Empty, 0, false);
+    }
+
     private static string RoleDescription(string roleName)
     {
         return roleName switch
@@ -1079,18 +1327,20 @@ public class ChatBotCommandService
         IsSuccessful = false
     };
 
-    private static ChatCommandResponse Success(string action, string responseText) => new()
+    private static ChatCommandResponse Success(string action, string responseText, IEnumerable<string>? suggestions = null) => new()
     {
         Action = action,
         ResponseText = responseText,
-        IsSuccessful = true
+        IsSuccessful = true,
+        Suggestions = suggestions?.ToList() ?? new List<string>()
     };
 
-    private static ChatCommandResponse Fail(string action, string responseText) => new()
+    private static ChatCommandResponse Fail(string action, string responseText, IEnumerable<string>? suggestions = null) => new()
     {
         Action = action,
         ResponseText = responseText,
-        IsSuccessful = false
+        IsSuccessful = false,
+        Suggestions = suggestions?.ToList() ?? new List<string>()
     };
 
     private static bool CanViewProjects(string roleName) => IsAny(roleName, "Admin", "Mudur", "Muhasebeci", "Sekreter", "Personel");

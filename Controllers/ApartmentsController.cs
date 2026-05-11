@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Security;
 using OfisYonetimSistemi.Services;
 
 namespace OfisYonetimSistemi.Controllers;
@@ -20,9 +21,9 @@ public class ApartmentsController : Controller
 
     public async Task<IActionResult> Details(int id)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanViewApartmentDetails(CurrentRole()))
         {
-            await _activityLogService.LogAsync("YetkisizDeneme", "Daireler", id, "Daire satis sayfasina yetkisiz erisim denendi.", false);
+            await _activityLogService.LogAsync("YetkisizDeneme", "Daireler", id, "Daire detay sayfasina yetkisiz erisim denendi.", false);
             return RedirectToAction("Login", "Account");
         }
 
@@ -36,15 +37,17 @@ public class ApartmentsController : Controller
             return NotFound();
         }
 
+        SetApartmentPermissionViewBags();
         return View(apartment);
     }
 
     public async Task<IActionResult> Sell(int id)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentSales(CurrentRole()))
         {
             await _activityLogService.LogAsync("YetkisizDeneme", "DaireSatislari", id, "Daire satis sayfasina yetkisiz erisim denendi.", false);
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Daire satisi yapma yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         var apartment = await _context.Apartments
@@ -73,9 +76,10 @@ public class ApartmentsController : Controller
 
     public async Task<IActionResult> Edit(int id)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentInfo(CurrentRole()))
         {
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Daire bilgilerini duzenleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         var apartment = await _context.Apartments
@@ -94,9 +98,10 @@ public class ApartmentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Apartment apartment)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentInfo(CurrentRole()))
         {
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Daire bilgilerini duzenleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         if (id != apartment.Id)
@@ -104,19 +109,28 @@ public class ApartmentsController : Controller
             return NotFound();
         }
 
-        if (apartment.GrossArea < 0)
+        if (apartment.FloorNumber < 0 || apartment.FloorNumber > 200)
         {
-            ModelState.AddModelError(nameof(apartment.GrossArea), "Brut alan negatif olamaz.");
+            ModelState.AddModelError(nameof(apartment.FloorNumber), "Kat numarasi 0 ile 200 arasinda olmalidir.");
         }
 
-        if (apartment.NetArea < 0)
+        if (apartment.GrossArea < 10 || apartment.GrossArea > 10000)
         {
-            ModelState.AddModelError(nameof(apartment.NetArea), "Net alan negatif olamaz.");
+            ModelState.AddModelError(nameof(apartment.GrossArea), "Brut alan 10 ile 10000 m2 arasinda olmalidir.");
         }
 
-        if (apartment.Price < 0)
+        if (apartment.NetArea < 10 || apartment.NetArea > 10000)
         {
-            ModelState.AddModelError(nameof(apartment.Price), "Fiyat negatif olamaz.");
+            ModelState.AddModelError(nameof(apartment.NetArea), "Net alan 10 ile 10000 m2 arasinda olmalidir.");
+        }
+        else if (apartment.NetArea > apartment.GrossArea)
+        {
+            ModelState.AddModelError(nameof(apartment.NetArea), "Net alan brut alandan buyuk olamaz.");
+        }
+
+        if (apartment.Price < 0 || apartment.Price > 1000000000)
+        {
+            ModelState.AddModelError(nameof(apartment.Price), "Fiyat 0 ile 1000000000 TL arasinda olmalidir.");
         }
 
         if (!ModelState.IsValid)
@@ -149,9 +163,10 @@ public class ApartmentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Sell(ApartmentSaleViewModel model)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentSales(CurrentRole()))
         {
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Daire satisi yapma yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = model.ApartmentId });
         }
 
         var apartment = await _context.Apartments
@@ -210,9 +225,10 @@ public class ApartmentsController : Controller
 
     public async Task<IActionResult> EditContract(int id)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentSales(CurrentRole()))
         {
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Satis sozlesmesi duzenleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id });
         }
 
         var apartment = await _context.Apartments
@@ -238,9 +254,10 @@ public class ApartmentsController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EditContract(ContractEditViewModel model)
     {
-        if (!IsManager())
+        if (!RolePermissions.CanManageApartmentSales(CurrentRole()))
         {
-            return RedirectToAction("Login", "Account");
+            TempData["ErrorMessage"] = "Satis sozlesmesi duzenleme yetkiniz bulunmamaktadir.";
+            return RedirectToAction(nameof(Details), new { id = model.ApartmentId });
         }
 
         var sale = await _context.ApartmentSales
@@ -329,9 +346,15 @@ public class ApartmentsController : Controller
         return builder.ToString();
     }
 
-    private bool IsManager()
+    private string? CurrentRole()
     {
-        var roleName = HttpContext.Session.GetString("RoleName");
-        return roleName == "Admin" || roleName == "Mudur";
+        return HttpContext.Session.GetString("RoleName");
+    }
+
+    private void SetApartmentPermissionViewBags()
+    {
+        var roleName = CurrentRole();
+        ViewBag.CanManageApartmentInfo = RolePermissions.CanManageApartmentInfo(roleName);
+        ViewBag.CanManageApartmentSales = RolePermissions.CanManageApartmentSales(roleName);
     }
 }
