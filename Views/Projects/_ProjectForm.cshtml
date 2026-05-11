@@ -74,13 +74,10 @@
                             <input class="form-check-input" type="radio" asp-for="CoverImageId" value="@image.Id" id="cover_@image.Id">
                             <label class="form-check-label" for="cover_@image.Id">Kapak gorseli</label>
                         </div>
-                        <button type="submit"
-                                class="btn btn-outline-danger btn-sm mt-2"
-                                formaction="@Url.Action("DeleteImage", "Projects", new { id = image.Id })"
-                                formmethod="post"
-                                formnovalidate>
+                        <a class="btn btn-outline-danger btn-sm mt-2"
+                           href="@Url.Action("DeleteImage", "Projects", new { id = image.Id, projectId = Model.Id })">
                             Sil
-                        </button>
+                        </a>
                     </div>
                 </div>
             }

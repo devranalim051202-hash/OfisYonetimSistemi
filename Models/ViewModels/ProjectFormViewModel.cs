@@ -36,7 +36,7 @@ public class ProjectFormViewModel
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     [ProjectImageFile]
-    public List<IFormFile> ProjectImages { get; set; } = new();
+    public List<IFormFile>? ProjectImages { get; set; }
 
     public bool MakeFirstImageCover { get; set; } = true;
 

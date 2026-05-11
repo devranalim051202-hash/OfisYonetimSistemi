@@ -5,7 +5,7 @@
 }
 
 <section class="dashboard-page">
-    <div class="dashboard-header border-bottom pb-3 mb-4">
+    <div class="dashboard-header expense-create-hero">
         <div>
             <p class="eyebrow"><i class="bi bi-receipt me-2"></i>Yeni Gider</p>
             <h1>Gider Ekle</h1>
@@ -14,8 +14,8 @@
         <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId"><i class="bi bi-arrow-left me-2"></i>Projeye Dön</a>
     </div>
 
-    <div class="table-panel shadow-sm">
-        <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4">
+    <div class="table-panel shadow-sm expense-create-panel">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4 expense-form" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <partial name="_ExpenseForm" model="Model" />
             <div class="col-12 d-flex gap-3 mt-4 pt-3 border-top">
@@ -35,8 +35,8 @@
             const amount = document.getElementById("Amount");
 
             const calculateAmount = () => {
-                const quantityValue = Number(quantity?.value || 0);
-                const unitPriceValue = Number(unitPrice?.value || 0);
+                const quantityValue = Number((quantity?.value || "0").replace(",", "."));
+                const unitPriceValue = Number((unitPrice?.value || "0").replace(",", "."));
                 const total = quantityValue * unitPriceValue;
 
                 if (amount) {
@@ -46,6 +46,9 @@
 
             quantity?.addEventListener("input", calculateAmount);
             unitPrice?.addEventListener("input", calculateAmount);
+            $(".js-expense-number").each(function () {
+                $(this).rules("remove", "step");
+            });
             calculateAmount();
         })();
     </script>

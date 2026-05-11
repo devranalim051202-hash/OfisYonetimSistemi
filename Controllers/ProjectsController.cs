@@ -116,6 +116,7 @@ public class ProjectsController : Controller
             ModelState.AddModelError(nameof(model.Status), "Gecerli bir proje durumu secin.");
         }
 
+        ModelState.Remove(nameof(model.ProjectImages));
         ValidateProjectDates(model);
         ValidateApartmentPlan(model);
 
@@ -195,6 +196,7 @@ public class ProjectsController : Controller
             ModelState.AddModelError(nameof(model.Status), "Gecerli bir proje durumu secin.");
         }
 
+        ModelState.Remove(nameof(model.ProjectImages));
         ValidateProjectDates(model);
         ValidateApartmentPlan(model);
 
@@ -313,9 +315,9 @@ public class ProjectsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteImage(int id)
+    [HttpGet("Projects/DeleteImage/{id:int}")]
+    [HttpPost("Projects/DeleteImage/{id:int}")]
+    public async Task<IActionResult> DeleteImage(int id, int? projectId)
     {
         if (!IsLoggedIn())
         {
@@ -326,7 +328,10 @@ public class ProjectsController : Controller
 
         if (image == null)
         {
-            return NotFound();
+            TempData["ErrorMessage"] = "Silinecek proje gorseli bulunamadi veya daha once silinmis.";
+            return projectId.HasValue
+                ? RedirectToAction(nameof(Edit), new { id = projectId.Value })
+                : RedirectToAction(nameof(Index));
         }
 
         try

@@ -1,7 +1,7 @@
 @model IEnumerable<OfisYonetimSistemi.Models.User>
 
 @{
-    ViewData["Title"] = "Mudur Paneli";
+    ViewData["Title"] = "Dashboard";
     var recentLogs = ViewBag.RecentActivityLogs as IEnumerable<OfisYonetimSistemi.Models.ActivityLog> ?? Enumerable.Empty<OfisYonetimSistemi.Models.ActivityLog>();
 }
 
@@ -12,10 +12,6 @@
             <h1>Müdür Gösterge Panosu</h1>
             <p>Personel hesaplarını yönetin ve sistemdeki temel metrikleri buradan anlık takip edin.</p>
         </div>
-        <div class="hero-actions d-flex gap-2">
-            <a class="btn btn-outline-secondary shadow-sm" asp-controller="ActivityLogs" asp-action="Index"><i class="bi bi-list-task me-2"></i>Tüm İşlemler</a>
-            <a class="btn btn-primary shadow-sm" asp-controller="Manager" asp-action="CreatePersonnel"><i class="bi bi-person-plus-fill me-2"></i>Personel Ekle</a>
-        </div>
     </div>
 
     @if (TempData["SuccessMessage"] != null)
@@ -25,28 +21,18 @@
 
     <div class="dashboard-stats">
         <div class="position-relative">
-            <i class="bi bi-people position-absolute text-primary opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
-            <span>@ViewBag.PersonnelCount</span>
-            <p class="d-flex align-items-center"><i class="bi bi-person-badge me-2"></i>Personel Sayısı</p>
-        </div>
-        <div class="position-relative">
             <i class="bi bi-briefcase position-absolute text-success opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
             <span>@ViewBag.ProjectCount</span>
             <p class="d-flex align-items-center"><i class="bi bi-kanban me-2"></i>Aktif Projeler</p>
         </div>
         <div class="position-relative">
-            <i class="bi bi-file-earmark-text position-absolute text-warning opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
-            <span>@ViewBag.InvoiceCount</span>
-            <p class="d-flex align-items-center"><i class="bi bi-folder2-open me-2"></i>Kayıtlı Evraklar</p>
-        </div>
-        <div class="position-relative">
-            <i class="bi bi-wallet2 position-absolute text-danger opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
-            <span>@ViewBag.ExpenseCount</span>
-            <p class="d-flex align-items-center"><i class="bi bi-cash-coin me-2"></i>Toplam Gider</p>
+            <i class="bi bi-people position-absolute text-primary opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
+            <span>@ViewBag.PersonnelCount</span>
+            <p class="d-flex align-items-center"><i class="bi bi-person-badge me-2"></i>Personel Sayısı</p>
         </div>
     </div>
 
-    <div class="premium-list-panel mt-4">
+    <div class="premium-list-panel dashboard-activity-panel mt-4">
         <div class="premium-list-header border-bottom pb-3 mb-4">
             <div>
                 <span class="premium-panel-label"><i class="bi bi-shield-check me-2"></i>Sistem Takibi</span>
@@ -65,47 +51,41 @@
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Tarih</th>
-                            <th>Kullanici</th>
-                            <th>Modul</th>
-                            <th>Islem</th>
-                            <th>Durum</th>
-                            <th>Aciklama</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var log in recentLogs)
-                        {
-                            <tr>
-                                <td>@log.CreatedAt.ToString("dd.MM HH:mm")</td>
-                                <td>@log.UserFullName</td>
-                                <td>@log.ModuleName</td>
-                                <td>@log.Action</td>
-                                <td>
-                                    <span class="status-pill @(log.IsSuccessful ? "" : "status-danger")">
-                                        @(log.IsSuccessful ? "Basarili" : "Basarisiz")
-                                    </span>
-                                </td>
-                                <td>@log.Description</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <div class="activity-timeline">
+                @foreach (var log in recentLogs)
+                {
+                    <article class="activity-timeline-item @(log.IsSuccessful ? "" : "is-danger")">
+                        <div class="activity-time">
+                            <strong>@log.CreatedAt.ToString("HH:mm")</strong>
+                            <span>@log.CreatedAt.ToString("dd.MM")</span>
+                        </div>
+                        <div class="activity-dot"><i class="bi @(log.IsSuccessful ? "bi-check2" : "bi-x")"></i></div>
+                        <div class="activity-content">
+                            <div class="activity-row">
+                                <strong>@log.Action</strong>
+                                <span class="status-pill @(log.IsSuccessful ? "" : "status-danger")">
+                                    @(log.IsSuccessful ? "Başarılı" : "Başarısız")
+                                </span>
+                            </div>
+                            <p>@log.Description</p>
+                            <span class="activity-meta">@log.UserFullName · @log.ModuleName</span>
+                        </div>
+                    </article>
+                }
             </div>
         }
     </div>
 
-    <div class="premium-list-panel mt-4">
+    <div class="premium-list-panel dashboard-personnel-panel mt-4">
         <div class="premium-list-header border-bottom pb-3 mb-4">
             <div>
                 <span class="premium-panel-label"><i class="bi bi-diagram-3 me-2"></i>Personel Yönetimi</span>
                 <h2 class="mt-2">Kayıtlı Personeller</h2>
             </div>
-            <span class="premium-count bg-light"><i class="bi bi-people-fill me-2"></i>@Model.Count() Personel</span>
+            <div class="personnel-panel-actions">
+                <span class="premium-count bg-light"><i class="bi bi-people-fill me-2"></i>@Model.Count() Personel</span>
+                <a class="btn btn-primary btn-sm" asp-controller="Manager" asp-action="CreatePersonnel"><i class="bi bi-person-plus-fill me-2"></i>Personel Ekle</a>
+            </div>
         </div>
 
         @if (!Model.Any())
@@ -123,16 +103,25 @@
                 @foreach (var user in Model)
                 {
                     <article class="personnel-card">
-                        <div class="personnel-avatar">@user.FullName.Substring(0, 1).ToUpper()</div>
+                        <div class="personnel-card-top">
+                            <div class="personnel-avatar">@user.FullName.Substring(0, 1).ToUpper()</div>
+                            <span class="role-chip">@user.Role?.Name</span>
+                        </div>
                         <div class="personnel-info">
                             <h3>@user.FullName</h3>
-                            <p>@user.Email</p>
+                            <p><i class="bi bi-envelope me-1"></i>@user.Email</p>
                         </div>
                         <div class="personnel-details">
                             <span>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "Telefon yok" : user.PhoneNumber)</span>
                             <span>@user.CompanyName (@user.CompanySize kisi)</span>
                         </div>
-                        <span class="role-chip">@user.Role?.Name</span>
+                        <div class="personnel-card-actions">
+                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Manager" asp-action="Personnel">Detay</a>
+                            <form asp-controller="Manager" asp-action="DeletePersonnel" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Bu personel kaydını silmek istiyor musunuz?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3 me-1"></i>Sil</button>
+                            </form>
+                        </div>
                     </article>
                 }
             </div>

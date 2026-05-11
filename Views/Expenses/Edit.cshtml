@@ -15,7 +15,7 @@
     </div>
 
     <div class="table-panel">
-        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="row g-3">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="row g-3" novalidate>
             <input type="hidden" asp-for="Id">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <partial name="_ExpenseForm" model="Model" />
@@ -36,8 +36,8 @@
             const amount = document.getElementById("Amount");
 
             const calculateAmount = () => {
-                const quantityValue = Number(quantity?.value || 0);
-                const unitPriceValue = Number(unitPrice?.value || 0);
+                const quantityValue = Number((quantity?.value || "0").replace(",", "."));
+                const unitPriceValue = Number((unitPrice?.value || "0").replace(",", "."));
                 const total = quantityValue * unitPriceValue;
 
                 if (amount) {
@@ -47,6 +47,9 @@
 
             quantity?.addEventListener("input", calculateAmount);
             unitPrice?.addEventListener("input", calculateAmount);
+            $(".js-expense-number").each(function () {
+                $(this).rules("remove", "step");
+            });
             calculateAmount();
         })();
     </script>

@@ -18,9 +18,9 @@ public class ProjectImageService : IProjectImageService
         _logger = logger;
     }
 
-    public async Task AddImagesAsync(int projectId, IEnumerable<IFormFile> files, bool makeFirstImageCover)
+    public async Task AddImagesAsync(int projectId, IEnumerable<IFormFile>? files, bool makeFirstImageCover)
     {
-        var uploadFiles = files.Where(f => f is { Length: > 0 }).ToList();
+        var uploadFiles = files?.Where(f => f is { Length: > 0 }).ToList() ?? new List<IFormFile>();
 
         if (!uploadFiles.Any())
         {
@@ -75,6 +75,8 @@ public class ProjectImageService : IProjectImageService
     {
         if (!imageId.HasValue)
         {
+            await _repository.ClearCoverAsync(projectId);
+            await _repository.SaveChangesAsync();
             return;
         }
 

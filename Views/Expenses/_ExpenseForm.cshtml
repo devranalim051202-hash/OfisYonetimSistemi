@@ -29,7 +29,7 @@
 
 <div class="col-md-4">
     <div class="form-floating position-relative">
-        <input asp-for="Quantity" type="number" step="0.01" min="0.01" class="form-control ps-4" placeholder="Orn: 50">
+        <input id="Quantity" name="Quantity" value="@Model.Quantity.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" type="number" step="1" min="0" class="form-control ps-4 js-expense-number" placeholder="Orn: 50" data-val="false">
         <label asp-for="Quantity" class="ps-4"><i class="bi bi-layers me-2 text-muted"></i>Miktar</label>
     </div>
     <span asp-validation-for="Quantity" class="text-danger small"></span>
@@ -37,7 +37,7 @@
 
 <div class="col-md-4">
     <div class="form-floating position-relative">
-        <input asp-for="UnitPrice" type="number" step="0.01" min="0" class="form-control ps-4" placeholder="Orn: 120">
+        <input id="UnitPrice" name="UnitPrice" value="@Model.UnitPrice.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" type="number" step="1" min="0" class="form-control ps-4 js-expense-number" placeholder="Orn: 120" data-val="false">
         <label asp-for="UnitPrice" class="ps-4"><i class="bi bi-tag me-2 text-muted"></i>Birim Fiyat</label>
     </div>
     <span asp-validation-for="UnitPrice" class="text-danger small"></span>
@@ -45,7 +45,7 @@
 
 <div class="col-md-4">
     <div class="form-floating position-relative">
-        <input asp-for="Amount" type="number" step="0.01" min="0.01" class="form-control ps-4 bg-light" readonly placeholder="Toplam">
+        <input id="Amount" name="Amount" value="@Model.Amount.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" type="number" step="1" min="0" class="form-control ps-4 bg-light js-expense-number" readonly placeholder="Toplam" data-val="false">
         <label asp-for="Amount" class="ps-4"><i class="bi bi-currency-dollar me-2 text-muted"></i>Toplam Fiyat</label>
     </div>
     <span asp-validation-for="Amount" class="text-danger small"></span>
@@ -60,8 +60,8 @@
 </div>
 
 <div class="col-md-8">
-    <label asp-for="DocumentFile" class="form-label"><i class="bi bi-file-earmark-arrow-up me-2 text-muted"></i>Fiş / Belge Yükle</label>
-    <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,image/*" required="@(string.IsNullOrWhiteSpace(Model.DocumentFilePath) ? "required" : null)">
+    <label asp-for="DocumentFile" class="form-label"><i class="bi bi-file-earmark-arrow-up me-2 text-muted"></i>Fiş / Belge Yükle <span class="text-muted fw-normal">(isteğe bağlı)</span></label>
+    <input asp-for="DocumentFile" type="file" class="form-control" accept=".pdf,image/*">
     <span asp-validation-for="DocumentFile" class="text-danger small"></span>
     @if (!string.IsNullOrWhiteSpace(Model.DocumentFilePath))
     {
@@ -74,8 +74,8 @@
 
 <div class="col-md-12">
     <div class="form-floating position-relative">
-        <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="Aciklama"></textarea>
-        <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>Açıklama</label>
+        <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="Aciklama" data-val="false"></textarea>
+        <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>Açıklama (isteğe bağlı)</label>
     </div>
     <span asp-validation-for="Description" class="text-danger small"></span>
 </div>

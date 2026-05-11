@@ -11,6 +11,16 @@
         <h1>Proje duzenle</h1>
         <p class="auth-help">Proje bilgilerini, tarihlerini ve durumunu guncelleyin.</p>
 
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success"><i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]</div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]</div>
+        }
+
         <form asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="row g-3">
             @Html.AntiForgeryToken()
             <input type="hidden" asp-for="Id" />

@@ -85,17 +85,14 @@ public class ExpensesController : Controller
         SetCurrentUser(expense);
         NormalizeExpense(expense);
         ClearDocumentMetadataValidation();
+        ClearOptionalExpenseValidation();
 
         if (!expense.ProjectId.HasValue)
         {
             ModelState.AddModelError(nameof(expense.ProjectId), "Gider kaydi bir projeye bagli olmalidir.");
         }
 
-        if (expense.DocumentFile == null)
-        {
-            ModelState.AddModelError(nameof(expense.DocumentFile), "Fis / belge dosyasi zorunludur.");
-        }
-        else if (!IsAllowedExpenseDocument(expense.DocumentFile))
+        if (expense.DocumentFile != null && !IsAllowedExpenseDocument(expense.DocumentFile))
         {
             ModelState.AddModelError(nameof(expense.DocumentFile), "Sadece PDF veya gorsel dosyasi yukleyebilirsiniz.");
         }
@@ -109,11 +106,18 @@ public class ExpensesController : Controller
             return View(expense);
         }
 
-        var document = await SaveExpenseDocumentAsync(expense.DocumentFile!);
-        expense.DocumentFilePath = document.FilePath;
-        expense.DocumentOriginalFileName = document.OriginalFileName;
-        expense.DocumentContentType = document.ContentType;
+        if (expense.DocumentFile != null)
+        {
+            var document = await SaveExpenseDocumentAsync(expense.DocumentFile);
+            expense.DocumentFilePath = document.FilePath;
+            expense.DocumentOriginalFileName = document.OriginalFileName;
+            expense.DocumentContentType = document.ContentType;
+        }
         expense.DocumentNumber = null;
+        expense.DocumentFilePath ??= string.Empty;
+        expense.DocumentOriginalFileName ??= string.Empty;
+        expense.DocumentContentType = string.IsNullOrWhiteSpace(expense.DocumentContentType) ? null : expense.DocumentContentType;
+        expense.Description ??= string.Empty;
         expense.CreatedAt = DateTime.Now;
 
         _context.Expenses.Add(expense);
@@ -164,10 +168,6 @@ public class ExpensesController : Controller
             return NotFound();
         }
 
-        SetCurrentUser(expense);
-        NormalizeExpense(expense);
-        ClearDocumentMetadataValidation();
-
         var existingExpense = await _context.Expenses.FindAsync(id);
 
         if (existingExpense == null)
@@ -175,13 +175,27 @@ public class ExpensesController : Controller
             return NotFound();
         }
 
+        if (expense.Quantity <= 0)
+        {
+            expense.Quantity = existingExpense.Quantity;
+        }
+
+        if (expense.UnitPrice <= 0)
+        {
+            expense.UnitPrice = existingExpense.UnitPrice;
+        }
+
+        SetCurrentUser(expense);
+        NormalizeExpense(expense);
+        ClearDocumentMetadataValidation();
+        ClearOptionalExpenseValidation();
+        ModelState.Remove(nameof(expense.Quantity));
+        ModelState.Remove(nameof(expense.UnitPrice));
+        ModelState.Remove(nameof(expense.Amount));
+
         if (expense.DocumentFile != null && !IsAllowedExpenseDocument(expense.DocumentFile))
         {
             ModelState.AddModelError(nameof(expense.DocumentFile), "Sadece PDF veya gorsel dosyasi yukleyebilirsiniz.");
-        }
-        else if (expense.DocumentFile == null && string.IsNullOrWhiteSpace(existingExpense.DocumentFilePath))
-        {
-            ModelState.AddModelError(nameof(expense.DocumentFile), "Fis / belge dosyasi zorunludur.");
         }
 
         if (!ModelState.IsValid)
@@ -216,7 +230,7 @@ public class ExpensesController : Controller
         existingExpense.ExpenseDate = expense.ExpenseDate;
         existingExpense.PaymentStatus = expense.PaymentStatus;
         existingExpense.DocumentNumber = null;
-        existingExpense.Description = expense.Description;
+        existingExpense.Description = expense.Description ?? string.Empty;
 
         await _context.SaveChangesAsync();
 
@@ -299,6 +313,9 @@ public class ExpensesController : Controller
         expense.ExpenseType = "Malzeme";
         expense.PaymentStatus = "Odendi";
         expense.DocumentNumber = null;
+        expense.DocumentFilePath ??= string.Empty;
+        expense.DocumentOriginalFileName ??= string.Empty;
+        expense.Description ??= string.Empty;
 
         expense.Amount = expense.Quantity * expense.UnitPrice;
     }
@@ -308,6 +325,12 @@ public class ExpensesController : Controller
         ModelState.Remove(nameof(Expense.DocumentFilePath));
         ModelState.Remove(nameof(Expense.DocumentOriginalFileName));
         ModelState.Remove(nameof(Expense.DocumentContentType));
+    }
+
+    private void ClearOptionalExpenseValidation()
+    {
+        ModelState.Remove(nameof(Expense.Description));
+        ModelState.Remove(nameof(Expense.DocumentFile));
     }
 
     private static bool IsAllowedExpenseDocument(IFormFile file)

@@ -8,12 +8,11 @@
 <section class="personnel-premium-page">
     <div class="personnel-premium-hero">
         <div>
-            <p class="eyebrow">Ekip Yonetimi</p>
+            <p class="eyebrow">Ekip Yönetimi</p>
             <h1>Personeller</h1>
-            <p>Ofis ekibindeki kullanici hesaplarini, rollerini ve panel erisim durumlarini tek ekrandan yonetin.</p>
+            <p>Ofis ekibindeki kullanıcı hesaplarını, rollerini, iletişim bilgilerini ve panel erişim durumlarını tek ekrandan yönetin.</p>
         </div>
         <div class="personnel-premium-actions">
-            <a class="btn btn-outline-secondary" asp-controller="Manager" asp-action="Index">Dashboard</a>
             <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
         </div>
     </div>
@@ -22,25 +21,10 @@
     {
         <div class="alert alert-success">@TempData["SuccessMessage"]</div>
     }
-
-    <div class="personnel-metrics">
-        <article>
-            <span>Toplam Personel</span>
-            <strong>@ViewBag.TotalPersonnel</strong>
-        </article>
-        <article>
-            <span>Aktif Hesap</span>
-            <strong>@ViewBag.ActivePersonnel</strong>
-        </article>
-        <article>
-            <span>Rol Cesidi</span>
-            <strong>@ViewBag.RoleCount</strong>
-        </article>
-        <article>
-            <span>Son Eklenen</span>
-            <strong>@(lastDate.HasValue ? lastDate.Value.ToString("dd.MM") : "-")</strong>
-        </article>
-    </div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
 
     <div class="personnel-premium-panel">
         <div class="personnel-panel-header">
@@ -48,15 +32,18 @@
                 <span class="premium-panel-label">Kayıtlı Ekip</span>
                 <h2>Personel Listesi</h2>
             </div>
-            <span class="premium-count">@Model.Count() kayit</span>
+            <div class="personnel-panel-actions">
+                <span class="premium-count">@Model.Count() kayıt</span>
+                <span class="premium-count">Son eklenen: @(lastDate.HasValue ? lastDate.Value.ToString("dd.MM.yyyy") : "-")</span>
+            </div>
         </div>
 
         @if (!Model.Any())
         {
             <div class="premium-empty-state personnel-empty">
                 <span>+</span>
-                <h3>Henuz personel eklenmedi</h3>
-                <p>Ilk personel hesabini olusturarak ekip icindeki gorev ve yetki dagilimini baslatin.</p>
+                <h3>Henüz personel eklenmedi</h3>
+                <p>İlk personel hesabını oluşturarak ekip içindeki görev ve yetki dağılımını başlatın.</p>
                 <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
             </div>
         }
@@ -80,7 +67,7 @@
                         <dl class="personnel-profile-list">
                             <div>
                                 <dt>Telefon</dt>
-                                <dd>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "Kayit yok" : user.PhoneNumber)</dd>
+                                <dd>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "Kayıt yok" : user.PhoneNumber)</dd>
                             </div>
                             <div>
                                 <dt>Sirket</dt>
@@ -93,8 +80,11 @@
                         </dl>
 
                         <div class="personnel-card-footer">
-                            <span class="status-dot"></span>
-                            <span>Panel erisimi aktif</span>
+                            <span><span class="status-dot"></span>Panel erişimi aktif</span>
+                            <form asp-controller="Manager" asp-action="DeletePersonnel" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Bu personel kaydını silmek istiyor musunuz?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3 me-1"></i>Sil</button>
+                            </form>
                         </div>
                     </article>
                 }

@@ -8,7 +8,22 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    var messages = options.ModelBindingMessageProvider;
+
+    messages.SetAttemptedValueIsInvalidAccessor((value, fieldName) => $"{fieldName} alanına girilen değer geçerli değil.");
+    messages.SetMissingBindRequiredValueAccessor(fieldName => $"{fieldName} alanı zorunludur.");
+    messages.SetMissingKeyOrValueAccessor(() => "Zorunlu alan değeri eksik.");
+    messages.SetMissingRequestBodyRequiredValueAccessor(() => "İstek gövdesi boş olamaz.");
+    messages.SetNonPropertyAttemptedValueIsInvalidAccessor(value => $"Girilen değer geçerli değil: {value}");
+    messages.SetNonPropertyUnknownValueIsInvalidAccessor(() => "Girilen değer geçerli değil.");
+    messages.SetNonPropertyValueMustBeANumberAccessor(() => "Lütfen geçerli bir sayı girin.");
+    messages.SetUnknownValueIsInvalidAccessor(fieldName => $"{fieldName} alanı geçerli değil.");
+    messages.SetValueIsInvalidAccessor(value => $"Girilen değer geçerli değil: {value}");
+    messages.SetValueMustBeANumberAccessor(fieldName => $"{fieldName} alanı sayı olmalıdır.");
+    messages.SetValueMustNotBeNullAccessor(fieldName => $"{fieldName} alanı zorunludur.");
+});
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ActivityLogService>();

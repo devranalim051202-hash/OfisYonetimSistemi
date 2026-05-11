@@ -5,11 +5,11 @@
 }
 
 <section class="dashboard-page">
-    <div class="dashboard-header">
+    <div class="dashboard-header projects-hero">
         <div>
             <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>Proje Yönetimi</p>
             <h1>Projeler</h1>
-            <p>Ofiste takip edilen isleri proje bazli kaydedin ve ilgili stok, gider ve evrak kayitlarini buradan izleyin.</p>
+            <p>Ofiste takip edilen işleri proje bazlı kaydedin; gider, evrak, daire ve ekip süreçlerini tek portföy üzerinden izleyin.</p>
         </div>
         <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Proje Ekle</a>
     </div>
@@ -24,13 +24,16 @@
         <div class="alert alert-danger shadow-sm"><i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]</div>
     }
 
-    <div class="premium-list-panel mt-4">
+    <div class="premium-list-panel projects-portfolio-panel mt-4">
         <div class="premium-list-header border-bottom pb-3 mb-4">
             <div>
                 <span class="premium-panel-label"><i class="bi bi-card-list me-2"></i>Proje Listesi</span>
                 <h2 class="mt-2">Proje Portföyü</h2>
             </div>
-            <span class="premium-count bg-light"><i class="bi bi-collection me-2"></i>@Model.Count() proje</span>
+            <div class="projects-panel-actions">
+                <span class="premium-count bg-light"><i class="bi bi-collection me-2"></i>@Model.Count() proje</span>
+                <a class="btn btn-primary btn-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Yeni Proje</a>
+            </div>
         </div>
 
         @if (!Model.Any())
@@ -50,8 +53,15 @@
                     var finishDate = project.EndDate?.ToString("dd.MM.yyyy") ?? "Devam ediyor";
                     var coverImage = project.ProjectImages.FirstOrDefault(i => i.IsCover) ?? project.ProjectImages.FirstOrDefault();
                     var cardStyle = coverImage != null ? $"background-image: url('{coverImage.FilePath}');" : "";
-                    <article class="project-card project-card-photo @(coverImage != null ? "has-project-photo" : "no-project-photo")" style="@cardStyle">
+                    <article class="project-card project-card-photo project-portfolio-card @(coverImage != null ? "has-project-photo" : "no-project-photo")" style="@cardStyle">
                         <div class="project-card-photo-overlay"></div>
+                        @if (coverImage == null)
+                        {
+                            <div class="project-placeholder-visual">
+                                <i class="bi bi-buildings"></i>
+                                <span>Smart Office Proje</span>
+                            </div>
+                        }
                         <div class="project-card-top">
                             <span class="project-monogram shadow-sm">@project.Name.Substring(0, 1).ToUpper()</span>
                             <span class="status-pill premium-status shadow-sm"><i class="bi bi-activity me-2"></i>@project.Status</span>
@@ -59,7 +69,7 @@
 
                         <div class="project-card-body">
                             <h3>@project.Name</h3>
-                            <p class="text-muted">@(string.IsNullOrWhiteSpace(project.Description) ? "Bu proje icin henuz aciklama eklenmedi." : project.Description)</p>
+                            <p>@(string.IsNullOrWhiteSpace(project.Description) ? "Bu proje için henüz açıklama eklenmedi." : project.Description)</p>
                         </div>
 
                         <div class="project-meta-grid">
@@ -80,7 +90,7 @@
                         <div class="project-card-actions mt-3">
                             <a class="btn btn-primary flex-grow-1" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><i class="bi bi-arrow-right-circle me-1"></i>Projeye Gir</a>
                             <a class="btn btn-outline-secondary px-3" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id" title="Düzenle"><i class="bi bi-pencil-square"></i></a>
-                            <a class="btn btn-outline-danger px-3 border-0" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" title="Sil"><i class="bi bi-trash"></i></a>
+                            <a class="btn btn-outline-danger px-3" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" title="Sil"><i class="bi bi-trash"></i></a>
                         </div>
                     </article>
                 }

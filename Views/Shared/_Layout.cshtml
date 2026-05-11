@@ -72,14 +72,14 @@
                         <span class="sidebar-section-title">Yönetim</span>
                         @if (isManager)
                         {
-                            <a class="sidebar-link @(isActiveController("Manager") && currentAction != "Index" ? "active" : "")" asp-controller="Manager" asp-action="Index">
+                            <a class="sidebar-link @(isActiveController("Manager") && currentAction == "Personnel" ? "active" : "")" asp-controller="Manager" asp-action="Personnel">
                                 <span class="sidebar-icon"><i class="bi bi-people-fill"></i></span>
                                 Personeller
                             </a>
                         }
                         <a class="sidebar-link @(isActiveController("Assistant") ? "active" : "")" asp-controller="Assistant" asp-action="Index">
-                            <span class="sidebar-icon"><i class="bi bi-robot"></i></span>
-                            AI Asistan
+                            <span class="sidebar-icon"><img src="~/images/smartoffice-ai-icon.png" alt="" class="sidebar-ai-icon" /></span>
+                            Smart Office AI Asistan
                         </a>
                     </nav>
 
@@ -104,8 +104,7 @@
             <div class="app-main">
                 <div class="app-topbar">
                     <div>
-                        <span class="app-kicker">Ofis Otomasyon Paneli</span>
-                        <h1>@(ViewData["Title"] ?? "Dashboard")</h1>
+                        <h1>@(!string.IsNullOrWhiteSpace(companyName) ? companyName : "Smart Office")</h1>
                     </div>
                     <div class="app-topbar-actions">
                         <span class="app-status-pill">Aktif Sistem</span>
@@ -118,8 +117,16 @@
                 </main>
 
                 <footer class="app-footer">
-                    &copy; 2026 - Ofis Yönetim Sistemi
+                    &copy; 2026 - Smart Office
                 </footer>
+
+                @if (!isActiveController("Assistant"))
+                {
+                    <a class="assistant-shortcut" asp-controller="Assistant" asp-action="Index" aria-label="Smart Office AI Asistan">
+                        <img src="~/images/smartoffice-ai-icon.png" alt="" />
+                        <span>Smart Office AI Asistan</span>
+                    </a>
+                }
             </div>
         </div>
     }
@@ -131,9 +138,11 @@
             </main>
         </div>
 
-        <footer class="border-top footer text-muted">
-            <div class="container">
-                &copy; 2026 - Ofis Yönetim Sistemi
+        <footer class="border-top footer text-muted public-footer">
+            <div class="container public-footer-inner">
+                <span class="public-footer-copy">&copy; 2026 - Smart Office</span>
+                <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="public-footer-logo" />
+                <span class="public-footer-rights">Tüm hakları Smart Office'e aittir.</span>
             </div>
         </footer>
     }
