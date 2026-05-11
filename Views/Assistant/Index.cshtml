@@ -1,36 +1,62 @@
 @{
-    ViewData["Title"] = "AI Asistan";
+    ViewData["Title"] = "Smart Office AI Asistan";
 }
 
-<section class="dashboard-page">
-    <div class="dashboard-header ai-hero-panel">
-        <div>
-            <p class="eyebrow">AI Asistan</p>
-            <h1>Komut destekli ofis yardimcisi</h1>
-            <p>Proje, gider ve daire durumlarini rol yetkilerine uygun sekilde sorgular. Yetkiniz olmayan islemleri yapmaz.</p>
+<section class="assistant-premium-page">
+    <div class="assistant-premium-hero">
+        <div class="assistant-hero-icon">
+            <img src="~/images/smartoffice-ai-icon.png" alt="Smart Office AI Asistan" />
+        </div>
+        <div class="assistant-hero-copy">
+            <p class="eyebrow">Smart Office AI Asistan</p>
+            <h1>Ofis süreçlerini komutla sorgulayın.</h1>
+            <p>Proje, gider ve daire durumlarını rol yetkilerine uygun şekilde yanıtlar. Yetkiniz olmayan işlemleri yapmaz, sistem kayıtlarını kontrollü şekilde okur.</p>
+        </div>
+        <div class="assistant-hero-chips">
+            <span><i class="bi bi-kanban"></i> Proje sorguları</span>
+            <span><i class="bi bi-cash-coin"></i> Gider özeti</span>
+            <span><i class="bi bi-building-check"></i> Daire durumu</span>
         </div>
     </div>
 
     <div class="assistant-chat-panel">
         <div class="assistant-chat-header">
             <div>
-                <span class="premium-panel-label">Backend komut motoru</span>
-                <h2>Chatbot</h2>
+                <span class="premium-panel-label">Komut destekli yardım</span>
+                <h2>Smart Office AI Asistan</h2>
             </div>
-            <span class="app-status-pill">Log aktif</span>
-        </div>
-
-        <div id="chatMessages" class="assistant-chat-messages" aria-live="polite">
-            <div class="assistant-message assistant-message-bot">
-                Merhaba. Ornek komutlar: "Projeleri listele", "Bos daireleri listele", "Bu ayki giderleri goster".
+            <div class="assistant-status-group">
+                <span class="app-status-pill"><i class="bi bi-shield-check me-1"></i>Yetki kontrollü</span>
+                <span class="app-date-pill"><i class="bi bi-clock-history me-1"></i>Log aktif</span>
             </div>
         </div>
 
-        <form id="assistantForm" class="assistant-chat-form">
-            @Html.AntiForgeryToken()
-            <input id="commandText" class="form-control" maxlength="1000" placeholder="Komut yazin..." autocomplete="off" required>
-            <button type="submit" class="btn btn-primary">Gonder</button>
-        </form>
+        <div class="assistant-workspace">
+            <aside class="assistant-command-panel" aria-label="Örnek komutlar">
+                <span class="premium-panel-label">Hızlı Komutlar</span>
+                <h3>Ne sorabilirsiniz?</h3>
+                <div class="assistant-command-list">
+                    <button type="button" data-command="Projeleri listele"><i class="bi bi-kanban"></i>Projeleri listele</button>
+                    <button type="button" data-command="Boş daireleri listele"><i class="bi bi-building-check"></i>Boş daireleri listele</button>
+                    <button type="button" data-command="Bu ayki giderleri göster"><i class="bi bi-cash-coin"></i>Bu ayki giderleri göster</button>
+                </div>
+                <p>Komutlar sistemdeki yetkinize göre cevaplanır. Erişiminiz olmayan bilgiler gösterilmez.</p>
+            </aside>
+
+            <div class="assistant-chat-surface">
+                <div id="chatMessages" class="assistant-chat-messages" aria-live="polite">
+                    <div class="assistant-message assistant-message-bot">
+                        Merhaba. Size proje, gider, evrak ve daire durumları hakkında yardımcı olabilirim. Sol taraftaki örnek komutlardan birini seçebilir veya kendi komutunuzu yazabilirsiniz.
+                    </div>
+                </div>
+
+                <form id="assistantForm" class="assistant-chat-form">
+                    @Html.AntiForgeryToken()
+                    <input id="commandText" class="form-control" maxlength="1000" placeholder="Smart Office AI Asistan'a komut yazın..." autocomplete="off" required>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-send-fill me-2"></i>Gönder</button>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -41,6 +67,7 @@
             const input = document.getElementById("commandText");
             const messages = document.getElementById("chatMessages");
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            const commandButtons = document.querySelectorAll("[data-command]");
 
             const addMessage = (text, type) => {
                 const message = document.createElement("div");
@@ -72,10 +99,17 @@
                     });
 
                     const data = await response.json();
-                    addMessage(data.responseText || "Cevap alinamadi.", data.isSuccessful ? "bot" : "error");
+                    addMessage(data.responseText || "Cevap alınamadı.", data.isSuccessful ? "bot" : "error");
                 } catch {
-                    addMessage("Chatbot su anda cevap veremiyor.", "error");
+                    addMessage("Smart Office AI Asistan şu anda cevap veremiyor.", "error");
                 }
+            });
+
+            commandButtons.forEach((button) => {
+                button.addEventListener("click", () => {
+                    input.value = button.dataset.command || "";
+                    input.focus();
+                });
             });
         })();
     </script>

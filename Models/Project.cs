@@ -42,5 +42,7 @@ namespace OfisYonetimSistemi.Models
         public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
 
         public ICollection<Apartment> Apartments { get; set; } = new List<Apartment>();
+
+        public ICollection<ProjectImage> ProjectImages { get; set; } = new List<ProjectImage>();
     }
 }

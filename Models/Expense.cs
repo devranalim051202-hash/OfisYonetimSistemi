@@ -57,11 +57,9 @@ namespace OfisYonetimSistemi.Models
         [StringLength(100)]
         public string? DocumentNumber { get; set; }
 
-        [Required]
         [StringLength(250)]
         public string DocumentFilePath { get; set; } = string.Empty;
 
-        [Required]
         [StringLength(250)]
         public string DocumentOriginalFileName { get; set; } = string.Empty;
 
@@ -71,7 +69,6 @@ namespace OfisYonetimSistemi.Models
         [NotMapped]
         public IFormFile? DocumentFile { get; set; }
 
-        [Required]
         [StringLength(500)]
         public string Description { get; set; } = string.Empty;
 

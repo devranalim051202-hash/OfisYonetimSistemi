@@ -55,6 +55,12 @@ namespace OfisYonetimSistemi.Models
                 .HasForeignKey<ApartmentSale>(s => s.ApartmentId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<ProjectImage>()
+                .HasOne(i => i.Project)
+                .WithMany(p => p.ProjectImages)
+                .HasForeignKey(i => i.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<ChatBotLog>()
                 .HasOne(l => l.User)
                 .WithMany()
@@ -75,6 +81,7 @@ namespace OfisYonetimSistemi.Models
         public DbSet<Invoice> Invoices { get; set; }
         public DbSet<Material> Materials { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<ProjectImage> ProjectImages { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<StockMovement> StockMovements { get; set; }
         public DbSet<User> Users { get; set; }

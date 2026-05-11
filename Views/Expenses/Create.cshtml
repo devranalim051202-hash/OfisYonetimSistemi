@@ -5,22 +5,22 @@
 }
 
 <section class="dashboard-page">
-    <div class="dashboard-header">
+    <div class="dashboard-header expense-create-hero">
         <div>
-            <p class="eyebrow">Yeni Gider</p>
+            <p class="eyebrow"><i class="bi bi-receipt me-2"></i>Yeni Gider</p>
             <h1>Gider Ekle</h1>
-            <p>Projeye alinan malzeme, miktar ve fiyat bilgisini kaydedin.</p>
+            <p class="text-muted">Projeye alinan malzeme, miktar ve fiyat bilgisini kaydedin.</p>
         </div>
-        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
+        <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId"><i class="bi bi-arrow-left me-2"></i>Projeye Dön</a>
     </div>
 
-    <div class="table-panel">
-        <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-3">
+    <div class="table-panel shadow-sm expense-create-panel">
+        <form asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4 expense-form" novalidate>
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <partial name="_ExpenseForm" model="Model" />
-            <div class="col-12 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Kaydet</button>
-                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
+            <div class="col-12 d-flex gap-3 mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary px-4 py-2"><i class="bi bi-check2-circle me-2"></i>Kaydet</button>
+                <a class="btn btn-outline-secondary px-4 py-2" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId"><i class="bi bi-x-circle me-2"></i>İptal</a>
             </div>
         </form>
     </div>
@@ -35,8 +35,8 @@
             const amount = document.getElementById("Amount");
 
             const calculateAmount = () => {
-                const quantityValue = Number(quantity?.value || 0);
-                const unitPriceValue = Number(unitPrice?.value || 0);
+                const quantityValue = Number((quantity?.value || "0").replace(",", "."));
+                const unitPriceValue = Number((unitPrice?.value || "0").replace(",", "."));
                 const total = quantityValue * unitPriceValue;
 
                 if (amount) {
@@ -46,6 +46,9 @@
 
             quantity?.addEventListener("input", calculateAmount);
             unitPrice?.addEventListener("input", calculateAmount);
+            $(".js-expense-number").each(function () {
+                $(this).rules("remove", "step");
+            });
             calculateAmount();
         })();
     </script>

@@ -3,25 +3,53 @@
 }
 
 <section class="auth-choice-page">
-    <div class="auth-choice-header">
-        <p class="eyebrow">Giriş Seçimi</p>
-        <h1>Sisteme hangi yetkiyle giriş yapmak istiyorsunuz?</h1>
-        <p>Admin ve personel kullanıcıları için ayrı giriş ekranları bulunur.</p>
-    </div>
+    <div class="auth-choice-overlay">
+        <div class="auth-choice-hero">
+            <p class="eyebrow">Giriş Seçimi</p>
+            <div class="auth-choice-hero-row">
+                <div>
+                    <h1>Smart Office paneline rolünüze uygun giriş yapın.</h1>
+                    <p>
+                        Proje, evrak, gider, personel ve daire satış süreçleri için yetkinize göre
+                        ayrılmış güvenli giriş ekranlarından devam edin.
+                    </p>
+                </div>
+                <div class="auth-choice-highlights" aria-label="Sistem özellikleri">
+                    <span><i class="bi bi-kanban"></i> Proje takibi</span>
+                    <span><i class="bi bi-file-earmark-text"></i> Evrak yönetimi</span>
+                    <span><i class="bi bi-building-check"></i> Daire satış</span>
+                </div>
+            </div>
+        </div>
 
-    <div class="auth-choice-grid">
-        <article class="auth-choice-card">
-            <span class="auth-role-badge">Admin</span>
-            <h2>Admin Girişi</h2>
-            <p>Proje, kullanıcı, rol, malzeme, firma, stok ve evrak yönetimi için tam yetkili giriş.</p>
-            <a class="btn btn-primary" asp-controller="Account" asp-action="AdminLogin">Admin olarak giriş yap</a>
-        </article>
+        <div class="auth-choice-grid">
+            <article class="auth-choice-card auth-choice-card-manager">
+                <div class="auth-choice-card-top">
+                    <div class="auth-choice-card-icon"><i class="bi bi-shield-lock"></i></div>
+                    <span class="auth-role-badge">Yönetici Alanı</span>
+                </div>
+                <h2>Admin / Müdür Girişi</h2>
+                <p>Projeleri, kullanıcıları, giderleri, evrak kayıtlarını ve satış süreçlerini yönetmek için yetkili panel.</p>
+                <ul class="auth-choice-list">
+                    <li><i class="bi bi-check2"></i> Dashboard ve yönetim raporları</li>
+                    <li><i class="bi bi-check2"></i> Personel ve firma kontrolü</li>
+                </ul>
+                <a class="btn btn-primary mt-auto w-100 py-2" asp-controller="Account" asp-action="AdminLogin"><i class="bi bi-person-badge me-2"></i>Yönetici olarak giriş yap</a>
+            </article>
 
-        <article class="auth-choice-card">
-            <span class="auth-role-badge">Personel</span>
-            <h2>Personel Girişi</h2>
-            <p>Günlük kayıtları görüntülemek, malzeme ve evrak süreçlerini takip etmek için personel girişi.</p>
-            <a class="btn btn-outline-primary" asp-controller="Account" asp-action="PersonnelLogin">Personel olarak giriş yap</a>
-        </article>
+            <article class="auth-choice-card auth-choice-card-personnel">
+                <div class="auth-choice-card-top">
+                    <div class="auth-choice-card-icon"><i class="bi bi-person-workspace"></i></div>
+                    <span class="auth-role-badge">Personel Alanı</span>
+                </div>
+                <h2>Personel Girişi</h2>
+                <p>Günlük kayıtları görüntülemek, evrak ve proje süreçlerini takip etmek için sade ve anlaşılır personel paneli.</p>
+                <ul class="auth-choice-list">
+                    <li><i class="bi bi-check2"></i> Görev odaklı ekranlar</li>
+                    <li><i class="bi bi-check2"></i> Hızlı işlem ve kayıt takibi</li>
+                </ul>
+                <a class="btn btn-outline-primary mt-auto w-100 py-2" asp-controller="Account" asp-action="PersonnelLogin"><i class="bi bi-person me-2"></i>Personel olarak giriş yap</a>
+            </article>
+        </div>
     </div>
 </section>

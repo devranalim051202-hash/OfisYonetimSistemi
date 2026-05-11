@@ -1,0 +1,94 @@
+@model IEnumerable<OfisYonetimSistemi.Models.User>
+
+@{
+    ViewData["Title"] = "Personeller";
+    var lastDate = ViewBag.LastPersonnelDate as DateTime?;
+}
+
+<section class="personnel-premium-page">
+    <div class="personnel-premium-hero">
+        <div>
+            <p class="eyebrow">Ekip Yönetimi</p>
+            <h1>Personeller</h1>
+            <p>Ofis ekibindeki kullanıcı hesaplarını, rollerini, iletişim bilgilerini ve panel erişim durumlarını tek ekrandan yönetin.</p>
+        </div>
+        <div class="personnel-premium-actions">
+            <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    <div class="personnel-premium-panel">
+        <div class="personnel-panel-header">
+            <div>
+                <span class="premium-panel-label">Kayıtlı Ekip</span>
+                <h2>Personel Listesi</h2>
+            </div>
+            <div class="personnel-panel-actions">
+                <span class="premium-count">@Model.Count() kayıt</span>
+                <span class="premium-count">Son eklenen: @(lastDate.HasValue ? lastDate.Value.ToString("dd.MM.yyyy") : "-")</span>
+            </div>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="premium-empty-state personnel-empty">
+                <span>+</span>
+                <h3>Henüz personel eklenmedi</h3>
+                <p>İlk personel hesabını oluşturarak ekip içindeki görev ve yetki dağılımını başlatın.</p>
+                <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+            </div>
+        }
+        else
+        {
+            <div class="personnel-premium-grid">
+                @foreach (var user in Model)
+                {
+                    var initial = string.IsNullOrWhiteSpace(user.FullName) ? "P" : user.FullName.Substring(0, 1).ToUpper();
+                    <article class="personnel-premium-card">
+                        <div class="personnel-card-top">
+                            <div class="personnel-avatar premium-avatar">@initial</div>
+                            <span class="role-chip">@user.Role?.Name</span>
+                        </div>
+
+                        <div class="personnel-info">
+                            <h3>@user.FullName</h3>
+                            <p>@user.Email</p>
+                        </div>
+
+                        <dl class="personnel-profile-list">
+                            <div>
+                                <dt>Telefon</dt>
+                                <dd>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "Kayıt yok" : user.PhoneNumber)</dd>
+                            </div>
+                            <div>
+                                <dt>Sirket</dt>
+                                <dd>@user.CompanyName</dd>
+                            </div>
+                            <div>
+                                <dt>Kayit Tarihi</dt>
+                                <dd>@user.CreatedAt.ToString("dd.MM.yyyy")</dd>
+                            </div>
+                        </dl>
+
+                        <div class="personnel-card-footer">
+                            <span><span class="status-dot"></span>Panel erişimi aktif</span>
+                            <form asp-controller="Manager" asp-action="DeletePersonnel" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Bu personel kaydını silmek istiyor musunuz?');">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3 me-1"></i>Sil</button>
+                            </form>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+    </div>
+</section>

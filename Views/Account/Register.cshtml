@@ -4,65 +4,144 @@
     ViewData["Title"] = "Uye Ol";
 }
 
-<section class="form-page">
-    <div class="form-panel">
-        <a class="auth-back-link" asp-controller="Home" asp-action="Index">Ana sayfaya don</a>
-        <p class="eyebrow">Ofis Sahibi Uyeligi</p>
-        <h1>Uye ol</h1>
-        <p class="auth-help">Bu kayit ekrani sadece ofis sahibi veya mudur hesabi olusturmak icindir.</p>
+<section class="auth-split-page auth-split-page-scroll">
+    <div class="auth-split-media">
+        <div class="auth-split-caption">
+            <span>Akıllı Ofis</span>
+            <strong>Yeni ofis hesabınızı oluşturun ve yönetim panelini kullanmaya başlayın.</strong>
+        </div>
+    </div>
 
-        <form asp-controller="Account" asp-action="Register" method="post" class="row g-3">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="auth-split-content">
+        <div class="form-panel auth-split-panel">
+            <a class="auth-back-link" asp-controller="Home" asp-action="Index">Ana sayfaya dön</a>
+            <p class="eyebrow">Ofis Sahibi Üyeliği</p>
+            <h1>Üye ol</h1>
+            <p class="auth-help">Bu kayıt ekranı sadece ofis sahibi veya müdür hesabı oluşturmak içindir.</p>
 
-            <div class="col-md-6">
-                <label asp-for="FirstName" class="form-label">Ad</label>
-                <input asp-for="FirstName" class="form-control">
-                <span asp-validation-for="FirstName" class="text-danger"></span>
-            </div>
+            <form asp-controller="Account" asp-action="Register" method="post" class="row g-3">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="col-md-6">
-                <label asp-for="LastName" class="form-label">Soyad</label>
-                <input asp-for="LastName" class="form-control">
-                <span asp-validation-for="LastName" class="text-danger"></span>
-            </div>
+                <div class="col-md-6">
+                    <div class="form-floating position-relative">
+                        <input asp-for="FirstName" class="form-control ps-4" placeholder="Ad">
+                        <label asp-for="FirstName" class="ps-4"><i class="bi bi-person me-2 text-muted"></i>Ad</label>
+                    </div>
+                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                </div>
 
-            <div class="col-md-6">
-                <label asp-for="PhoneNumber" class="form-label">Telefon numarasi</label>
-                <input asp-for="PhoneNumber" class="form-control">
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
+                <div class="col-md-6">
+                    <div class="form-floating position-relative">
+                        <input asp-for="LastName" class="form-control ps-4" placeholder="Soyad">
+                        <label asp-for="LastName" class="ps-4"><i class="bi bi-person me-2 text-muted"></i>Soyad</label>
+                    </div>
+                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                </div>
 
-            <div class="col-md-6">
-                <label asp-for="Email" class="form-label">Mail</label>
-                <input asp-for="Email" type="email" class="form-control">
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
+                <div class="col-md-6">
+                    <div class="form-floating position-relative">
+                        <input asp-for="PhoneNumber" class="form-control ps-4" placeholder="Telefon">
+                        <label asp-for="PhoneNumber" class="ps-4"><i class="bi bi-telephone me-2 text-muted"></i>Telefon Numarası</label>
+                    </div>
+                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                </div>
 
-            <div class="col-md-8">
-                <label asp-for="CompanyName" class="form-label">Sirket ismi</label>
-                <input asp-for="CompanyName" class="form-control">
-                <span asp-validation-for="CompanyName" class="text-danger"></span>
-            </div>
+                <div class="col-md-6">
+                    <div class="form-floating position-relative">
+                        <input asp-for="Email" type="email" class="form-control ps-4" placeholder="Mail">
+                        <label asp-for="Email" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>E-posta Adresi</label>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
 
-            <div class="col-md-4">
-                <label asp-for="CompanySize" class="form-label">Sirket buyuklugu</label>
-                <input asp-for="CompanySize" type="number" min="1" class="form-control">
-                <span asp-validation-for="CompanySize" class="text-danger"></span>
-            </div>
+                <div class="col-md-8">
+                    <div class="form-floating position-relative">
+                        <input asp-for="CompanyName" class="form-control ps-4" placeholder="Şirket">
+                        <label asp-for="CompanyName" class="ps-4"><i class="bi bi-building me-2 text-muted"></i>Şirket İsmi</label>
+                    </div>
+                    <span asp-validation-for="CompanyName" class="text-danger small"></span>
+                </div>
 
-            <div class="col-md-12">
-                <label asp-for="Password" class="form-label">Sifre</label>
-                <input asp-for="Password" type="password" class="form-control">
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
+                <div class="col-md-4">
+                    <div class="form-floating position-relative">
+                        <input asp-for="CompanySize" type="number" min="1" class="form-control ps-4" placeholder="Büyüklük">
+                        <label asp-for="CompanySize" class="ps-4"><i class="bi bi-people me-2 text-muted"></i>Şirket Büyüklüğü</label>
+                    </div>
+                    <span asp-validation-for="CompanySize" class="text-danger small"></span>
+                </div>
 
-            <div class="col-12">
-                <button type="submit" class="btn btn-primary">Dogrulama kodu gonder</button>
-            </div>
-        </form>
+                <div class="col-md-12">
+                    <div class="form-floating position-relative">
+                        <input asp-for="Password" type="password" class="form-control ps-4" placeholder="Şifre">
+                        <label asp-for="Password" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>Şifre</label>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="kvkk-consent">
+                        <input class="form-check-input" type="checkbox" id="kvkkConsent" required>
+                        <label class="form-check-label" for="kvkkConsent">
+                            <button type="button" class="kvkk-link" data-bs-toggle="modal" data-bs-target="#kvkkModal">KVKK metnini</button>
+                            okudum, anladım ve kişisel verilerimin işlenmesine onay veriyorum.
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-2">
+                    <button type="submit" class="btn btn-primary w-100 py-2 fs-5"><i class="bi bi-send me-2"></i>Doğrulama Kodu Gönder</button>
+                </div>
+            </form>
+        </div>
     </div>
 </section>
+
+<div class="modal fade" id="kvkkModal" tabindex="-1" aria-labelledby="kvkkModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content kvkk-modal">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow mb-1">Aydınlatma Metni</p>
+                    <h2 class="modal-title fs-4" id="kvkkModalLabel">KVKK Kapsamında Kişisel Verilerin İşlenmesi</h2>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Akıllı Ofis Yönetim Sistemi kapsamında paylaştığınız ad, soyad, e-posta adresi, telefon numarası,
+                    şirket adı, şirket büyüklüğü ve hesap güvenliği için belirlediğiniz giriş bilgileri; kullanıcı hesabı
+                    oluşturmak, kimlik doğrulama işlemlerini yürütmek, sistem içi yetkilendirme sağlamak ve ofis yönetimi
+                    süreçlerinin güvenli şekilde işletilmesi amacıyla işlenmektedir.
+                </p>
+                <p>
+                    Kişisel verileriniz, 6698 sayılı Kişisel Verilerin Korunması Kanunu'na uygun olarak hukuka ve
+                    dürüstlük kurallarına bağlı, belirli ve meşru amaçlarla, işlendikleri amaçla bağlantılı ve sınırlı
+                    şekilde saklanır. Verileriniz sistem güvenliği, işlem kayıtlarının tutulması, kullanıcı destek süreçleri
+                    ve yasal yükümlülüklerin yerine getirilmesi için gerekli süre boyunca korunur.
+                </p>
+                <p>
+                    Verileriniz yetkisiz kişilerle paylaşılmaz. Ancak kanunen yetkili kamu kurum ve kuruluşlarının talebi,
+                    sistem barındırma ve teknik destek süreçleri veya hukuki yükümlülüklerin yerine getirilmesi gibi zorunlu
+                    hallerde, yalnızca gerekli kapsamla sınırlı olmak üzere aktarılabilir.
+                </p>
+                <p>
+                    KVKK kapsamında kişisel verilerinizin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep
+                    etme, eksik veya yanlış işlenmiş verilerin düzeltilmesini isteme, mevzuatta öngörülen şartlar çerçevesinde
+                    silinmesini veya yok edilmesini talep etme ve işleme faaliyetlerine itiraz etme haklarına sahipsiniz.
+                </p>
+                <p>
+                    Bu kutucuğu işaretleyerek yukarıdaki bilgilendirmeyi okuduğunuzu, anladığınızı ve üyelik sürecinin
+                    yürütülmesi için kişisel verilerinizin belirtilen amaçlarla işlenmesine açık rıza verdiğinizi kabul
+                    etmiş olursunuz.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Okudum, anladım</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -1,2 +1,28 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
+<script>
+    if (window.jQuery && $.validator) {
+        $.extend($.validator.messages, {
+            required: "Bu alan zorunludur.",
+            remote: "Lütfen bu alanı kontrol edin.",
+            email: "Lütfen geçerli bir e-posta adresi girin.",
+            url: "Lütfen geçerli bir adres girin.",
+            date: "Lütfen geçerli bir tarih girin.",
+            dateISO: "Lütfen geçerli bir tarih girin.",
+            number: "Lütfen geçerli bir sayı girin.",
+            digits: "Lütfen sadece rakam girin.",
+            equalTo: "Lütfen aynı değeri tekrar girin.",
+            maxlength: $.validator.format("Lütfen en fazla {0} karakter girin."),
+            minlength: $.validator.format("Lütfen en az {0} karakter girin."),
+            rangelength: $.validator.format("Lütfen {0} ile {1} karakter arasında girin."),
+            range: $.validator.format("Lütfen {0} ile {1} arasında bir değer girin."),
+            max: $.validator.format("Lütfen {0} değerinden küçük veya eşit bir değer girin."),
+            min: $.validator.format("Lütfen {0} değerinden büyük veya eşit bir değer girin."),
+            step: $.validator.format("Lütfen {0} katları şeklinde bir değer girin.")
+        });
+
+        $.validator.methods.number = function (value, element) {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:[.\s]\d{3})+)?(?:[,.]\d+)?$/.test(value);
+        };
+    }
+</script>

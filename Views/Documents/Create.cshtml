@@ -5,99 +5,115 @@
 }
 
 <section class="form-page">
-    <div class="form-panel document-panel shadow-sm">
-        <a class="auth-back-link" asp-controller="Expenses" asp-action="Index">Giderlere don</a>
-        <p class="eyebrow">Evrak Yonetimi</p>
-        <h1>Evrak ekle</h1>
-        <p class="auth-help">Fatura, fis, irsaliye veya makbuz bilgilerini proje ve firma kayitlariyla birlikte sisteme ekleyin.</p>
-
-        <div class="document-form-note">
-            <strong>Evrak bilgileri</strong>
-            <span>Belge numarasi, tarih ve tutar alanlarini evraktaki bilgilerle ayni girin.</span>
+    <div class="form-panel document-panel shadow-sm border-0">
+        <a class="auth-back-link mb-4 d-inline-block" asp-controller="Expenses" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Giderlere dön</a>
+        <div class="mb-4">
+            <p class="eyebrow"><i class="bi bi-folder-fill me-2"></i>Evrak Yönetimi</p>
+            <h1>Evrak Ekle</h1>
+            <p class="text-muted">Fatura, fiş, irsaliye veya makbuz bilgilerini proje ve firma kayıtlarıyla birlikte sisteme ekleyin.</p>
         </div>
 
-        <form asp-controller="Documents" asp-action="Create" method="post" class="row g-3 expense-form needs-validation">
+        <div class="document-form-note bg-light p-3 rounded mb-4 border-start border-4 border-primary">
+            <strong class="d-block mb-1"><i class="bi bi-info-circle-fill me-2 text-primary"></i>Evrak bilgileri</strong>
+            <span class="text-muted small">Belge numarası, tarih ve tutar alanlarını evraktaki bilgilerle aynı girin.</span>
+        </div>
+
+        <form asp-controller="Documents" asp-action="Create" method="post" class="row g-4 expense-form needs-validation">
             @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="col-12 col-lg-4">
-                <label asp-for="DocumentType" class="form-label">Evrak turu</label>
-                <select asp-for="DocumentType" asp-items="ViewBag.DocumentTypes" class="form-select">
-                    <option value="">Evrak turu secin</option>
-                </select>
-                <span asp-validation-for="DocumentType" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <select asp-for="DocumentType" asp-items="ViewBag.DocumentTypes" class="form-select ps-4">
+                        <option value="">Evrak turu secin</option>
+                    </select>
+                    <label asp-for="DocumentType" class="ps-4"><i class="bi bi-file-earmark-text me-2 text-muted"></i>Evrak Türü</label>
+                </div>
+                <span asp-validation-for="DocumentType" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-lg-4">
-                <label asp-for="DocumentNumber" class="form-label">Evrak no</label>
-                <input asp-for="DocumentNumber" class="form-control" placeholder="FTR-2026-001">
-                <span asp-validation-for="DocumentNumber" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="DocumentNumber" class="form-control ps-4" placeholder="FTR-2026-001">
+                    <label asp-for="DocumentNumber" class="ps-4"><i class="bi bi-hash me-2 text-muted"></i>Evrak No</label>
+                </div>
+                <span asp-validation-for="DocumentNumber" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-lg-4">
-                <label asp-for="DocumentDate" class="form-label">Evrak tarihi</label>
-                <input asp-for="DocumentDate" type="date" class="form-control">
-                <span asp-validation-for="DocumentDate" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="DocumentDate" type="date" class="form-control ps-4">
+                    <label asp-for="DocumentDate" class="ps-4"><i class="bi bi-calendar-date me-2 text-muted"></i>Evrak Tarihi</label>
+                </div>
+                <span asp-validation-for="DocumentDate" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-lg-6">
-                <label asp-for="ProjectId" class="form-label">Bagli proje</label>
-                <select asp-for="ProjectId" asp-items="ViewBag.Projects" class="form-select">
-                    <option value="">Proje secin</option>
-                </select>
-                <span asp-validation-for="ProjectId" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <select asp-for="ProjectId" asp-items="ViewBag.Projects" class="form-select ps-4">
+                        <option value="">Proje secin</option>
+                    </select>
+                    <label asp-for="ProjectId" class="ps-4"><i class="bi bi-briefcase me-2 text-muted"></i>Bağlı Proje</label>
+                </div>
+                <span asp-validation-for="ProjectId" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-lg-6">
-                <label asp-for="CompanyId" class="form-label">Firma / tedarikci</label>
-                <select asp-for="CompanyId" asp-items="ViewBag.Companies" class="form-select">
-                    <option value="">Firma secin</option>
-                </select>
-                <span asp-validation-for="CompanyId" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <select asp-for="CompanyId" asp-items="ViewBag.Companies" class="form-select ps-4">
+                        <option value="">Firma secin</option>
+                    </select>
+                    <label asp-for="CompanyId" class="ps-4"><i class="bi bi-shop me-2 text-muted"></i>Firma / Tedarikçi</label>
+                </div>
+                <span asp-validation-for="CompanyId" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-md-4">
-                <label asp-for="SubTotal" class="form-label">Ara toplam</label>
+                <label asp-for="SubTotal" class="form-label text-muted small"><i class="bi bi-calculator me-1"></i>Ara Toplam</label>
                 <div class="input-group">
-                    <input asp-for="SubTotal" type="number" step="0.01" min="0" class="form-control">
-                    <span class="input-group-text">TL</span>
+                    <input asp-for="SubTotal" type="number" step="0.01" min="0" class="form-control form-control-lg">
+                    <span class="input-group-text bg-light">TL</span>
                 </div>
-                <span asp-validation-for="SubTotal" class="text-danger"></span>
+                <span asp-validation-for="SubTotal" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-md-4">
-                <label asp-for="TaxAmount" class="form-label">KDV / vergi</label>
+                <label asp-for="TaxAmount" class="form-label text-muted small"><i class="bi bi-percent me-1"></i>KDV / Vergi</label>
                 <div class="input-group">
-                    <input asp-for="TaxAmount" type="number" step="0.01" min="0" class="form-control">
-                    <span class="input-group-text">TL</span>
+                    <input asp-for="TaxAmount" type="number" step="0.01" min="0" class="form-control form-control-lg">
+                    <span class="input-group-text bg-light">TL</span>
                 </div>
-                <span asp-validation-for="TaxAmount" class="text-danger"></span>
+                <span asp-validation-for="TaxAmount" class="text-danger small"></span>
             </div>
 
             <div class="col-12 col-md-4">
-                <label asp-for="TotalAmount" class="form-label">Genel toplam</label>
+                <label asp-for="TotalAmount" class="form-label fw-bold text-dark"><i class="bi bi-currency-dollar me-1"></i>Genel Toplam</label>
                 <div class="input-group">
-                    <input asp-for="TotalAmount" type="number" step="0.01" min="0" class="form-control">
-                    <span class="input-group-text">TL</span>
+                    <input asp-for="TotalAmount" type="number" step="0.01" min="0" class="form-control form-control-lg bg-light fw-bold">
+                    <span class="input-group-text bg-light fw-bold">TL</span>
                 </div>
-                <span asp-validation-for="TotalAmount" class="text-danger"></span>
+                <span asp-validation-for="TotalAmount" class="text-danger small"></span>
             </div>
 
             <div class="col-md-12">
-                <label asp-for="FilePath" class="form-label">Evrak dosya yolu</label>
-                <input asp-for="FilePath" class="form-control" placeholder="uploads/evraklar/fatura-001.pdf">
-                <span asp-validation-for="FilePath" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <input asp-for="FilePath" class="form-control ps-4" placeholder="uploads/evraklar/fatura-001.pdf">
+                    <label asp-for="FilePath" class="ps-4"><i class="bi bi-folder2-open me-2 text-muted"></i>Evrak Dosya Yolu</label>
+                </div>
+                <span asp-validation-for="FilePath" class="text-danger small"></span>
             </div>
 
             <div class="col-md-12">
-                <label asp-for="Description" class="form-label">Not / aciklama</label>
-                <textarea asp-for="Description" class="form-control" rows="4" placeholder="Evrakla ilgili kisa aciklama"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
+                <div class="form-floating position-relative">
+                    <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="Evrakla ilgili kisa aciklama"></textarea>
+                    <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>Not / Açıklama</label>
+                </div>
+                <span asp-validation-for="Description" class="text-danger small"></span>
             </div>
 
-            <div class="col-12 form-actions">
-                <button type="submit" class="btn btn-primary">Evrak kaydet</button>
-                <a class="btn btn-outline-secondary" asp-controller="Expenses" asp-action="Index">Vazgec</a>
+            <div class="col-12 form-actions mt-4 pt-3 border-top">
+                <button type="submit" class="btn btn-primary px-4 py-2"><i class="bi bi-save me-2"></i>Evrak Kaydet</button>
+                <a class="btn btn-outline-secondary px-4 py-2" asp-controller="Expenses" asp-action="Index"><i class="bi bi-x-circle me-2"></i>Vazgeç</a>
             </div>
         </form>
     </div>

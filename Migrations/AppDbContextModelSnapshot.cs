@@ -493,6 +493,53 @@ namespace OfisYonetimSistemi.Migrations
                     b.ToTable("Projects");
                 });
 
+            modelBuilder.Entity("OfisYonetimSistemi.Models.ProjectImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsCover")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectImages");
+                });
+
             modelBuilder.Entity("OfisYonetimSistemi.Models.Role", b =>
                 {
                     b.Property<int>("Id")
@@ -758,6 +805,17 @@ namespace OfisYonetimSistemi.Migrations
                     b.Navigation("Project");
                 });
 
+            modelBuilder.Entity("OfisYonetimSistemi.Models.ProjectImage", b =>
+                {
+                    b.HasOne("OfisYonetimSistemi.Models.Project", "Project")
+                        .WithMany("ProjectImages")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("OfisYonetimSistemi.Models.StockMovement", b =>
                 {
                     b.HasOne("OfisYonetimSistemi.Models.Company", "Company")
@@ -818,6 +876,8 @@ namespace OfisYonetimSistemi.Migrations
                     b.Navigation("Expenses");
 
                     b.Navigation("Invoices");
+
+                    b.Navigation("ProjectImages");
 
                     b.Navigation("StockMovements");
                 });
