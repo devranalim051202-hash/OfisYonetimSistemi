@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
 using OfisYonetimSistemi.Services;
+using System.Net;
 using System.Text.Json;
 
 namespace OfisYonetimSistemi.Controllers;
@@ -13,15 +14,18 @@ public class AccountController : Controller
     private readonly AppDbContext _context;
     private readonly ActivityLogService _activityLogService;
     private readonly LoginAttemptTracker _loginAttemptTracker;
+    private readonly IEmailSender _emailSender;
 
     public AccountController(
         AppDbContext context,
         ActivityLogService activityLogService,
-        LoginAttemptTracker loginAttemptTracker)
+        LoginAttemptTracker loginAttemptTracker,
+        IEmailSender emailSender)
     {
         _context = context;
         _activityLogService = activityLogService;
         _loginAttemptTracker = loginAttemptTracker;
+        _emailSender = emailSender;
     }
 
     public IActionResult Login()
@@ -138,7 +142,7 @@ public class AccountController : Controller
 
         if (await _context.Users.AnyAsync(u => u.Email == model.Email))
         {
-            ModelState.AddModelError(nameof(model.Email), "Bu mail adresi zaten kullaniliyor.");
+            ModelState.AddModelError(nameof(model.Email), "Bu mail adresi zaten kullanılıyor.");
         }
 
         if (!ModelState.IsValid)
@@ -151,7 +155,36 @@ public class AccountController : Controller
         HttpContext.Session.SetString("PendingRegister", JsonSerializer.Serialize(model));
         HttpContext.Session.SetString("VerificationCode", verificationCode);
 
-        TempData["VerificationInfo"] = $"Dogrulama kodu mail adresine gonderildi. Gelistirme kodu: {verificationCode}";
+        try
+        {
+            await _emailSender.SendEmailAsync(
+                model.Email,
+                "Smart Office mail doğrulama kodu",
+                BuildVerificationEmailBody(model.FirstName, verificationCode));
+        }
+        catch (InvalidOperationException ex)
+        {
+            HttpContext.Session.Remove("PendingRegister");
+            HttpContext.Session.Remove("VerificationCode");
+            ModelState.AddModelError(nameof(model.Email), ex.Message);
+            return View(model);
+        }
+        catch (System.Net.Mail.SmtpException)
+        {
+            HttpContext.Session.Remove("PendingRegister");
+            HttpContext.Session.Remove("VerificationCode");
+            ModelState.AddModelError(nameof(model.Email), "Mail gönderilemedi. Gmail uygulama şifresini, 2 adımlı doğrulamayı ve SMTP ayarlarını kontrol edin.");
+            return View(model);
+        }
+        catch (Exception)
+        {
+            HttpContext.Session.Remove("PendingRegister");
+            HttpContext.Session.Remove("VerificationCode");
+            ModelState.AddModelError(nameof(model.Email), "Doğrulama maili gönderilirken beklenmeyen bir hata oluştu. Lütfen tekrar deneyin.");
+            return View(model);
+        }
+
+        TempData["VerificationInfo"] = "Doğrulama kodu mail adresinize gönderildi.";
         return RedirectToAction(nameof(VerifyEmail));
     }
 
@@ -184,7 +217,7 @@ public class AccountController : Controller
 
         if (model.Code != verificationCode)
         {
-            ModelState.AddModelError(nameof(model.Code), "Dogrulama kodu hatali.");
+            ModelState.AddModelError(nameof(model.Code), "Doğrulama kodu hatalı.");
             return View(model);
         }
 
@@ -216,7 +249,7 @@ public class AccountController : Controller
         catch (DbUpdateException)
         {
             _context.Users.Remove(user);
-            ModelState.AddModelError(nameof(RegisterViewModel.Email), "Bu mail adresi zaten kullaniliyor.");
+            ModelState.AddModelError(nameof(RegisterViewModel.Email), "Bu mail adresi zaten kullanılıyor.");
             return View(nameof(Register), registerModel);
         }
 
@@ -225,7 +258,7 @@ public class AccountController : Controller
         user.Role = await _context.Roles.FindAsync(user.RoleId);
         SetSession(user);
 
-        TempData["SuccessMessage"] = "Uyelik olusturuldu. Yeni sirket hesabiniz acildi.";
+        TempData["SuccessMessage"] = "Üyelik oluşturuldu. Yeni şirket hesabınız açıldı.";
         return RedirectToAction("Index", "Manager");
     }
 
@@ -254,5 +287,21 @@ public class AccountController : Controller
         Response.StatusCode = StatusCodes.Status429TooManyRequests;
         Response.Headers.RetryAfter = retryAfterSeconds.ToString();
         ViewBag.Message = $"Cok fazla hatali giris denemesi yapildi. Lutfen {Math.Ceiling(lockoutStatus.RetryAfter.TotalMinutes)} dakika sonra tekrar deneyin.";
+    }
+
+    private static string BuildVerificationEmailBody(string firstName, string verificationCode)
+    {
+        return $"""
+            <div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
+                <h2 style="margin:0 0 12px;color:#0f172a">Smart Office Mail Doğrulama</h2>
+                <p>Merhaba {WebUtility.HtmlEncode(firstName)},</p>
+                <p>Smart Office hesabını oluşturmak için doğrulama kodun:</p>
+                <div style="font-size:32px;font-weight:800;letter-spacing:6px;background:#f1f5f9;padding:18px 20px;border-radius:10px;text-align:center;color:#2563eb">
+                    {verificationCode}
+                </div>
+                <p style="color:#475569;margin-top:18px">Bu kodu hesap doğrulama ekranına girerek üyeliği tamamlayabilirsin.</p>
+                <p style="color:#64748b;font-size:13px">Bu işlemi sen başlatmadıysan bu maili dikkate alma.</p>
+            </div>
+            """;
     }
 }

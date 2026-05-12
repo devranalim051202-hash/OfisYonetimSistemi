@@ -33,6 +33,8 @@ builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<ChatBotCommandService>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection(EmailSettings.SectionName));
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IProjectImageRepository, ProjectImageRepository>();
 builder.Services.AddScoped<IProjectFileStorageService, ProjectFileStorageService>();
 builder.Services.AddScoped<IProjectImageService, ProjectImageService>();
@@ -158,6 +160,7 @@ app.Use(async (context, next) =>
 });
 
 app.UseSession();
+app.UseMiddleware<TurkishHtmlCharacterMiddleware>();
 app.UseMiddleware<EnglishHtmlTranslationMiddleware>();
 app.UseRateLimiter();
 app.UseAuthentication();
