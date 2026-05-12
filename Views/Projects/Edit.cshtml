@@ -1,15 +1,16 @@
 @model OfisYonetimSistemi.Models.ViewModels.ProjectFormViewModel
 
 @{
-    ViewData["Title"] = "Proje Duzenle";
+    var isEnglish = AppLanguage.IsEnglish(Context);
+    ViewData["Title"] = isEnglish ? "Edit Project" : "Proje Duzenle";
 }
 
 <section class="form-page">
     <div class="form-panel">
-        <a class="auth-back-link" asp-controller="Projects" asp-action="Index">Projelere don</a>
-        <p class="eyebrow">Proje Yonetimi</p>
-        <h1>Proje duzenle</h1>
-        <p class="auth-help">Proje bilgilerini, tarihlerini ve durumunu guncelleyin.</p>
+        <a class="auth-back-link" asp-controller="Projects" asp-action="Index">@(isEnglish ? "Back to Projects" : "Projelere don")</a>
+        <p class="eyebrow">@(isEnglish ? "Project Management" : "Proje Yonetimi")</p>
+        <h1>@(isEnglish ? "Edit Project" : "Proje duzenle")</h1>
+        <p class="auth-help">@(isEnglish ? "Update project information, dates and status." : "Proje bilgilerini, tarihlerini ve durumunu guncelleyin.")</p>
 
         @if (TempData["SuccessMessage"] != null)
         {
@@ -30,7 +31,7 @@
             <partial name="_ProjectForm" model="Model" />
 
             <div class="col-12">
-                <button type="submit" class="btn btn-primary">Guncelle</button>
+                <button type="submit" class="btn btn-primary">@(isEnglish ? "Update" : "Guncelle")</button>
             </div>
         </form>
     </div>

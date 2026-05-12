@@ -1,9 +1,13 @@
 @model OfisYonetimSistemi.Models.ViewModels.ProjectFormViewModel
 
+@{
+    var isEnglish = AppLanguage.IsEnglish(Context);
+}
+
 <div class="col-md-8">
     <div class="form-floating position-relative">
-        <input asp-for="Name" class="form-control ps-4" placeholder="Proje adi">
-        <label asp-for="Name" class="ps-4"><i class="bi bi-building me-2 text-muted"></i>Proje Adı</label>
+        <input asp-for="Name" class="form-control ps-4" placeholder="@(isEnglish ? "Project name" : "Proje adi")">
+        <label asp-for="Name" class="ps-4"><i class="bi bi-building me-2 text-muted"></i>@(isEnglish ? "Project Name" : "Proje Adi")</label>
     </div>
     <span asp-validation-for="Name" class="text-danger small"></span>
 </div>
@@ -11,15 +15,15 @@
 <div class="col-md-4">
     <div class="form-floating position-relative">
         <select asp-for="Status" asp-items="ViewBag.Statuses" class="form-select ps-4"></select>
-        <label asp-for="Status" class="ps-4"><i class="bi bi-activity me-2 text-muted"></i>Durum</label>
+        <label asp-for="Status" class="ps-4"><i class="bi bi-activity me-2 text-muted"></i>@(isEnglish ? "Status" : "Durum")</label>
     </div>
     <span asp-validation-for="Status" class="text-danger small"></span>
 </div>
 
 <div class="col-md-12">
     <div class="form-floating position-relative">
-        <input asp-for="Location" class="form-control ps-4" placeholder="Konum">
-        <label asp-for="Location" class="ps-4"><i class="bi bi-geo-alt me-2 text-muted"></i>Konum</label>
+        <input asp-for="Location" class="form-control ps-4" placeholder="@(isEnglish ? "Location" : "Konum")">
+        <label asp-for="Location" class="ps-4"><i class="bi bi-geo-alt me-2 text-muted"></i>@(isEnglish ? "Location" : "Konum")</label>
     </div>
     <span asp-validation-for="Location" class="text-danger small"></span>
 </div>
@@ -27,7 +31,7 @@
 <div class="col-md-6">
     <div class="form-floating position-relative">
         <input asp-for="StartDate" type="date" class="form-control ps-4">
-        <label asp-for="StartDate" class="ps-4"><i class="bi bi-calendar-event me-2 text-muted"></i>Başlangıç Tarihi</label>
+        <label asp-for="StartDate" class="ps-4"><i class="bi bi-calendar-event me-2 text-muted"></i>@(isEnglish ? "Start Date" : "Baslangic Tarihi")</label>
     </div>
     <span asp-validation-for="StartDate" class="text-danger small"></span>
 </div>
@@ -35,27 +39,27 @@
 <div class="col-md-6">
     <div class="form-floating position-relative">
         <input asp-for="EndDate" type="date" class="form-control ps-4">
-        <label asp-for="EndDate" class="ps-4"><i class="bi bi-calendar-x me-2 text-muted"></i>Bitiş Tarihi</label>
+        <label asp-for="EndDate" class="ps-4"><i class="bi bi-calendar-x me-2 text-muted"></i>@(isEnglish ? "End Date" : "Bitis Tarihi")</label>
     </div>
     <span asp-validation-for="EndDate" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
-    <label asp-for="FloorCount" class="form-label">Kat sayisi</label>
+    <label asp-for="FloorCount" class="form-label">@(isEnglish ? "Floor count" : "Kat sayisi")</label>
     <input asp-for="FloorCount" type="number" min="0" class="form-control">
     <span asp-validation-for="FloorCount" class="text-danger"></span>
 </div>
 
 <div class="col-md-6">
-    <label asp-for="ApartmentCount" class="form-label">Daire sayisi</label>
+    <label asp-for="ApartmentCount" class="form-label">@(isEnglish ? "Apartment count" : "Daire sayisi")</label>
     <input asp-for="ApartmentCount" type="number" min="0" class="form-control">
     <span asp-validation-for="ApartmentCount" class="text-danger"></span>
 </div>
 
 <div class="col-md-12">
     <div class="form-floating position-relative">
-        <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="Aciklama"></textarea>
-        <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>Açıklama</label>
+        <textarea asp-for="Description" class="form-control ps-4" style="height: 100px" placeholder="@(isEnglish ? "Description" : "Aciklama")"></textarea>
+        <label asp-for="Description" class="ps-4"><i class="bi bi-card-text me-2 text-muted"></i>@(isEnglish ? "Description" : "Aciklama")</label>
     </div>
     <span asp-validation-for="Description" class="text-danger small"></span>
 </div>
@@ -63,7 +67,7 @@
 @if (Model.ExistingImages.Any())
 {
     <div class="col-md-12">
-        <label class="form-label">Mevcut proje gorselleri</label>
+        <label class="form-label">@(isEnglish ? "Existing project images" : "Mevcut proje gorselleri")</label>
         <div class="row g-3">
             @foreach (var image in Model.ExistingImages)
             {
@@ -72,11 +76,11 @@
                         <img src="@image.FilePath" alt="@image.OriginalFileName" class="img-fluid rounded mb-2" style="height: 140px; width: 100%; object-fit: cover;">
                         <div class="form-check">
                             <input class="form-check-input" type="radio" asp-for="CoverImageId" value="@image.Id" id="cover_@image.Id">
-                            <label class="form-check-label" for="cover_@image.Id">Kapak gorseli</label>
+                            <label class="form-check-label" for="cover_@image.Id">@(isEnglish ? "Cover image" : "Kapak gorseli")</label>
                         </div>
                         <a class="btn btn-outline-danger btn-sm mt-2"
                            href="@Url.Action("DeleteImage", "Projects", new { id = image.Id, projectId = Model.Id })">
-                            Sil
+                            @(isEnglish ? "Delete" : "Sil")
                         </a>
                     </div>
                 </div>
@@ -87,21 +91,42 @@
 }
 
 <div class="col-md-12">
-    <label asp-for="ProjectImages" class="form-label">Proje görselleri <span class="text-muted fw-normal">(isteğe bağlı)</span></label>
+    <label asp-for="ProjectImages" class="form-label">@(isEnglish ? "Project images" : "Proje gorselleri") <span class="text-muted fw-normal">@(isEnglish ? "(optional)" : "(istege bagli)")</span></label>
     <div class="project-upload-box">
         <div>
-            <strong><i class="bi bi-images me-2"></i>Fotoğraf ekle</strong>
-            <p>İsterseniz projeye bir veya birden fazla görsel ekleyebilirsiniz.</p>
+            <strong><i class="bi bi-images me-2"></i>@(isEnglish ? "Add photos" : "Fotograf ekle")</strong>
+            <p>@(isEnglish ? "You can add one or more images to the project." : "Isterseniz projeye bir veya birden fazla gorsel ekleyebilirsiniz.")</p>
         </div>
-        <input asp-for="ProjectImages" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="form-control">
+        <input asp-for="ProjectImages" id="ProjectImages" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple class="visually-hidden project-file-input">
+        <div class="project-file-control">
+            <label class="btn btn-outline-primary mb-0" for="ProjectImages">@(isEnglish ? "Choose files" : "Dosya sec")</label>
+            <span class="project-file-name" data-empty-text="@(isEnglish ? "No file selected" : "Dosya secilmedi")">@(isEnglish ? "No file selected" : "Dosya secilmedi")</span>
+        </div>
     </div>
-    <div class="form-text">Fotoğraf yüklemek zorunlu değildir. JPG, PNG veya WEBP dosyası yükleyebilirsiniz. Her dosya en fazla 5 MB olabilir.</div>
+    <div class="form-text">@(isEnglish ? "Uploading photos is optional. You can upload JPG, PNG or WEBP files. Each file can be up to 5 MB." : "Fotograf yuklemek zorunlu degildir. JPG, PNG veya WEBP dosyasi yukleyebilirsiniz. Her dosya en fazla 5 MB olabilir.")</div>
     <span asp-validation-for="ProjectImages" class="text-danger"></span>
 </div>
 
 <div class="col-md-12">
     <div class="form-check">
         <input asp-for="MakeFirstImageCover" class="form-check-input">
-        <label asp-for="MakeFirstImageCover" class="form-check-label">Yuklenen ilk gorseli kapak yap</label>
+        <label asp-for="MakeFirstImageCover" class="form-check-label">@(isEnglish ? "Use the first uploaded image as cover" : "Yuklenen ilk gorseli kapak yap")</label>
     </div>
 </div>
+
+<script>
+    (() => {
+        const input = document.getElementById("ProjectImages");
+        const label = document.querySelector(".project-file-name");
+        if (!input || !label) {
+            return;
+        }
+
+        input.addEventListener("change", () => {
+            const files = Array.from(input.files || []);
+            label.textContent = files.length
+                ? files.map(file => file.name).join(", ")
+                : label.dataset.emptyText;
+        });
+    })();
+</script>

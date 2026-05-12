@@ -1,32 +1,41 @@
 @{
-    ViewData["Title"] = "Personel Paneli";
+    ViewData["Title"] = AppLanguage.T(Context, "PersonnelPanel");
     var roleName = Context.Session.GetString("RoleName") ?? "Personel";
     bool canManageProjectExpenses = RolePermissions.CanManageProjectExpenses(roleName);
     bool canManageApartmentInfo = RolePermissions.CanManageApartmentInfo(roleName);
     bool canManageApartmentSales = RolePermissions.CanManageApartmentSales(roleName);
+    var isEnglish = AppLanguage.IsEnglish(Context);
 
     var roleLead = roleName switch
     {
-        "Sekreter" => "Mevcut projelerde operasyonu yurutur; daire bilgisi, gider ve belge akisini takip eder.",
-        "Emlak" => "Projeleri, daire durumlarini ve satis tablosunu gorur; musteri tarafindaki takip icin temiz bir okuma alani kullanir.",
-        "Muhasebeci" or "Muhasebe" => "Proje giderlerini, belgeleri ve finansal kayitlari duzenli bicimde takip eder.",
-        _ => "Size tanimlanan yetkilerle proje sureclerini kontrollu sekilde takip edebilirsiniz."
+        "Sekreter" => isEnglish
+            ? "Runs existing project operations and follows apartment, expense and document workflows."
+            : "Mevcut projelerde operasyonu yurutur; daire bilgisi, gider ve belge akisini takip eder.",
+        "Emlak" => isEnglish
+            ? "Views projects, apartment status and sales tables through a clean read-only workspace."
+            : "Projeleri, daire durumlarini ve satis tablosunu gorur; temiz bir okuma alani kullanir.",
+        "Muhasebeci" or "Muhasebe" => isEnglish
+            ? "Tracks project expenses, documents and accounting records in an organized flow."
+            : "Proje giderlerini, belgeleri ve finansal kayitlari duzenli bicimde takip eder.",
+        _ => isEnglish
+            ? "Use the system with the permissions assigned to your role."
+            : "Size tanimlanan yetkilerle sistemi kontrollu sekilde kullanabilirsiniz."
     };
 }
 
 <section class="dashboard-page personnel-brief-page">
     <div class="personnel-brief-hero">
         <div class="personnel-brief-copy">
-            <p class="eyebrow">Personel Paneli</p>
-            <h1>@roleName Paneli</h1>
+            <p class="eyebrow">@AppLanguage.T(Context, "PersonnelPanel")</p>
+            <h1>@roleName @(isEnglish ? "Panel" : "Paneli")</h1>
             <p>@roleLead</p>
         </div>
         <div class="personnel-brief-actions">
             <a class="btn btn-primary" asp-controller="Projects" asp-action="Index">
-                <i class="bi bi-briefcase me-2"></i>Projeleri Ac
+                <i class="bi bi-briefcase me-2"></i>@AppLanguage.T(Context, "ProjectsGo")
             </a>
             <a class="btn btn-outline-secondary" asp-controller="Account" asp-action="Logout">
-                <i class="bi bi-box-arrow-right me-2"></i>Cikis Yap
+                <i class="bi bi-box-arrow-right me-2"></i>@AppLanguage.T(Context, "SignOut")
             </a>
         </div>
     </div>
@@ -36,8 +45,8 @@
             <div class="personnel-panel-heading">
                 <span><i class="bi bi-shield-check"></i></span>
                 <div>
-                    <p class="eyebrow">Yetki Kapsami</p>
-                    <h2>Bu rolde neler yapabilirsiniz?</h2>
+                    <p class="eyebrow">@(isEnglish ? "Permission Scope" : "Yetki Kapsami")</p>
+                    <h2>@(isEnglish ? "What can you do in this role?" : "Bu rolde neler yapabilirsiniz?")</h2>
                 </div>
             </div>
 
@@ -45,57 +54,63 @@
                 <div class="personnel-scope-item is-available">
                     <i class="bi bi-check2-circle"></i>
                     <div>
-                        <strong>Projeleri goruntuleme</strong>
-                        <span>Proje listesine girip detay, sure, konum ve daire durumlarini inceleyebilirsiniz.</span>
+                        <strong>@(isEnglish ? "View projects" : "Projeleri goruntuleme")</strong>
+                        <span>@(isEnglish ? "Open the project list and review details, dates, locations and apartment status." : "Proje listesine girip detay, sure, konum ve daire durumlarini inceleyebilirsiniz.")</span>
                     </div>
                 </div>
 
                 <div class="personnel-scope-item @(canManageApartmentInfo ? "is-available" : "is-locked")">
                     <i class="bi @(canManageApartmentInfo ? "bi-check2-circle" : "bi-lock")"></i>
                     <div>
-                        <strong>Daire bilgilerini duzenleme</strong>
-                        <span>@(canManageApartmentInfo ? "Kat, daire no, oda tipi, alan ve fiyat bilgilerini guncelleyebilirsiniz." : "Daire bilgilerini yalnizca goruntuleyebilirsiniz.")</span>
+                        <strong>@(isEnglish ? "Edit apartment information" : "Daire bilgilerini duzenleme")</strong>
+                        <span>@(canManageApartmentInfo
+                            ? (isEnglish ? "You can update floor, apartment number, room type, area and price." : "Kat, daire no, oda tipi, alan ve fiyat bilgilerini guncelleyebilirsiniz.")
+                            : (isEnglish ? "You can only view apartment information." : "Daire bilgilerini yalnizca goruntuleyebilirsiniz."))</span>
                     </div>
                 </div>
 
                 <div class="personnel-scope-item @(canManageProjectExpenses ? "is-available" : "is-locked")">
                     <i class="bi @(canManageProjectExpenses ? "bi-check2-circle" : "bi-lock")"></i>
                     <div>
-                        <strong>Gider ve belge islemleri</strong>
-                        <span>@(canManageProjectExpenses ? "Proje detayindan gider ve belge kaydi olusturabilirsiniz." : "Gider kayitlari bu rol icin islem alanina dahil degildir.")</span>
+                        <strong>@(isEnglish ? "Expense and document actions" : "Gider ve belge islemleri")</strong>
+                        <span>@(canManageProjectExpenses
+                            ? (isEnglish ? "You can add expenses and documents from project details." : "Proje detayindan gider ve belge kaydi olusturabilirsiniz.")
+                            : (isEnglish ? "Expense records are not included in this role." : "Gider kayitlari bu rol icin islem alanina dahil degildir."))</span>
                     </div>
                 </div>
 
                 <div class="personnel-scope-item @(canManageApartmentSales ? "is-available" : "is-locked")">
                     <i class="bi @(canManageApartmentSales ? "bi-check2-circle" : "bi-lock")"></i>
                     <div>
-                        <strong>Daire satis islemi</strong>
-                        <span>@(canManageApartmentSales ? "Daire satisi ve sozlesme sureclerini yonetebilirsiniz." : "Satis islemi yalnizca yonetici rollerinde aciktir.")</span>
+                        <strong>@(isEnglish ? "Apartment sales action" : "Daire satis islemi")</strong>
+                        <span>@(canManageApartmentSales
+                            ? (isEnglish ? "You can manage apartment sales and contract workflows." : "Daire satisi ve sozlesme sureclerini yonetebilirsiniz.")
+                            : (isEnglish ? "Sales actions are only enabled for management roles." : "Satis islemi yalnizca yonetici rollerinde aciktir."))</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <aside class="personnel-flow-panel">
-            <p class="eyebrow">Onerilen Akis</p>
-            <h2>Isleme nereden baslanir?</h2>
+            <p class="eyebrow">@(isEnglish ? "Recommended Flow" : "Onerilen Akis")</p>
+            <h2>@(isEnglish ? "Where should you start?" : "Isleme nereden baslanir?")</h2>
             <ol class="personnel-flow-list">
                 <li>
                     <span>01</span>
-                    <p>Once proje listesine girin ve ilgili projeyi secin.</p>
+                    <p>@(isEnglish ? "Open the project list and select the related project." : "Once proje listesine girin ve ilgili projeyi secin.")</p>
                 </li>
                 <li>
                     <span>02</span>
-                    <p>Proje detayinda daire tablosu, belge ve gider alanlarini kontrol edin.</p>
+                    <p>@(isEnglish ? "Check apartment table, document and expense areas in project details." : "Proje detayinda daire tablosu, belge ve gider alanlarini kontrol edin.")</p>
                 </li>
                 <li>
                     <span>03</span>
-                    <p>Yetkiniz olan islemleri proje detayindaki butonlardan tamamlayin.</p>
+                    <p>@(isEnglish ? "Complete allowed actions from the buttons shown in project details." : "Yetkiniz olan islemleri proje detayindaki butonlardan tamamlayin.")</p>
                 </li>
             </ol>
             <div class="personnel-flow-actions">
                 <a class="btn btn-primary w-100" asp-controller="Projects" asp-action="Index">
-                    <i class="bi bi-arrow-right-circle me-2"></i>Proje Listesine Git
+                    <i class="bi bi-arrow-right-circle me-2"></i>@AppLanguage.T(Context, "ViewProjects")
                 </a>
             </div>
         </aside>

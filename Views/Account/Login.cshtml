@@ -1,23 +1,29 @@
 @{
-    ViewData["Title"] = "Giriş Seçimi";
+    ViewData["Title"] = AppLanguage.T(Context, "LoginChoice");
 }
+
+<header class="public-header auth-topbar">
+    <a class="brand-logo-link public-brand" asp-controller="Home" asp-action="Index">
+        <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="brand-logo brand-logo-public" />
+    </a>
+    <div class="public-header-actions">
+        <partial name="_LanguageSelector" />
+    </div>
+</header>
 
 <section class="auth-choice-page">
     <div class="auth-choice-overlay">
         <div class="auth-choice-hero">
-            <p class="eyebrow">Giriş Seçimi</p>
+            <p class="eyebrow">@AppLanguage.T(Context, "LoginChoice")</p>
             <div class="auth-choice-hero-row">
                 <div>
-                    <h1>Smart Office paneline rolünüze uygun giriş yapın.</h1>
-                    <p>
-                        Proje, evrak, gider, personel ve daire satış süreçleri için yetkinize göre
-                        ayrılmış güvenli giriş ekranlarından devam edin.
-                    </p>
+                    <h1>@AppLanguage.T(Context, "LoginChoiceTitle")</h1>
+                    <p>@AppLanguage.T(Context, "LoginChoiceText")</p>
                 </div>
-                <div class="auth-choice-highlights" aria-label="Sistem özellikleri">
-                    <span><i class="bi bi-kanban"></i> Proje takibi</span>
-                    <span><i class="bi bi-file-earmark-text"></i> Evrak yönetimi</span>
-                    <span><i class="bi bi-building-check"></i> Daire satış</span>
+                <div class="auth-choice-highlights" aria-label='@AppLanguage.T(Context, "SystemFeatures")'>
+                    <span><i class="bi bi-kanban"></i> @(AppLanguage.IsEnglish(Context) ? "Project tracking" : "Proje takibi")</span>
+                    <span><i class="bi bi-file-earmark-text"></i> @(AppLanguage.IsEnglish(Context) ? "Document management" : "Evrak yonetimi")</span>
+                    <span><i class="bi bi-building-check"></i> @(AppLanguage.IsEnglish(Context) ? "Apartment sales" : "Daire satis")</span>
                 </div>
             </div>
         </div>
@@ -26,29 +32,29 @@
             <article class="auth-choice-card auth-choice-card-manager">
                 <div class="auth-choice-card-top">
                     <div class="auth-choice-card-icon"><i class="bi bi-shield-lock"></i></div>
-                    <span class="auth-role-badge">Yönetici Alanı</span>
+                    <span class="auth-role-badge">@AppLanguage.T(Context, "LoginManagerArea")</span>
                 </div>
-                <h2>Admin / Müdür Girişi</h2>
-                <p>Projeleri, kullanıcıları, giderleri, evrak kayıtlarını ve satış süreçlerini yönetmek için yetkili panel.</p>
+                <h2>@AppLanguage.T(Context, "LoginManagerTitle")</h2>
+                <p>@AppLanguage.T(Context, "LoginManagerText")</p>
                 <ul class="auth-choice-list">
-                    <li><i class="bi bi-check2"></i> Dashboard ve yönetim raporları</li>
-                    <li><i class="bi bi-check2"></i> Personel ve firma kontrolü</li>
+                    <li><i class="bi bi-check2"></i> @AppLanguage.T(Context, "ManagerReports")</li>
+                    <li><i class="bi bi-check2"></i> @(AppLanguage.IsEnglish(Context) ? "Personnel and company control" : "Personel ve firma kontrolu")</li>
                 </ul>
-                <a class="btn btn-primary mt-auto w-100 py-2" asp-controller="Account" asp-action="AdminLogin"><i class="bi bi-person-badge me-2"></i>Yönetici olarak giriş yap</a>
+                <a class="btn btn-primary mt-auto w-100 py-2" asp-controller="Account" asp-action="AdminLogin"><i class="bi bi-person-badge me-2"></i>@AppLanguage.T(Context, "AdminLoginButton")</a>
             </article>
 
             <article class="auth-choice-card auth-choice-card-personnel">
                 <div class="auth-choice-card-top">
                     <div class="auth-choice-card-icon"><i class="bi bi-person-workspace"></i></div>
-                    <span class="auth-role-badge">Personel Alanı</span>
+                    <span class="auth-role-badge">@AppLanguage.T(Context, "LoginPersonnelArea")</span>
                 </div>
-                <h2>Personel Girişi</h2>
-                <p>Günlük kayıtları görüntülemek, evrak ve proje süreçlerini takip etmek için sade ve anlaşılır personel paneli.</p>
+                <h2>@AppLanguage.T(Context, "LoginPersonnelTitle")</h2>
+                <p>@AppLanguage.T(Context, "LoginPersonnelText")</p>
                 <ul class="auth-choice-list">
-                    <li><i class="bi bi-check2"></i> Görev odaklı ekranlar</li>
-                    <li><i class="bi bi-check2"></i> Hızlı işlem ve kayıt takibi</li>
+                    <li><i class="bi bi-check2"></i> @AppLanguage.T(Context, "PersonnelFocusedScreens")</li>
+                    <li><i class="bi bi-check2"></i> @(AppLanguage.IsEnglish(Context) ? "Fast action and record tracking" : "Hizli islem ve kayit takibi")</li>
                 </ul>
-                <a class="btn btn-outline-primary mt-auto w-100 py-2" asp-controller="Account" asp-action="PersonnelLogin"><i class="bi bi-person me-2"></i>Personel olarak giriş yap</a>
+                <a class="btn btn-outline-primary mt-auto w-100 py-2" asp-controller="Account" asp-action="PersonnelLogin"><i class="bi bi-person me-2"></i>@AppLanguage.T(Context, "PersonnelLoginButton")</a>
             </article>
         </div>
     </div>

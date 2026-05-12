@@ -1,35 +1,35 @@
 @model IEnumerable<OfisYonetimSistemi.Models.ActivityLog>
 
 @{
-    ViewData["Title"] = "Islem Loglari";
+    ViewData["Title"] = AppLanguage.IsEnglish(Context) ? "Activity Logs" : "Islem Loglari";
 }
 
 <section class="dashboard-page">
     <div class="dashboard-header">
         <div>
-            <p class="eyebrow">Denetim Kayitlari</p>
-            <h1>Islem Loglari</h1>
-            <p>Sistemde kullanicilarin yaptigi onemli islemleri buradan takip edebilirsiniz.</p>
+            <p class="eyebrow">@(AppLanguage.IsEnglish(Context) ? "Audit Logs" : "Denetim Kayitlari")</p>
+            <h1>@(AppLanguage.IsEnglish(Context) ? "Activity Logs" : "Islem Loglari")</h1>
+            <p>@(AppLanguage.IsEnglish(Context) ? "Track important user actions in the system from here." : "Sistemde kullanicilarin yaptigi onemli islemleri buradan takip edebilirsiniz.")</p>
         </div>
-        <a class="btn btn-outline-secondary" asp-controller="Manager" asp-action="Index">Panele Don</a>
+        <a class="btn btn-outline-secondary" asp-controller="Manager" asp-action="Index">@(AppLanguage.IsEnglish(Context) ? "Back to Panel" : "Panele Don")</a>
     </div>
 
     <div class="table-panel">
         <div class="table-panel-header">
-            <h2>Tum loglar</h2>
-            <span class="premium-count">@Model.Count() kayit</span>
+            <h2>@(AppLanguage.IsEnglish(Context) ? "All logs" : "Tum loglar")</h2>
+            <span class="premium-count">@Model.Count() @(AppLanguage.IsEnglish(Context) ? "records" : "kayit")</span>
         </div>
         <div class="table-responsive">
             <table class="table align-middle">
                 <thead>
                     <tr>
-                        <th>Tarih</th>
-                        <th>Kullanici</th>
-                        <th>Rol</th>
-                        <th>Modul</th>
-                        <th>Islem</th>
-                        <th>Durum</th>
-                        <th>Aciklama</th>
+                        <th>@AppLanguage.T(Context, "Date")</th>
+                        <th>@(AppLanguage.IsEnglish(Context) ? "User" : "Kullanici")</th>
+                        <th>@(AppLanguage.IsEnglish(Context) ? "Role" : "Rol")</th>
+                        <th>@(AppLanguage.IsEnglish(Context) ? "Module" : "Modul")</th>
+                        <th>@AppLanguage.T(Context, "Action")</th>
+                        <th>@AppLanguage.T(Context, "Status")</th>
+                        <th>@AppLanguage.T(Context, "Description")</th>
                         <th>IP</th>
                     </tr>
                 </thead>
@@ -38,16 +38,16 @@
                     {
                         <tr>
                             <td>@log.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
-                            <td>@log.UserFullName</td>
-                            <td>@log.UserRole</td>
-                            <td>@log.ModuleName</td>
-                            <td>@log.Action</td>
+                            <td>@AppLanguage.LogText(Context, log.UserFullName)</td>
+                            <td>@AppLanguage.LogText(Context, log.UserRole)</td>
+                            <td>@AppLanguage.LogText(Context, log.ModuleName)</td>
+                            <td>@AppLanguage.LogText(Context, log.Action)</td>
                             <td>
                                 <span class="status-pill @(log.IsSuccessful ? "" : "status-danger")">
-                                    @(log.IsSuccessful ? "Basarili" : "Basarisiz")
+                                    @AppLanguage.LogText(Context, log.IsSuccessful ? "Basarili" : "Basarisiz")
                                 </span>
                             </td>
-                            <td>@log.Description</td>
+                            <td>@AppLanguage.LogText(Context, log.Description)</td>
                             <td>@(log.IpAddress ?? "-")</td>
                         </tr>
                     }

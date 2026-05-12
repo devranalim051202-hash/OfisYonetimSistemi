@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Services;
+using OfisYonetimSistemi.Localization;
+using OfisYonetimSistemi.Middleware;
+using System.Globalization;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -146,8 +149,16 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.Use(async (context, next) =>
+{
+    var culture = AppLanguage.Culture(context);
+    CultureInfo.CurrentCulture = culture;
+    CultureInfo.CurrentUICulture = culture;
+    await next();
+});
 
 app.UseSession();
+app.UseMiddleware<EnglishHtmlTranslationMiddleware>();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();

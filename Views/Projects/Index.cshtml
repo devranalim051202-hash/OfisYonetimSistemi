@@ -1,7 +1,7 @@
 @model IEnumerable<OfisYonetimSistemi.Models.Project>
 
 @{
-    ViewData["Title"] = "Projeler";
+    ViewData["Title"] = AppLanguage.T(Context, "Projects");
     bool canCreateProject = ViewBag.CanCreateProject ?? false;
     bool canEditProject = ViewBag.CanEditProject ?? false;
     bool canDeleteProject = ViewBag.CanDeleteProject ?? false;
@@ -10,13 +10,13 @@
 <section class="dashboard-page">
     <div class="dashboard-header projects-hero">
         <div>
-            <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>Proje Yönetimi</p>
-            <h1>Projeler</h1>
-            <p>Ofiste takip edilen işleri proje bazlı kaydedin; gider, evrak, daire ve ekip süreçlerini tek portföy üzerinden izleyin.</p>
+            <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>@AppLanguage.T(Context, "ProjectManagement")</p>
+            <h1>@AppLanguage.T(Context, "Projects")</h1>
+            <p>@AppLanguage.T(Context, "ProjectManagementText")</p>
         </div>
         @if (canCreateProject)
         {
-            <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Proje Ekle</a>
+            <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>@AppLanguage.T(Context, "ProjectAdd")</a>
         }
     </div>
 
@@ -33,14 +33,14 @@
     <div class="premium-list-panel projects-portfolio-panel mt-4">
         <div class="premium-list-header border-bottom pb-3 mb-4">
             <div>
-                <span class="premium-panel-label"><i class="bi bi-card-list me-2"></i>Proje Listesi</span>
-                <h2 class="mt-2">Proje Portföyü</h2>
+                <span class="premium-panel-label"><i class="bi bi-card-list me-2"></i>@AppLanguage.T(Context, "ProjectList")</span>
+                <h2 class="mt-2">@AppLanguage.T(Context, "ProjectPortfolio")</h2>
             </div>
             <div class="projects-panel-actions">
-                <span class="premium-count bg-light"><i class="bi bi-collection me-2"></i>@Model.Count() proje</span>
+                <span class="premium-count bg-light"><i class="bi bi-collection me-2"></i>@Model.Count() @AppLanguage.T(Context, "ProjectCount")</span>
                 @if (canCreateProject)
                 {
-                    <a class="btn btn-primary btn-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Yeni Proje</a>
+                    <a class="btn btn-primary btn-sm" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>@AppLanguage.T(Context, "ProjectNew")</a>
                 }
             </div>
         </div>
@@ -49,11 +49,11 @@
         {
             <div class="premium-empty-state">
                 <span><i class="bi bi-folder-plus"></i></span>
-                <h3>Henuz proje eklenmedi</h3>
-                <p>Ilk projeyi olusturarak gider, evrak ve daire takiplerini proje icinde toplamaya baslayin.</p>
+                <h3>@AppLanguage.T(Context, "ProjectEmptyTitle")</h3>
+                <p>@AppLanguage.T(Context, "ProjectEmptyText")</p>
                 @if (canCreateProject)
                 {
-                    <a class="btn btn-primary" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>Ilk Projeyi Ekle</a>
+                    <a class="btn btn-primary" asp-controller="Projects" asp-action="Create"><i class="bi bi-plus-lg me-2"></i>@AppLanguage.T(Context, "ProjectFirstAdd")</a>
                 }
             </div>
         }
@@ -62,7 +62,7 @@
             <div class="project-card-grid">
                 @foreach (var project in Model)
                 {
-                    var finishDate = project.EndDate?.ToString("dd.MM.yyyy") ?? "Devam ediyor";
+                    var finishDate = project.EndDate?.ToString("dd.MM.yyyy") ?? AppLanguage.T(Context, "InProgress");
                     var coverImage = project.ProjectImages.FirstOrDefault(i => i.IsCover) ?? project.ProjectImages.FirstOrDefault();
                     var cardStyle = coverImage != null ? $"background-image: url('{coverImage.FilePath}');" : "";
                     <article class="project-card project-card-photo project-portfolio-card @(coverImage != null ? "has-project-photo" : "no-project-photo")" style="@cardStyle">
@@ -71,7 +71,7 @@
                         {
                             <div class="project-placeholder-visual">
                                 <i class="bi bi-buildings"></i>
-                                <span>Smart Office Proje</span>
+                                <span>@AppLanguage.T(Context, "ProjectSmartOffice")</span>
                             </div>
                         }
                         <div class="project-card-top">
@@ -81,33 +81,33 @@
 
                         <div class="project-card-body">
                             <h3>@project.Name</h3>
-                            <p>@(string.IsNullOrWhiteSpace(project.Description) ? "Bu proje için henüz açıklama eklenmedi." : project.Description)</p>
+                            <p>@(string.IsNullOrWhiteSpace(project.Description) ? AppLanguage.T(Context, "ProjectNoDescription") : project.Description)</p>
                         </div>
 
                         <div class="project-meta-grid">
                             <div>
-                                <span><i class="bi bi-geo-alt me-2 text-primary"></i>Konum</span>
+                                <span><i class="bi bi-geo-alt me-2 text-primary"></i>@AppLanguage.T(Context, "Location")</span>
                                 <strong>@(project.Location ?? "-")</strong>
                             </div>
                             <div>
-                                <span><i class="bi bi-calendar-event me-2 text-success"></i>Başlangıç</span>
+                                <span><i class="bi bi-calendar-event me-2 text-success"></i>@AppLanguage.T(Context, "Start")</span>
                                 <strong>@project.StartDate.ToString("dd.MM.yyyy")</strong>
                             </div>
                             <div>
-                                <span><i class="bi bi-calendar-check me-2 text-danger"></i>Bitiş</span>
+                                <span><i class="bi bi-calendar-check me-2 text-danger"></i>@AppLanguage.T(Context, "End")</span>
                                 <strong>@finishDate</strong>
                             </div>
                         </div>
 
                         <div class="project-card-actions mt-3">
-                            <a class="btn btn-primary flex-grow-1" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><i class="bi bi-arrow-right-circle me-1"></i>Projeye Gir</a>
+                            <a class="btn btn-primary flex-grow-1" asp-controller="Projects" asp-action="Details" asp-route-id="@project.Id"><i class="bi bi-arrow-right-circle me-1"></i>@AppLanguage.T(Context, "ProjectEnter")</a>
                             @if (canEditProject)
                             {
-                                <a class="btn btn-outline-secondary px-3" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id" title="Düzenle"><i class="bi bi-pencil-square"></i></a>
+                                <a class="btn btn-outline-secondary px-3" asp-controller="Projects" asp-action="Edit" asp-route-id="@project.Id" title='@AppLanguage.T(Context, "Edit")'><i class="bi bi-pencil-square"></i></a>
                             }
                             @if (canDeleteProject)
                             {
-                                <a class="btn btn-outline-danger px-3" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" title="Sil"><i class="bi bi-trash"></i></a>
+                                <a class="btn btn-outline-danger px-3" asp-controller="Projects" asp-action="Delete" asp-route-id="@project.Id" title='@AppLanguage.T(Context, "Delete")'><i class="bi bi-trash"></i></a>
                             }
                         </div>
                     </article>

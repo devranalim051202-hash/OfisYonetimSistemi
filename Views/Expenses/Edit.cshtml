@@ -1,17 +1,17 @@
 @model OfisYonetimSistemi.Models.Expense
 
 @{
-    ViewData["Title"] = "Gider Duzenle";
+    ViewData["Title"] = AppLanguage.T(Context, "ExpenseEdit");
 }
 
 <section class="dashboard-page">
     <div class="dashboard-header">
         <div>
-            <p class="eyebrow">Gider Duzenle</p>
+            <p class="eyebrow">@AppLanguage.T(Context, "ExpenseEdit")</p>
             <h1>@Model.Title</h1>
-            <p>Kayitli gider bilgisini guncelleyin.</p>
+            <p>@AppLanguage.T(Context, "ExpenseEditText")</p>
         </div>
-        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Projeye Don</a>
+        <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">@AppLanguage.T(Context, "BackToProjects")</a>
     </div>
 
     <div class="table-panel">
@@ -20,8 +20,8 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <partial name="_ExpenseForm" model="Model" />
             <div class="col-12 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Guncelle</button>
-                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">Iptal</a>
+                <button type="submit" class="btn btn-primary">@AppLanguage.T(Context, "ExpenseUpdate")</button>
+                <a class="btn btn-outline-secondary" asp-controller="Projects" asp-action="Details" asp-route-id="@Model.ProjectId">@AppLanguage.T(Context, "Cancel")</a>
             </div>
         </form>
     </div>

@@ -3,14 +3,29 @@
 @{
     ViewData["Title"] = "Dashboard";
     var recentLogs = ViewBag.RecentActivityLogs as IEnumerable<OfisYonetimSistemi.Models.ActivityLog> ?? Enumerable.Empty<OfisYonetimSistemi.Models.ActivityLog>();
+    var isEnglish = AppLanguage.IsEnglish(Context);
+
+    string RoleLabel(string? roleName) => roleName switch
+    {
+        "Sekreter" => isEnglish ? "Secretary" : "Sekreter",
+        "Muhasebe" or "Muhasebeci" => isEnglish ? "Accounting" : "Muhasebe",
+        "Emlak" => isEnglish ? "Real Estate" : "Emlak",
+        "Mudur" or "Müdür" => isEnglish ? "Manager" : "Mudur",
+        "Admin" => "Admin",
+        _ => roleName ?? "-"
+    };
+
+    string CompanySizeLabel(int size) => isEnglish
+        ? $"{size} {(size == 1 ? "person" : "people")}"
+        : $"{size} kisi";
 }
 
 <section class="dashboard-page">
     <div class="dashboard-header">
         <div>
-            <p class="eyebrow"><i class="bi bi-speedometer2 me-2"></i>Yönetim Paneli</p>
-            <h1>Müdür Gösterge Panosu</h1>
-            <p>Personel hesaplarını yönetin ve sistemdeki temel metrikleri buradan anlık takip edin.</p>
+            <p class="eyebrow"><i class="bi bi-speedometer2 me-2"></i>@(isEnglish ? "Management Panel" : "Yonetim Paneli")</p>
+            <h1>@(isEnglish ? "Manager Dashboard" : "Mudur Gosterge Panosu")</h1>
+            <p>@(isEnglish ? "Manage personnel accounts and follow key system metrics in real time." : "Personel hesaplarini yonetin ve sistemdeki temel metrikleri buradan anlik takip edin.")</p>
         </div>
     </div>
 
@@ -23,30 +38,30 @@
         <div class="position-relative">
             <i class="bi bi-briefcase position-absolute text-success opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
             <span>@ViewBag.ProjectCount</span>
-            <p class="d-flex align-items-center"><i class="bi bi-kanban me-2"></i>Aktif Projeler</p>
+            <p class="d-flex align-items-center"><i class="bi bi-kanban me-2"></i>@(isEnglish ? "Active Projects" : "Aktif Projeler")</p>
         </div>
         <div class="position-relative">
             <i class="bi bi-people position-absolute text-primary opacity-25" style="font-size: 4rem; top: 1rem; right: 1.5rem;"></i>
             <span>@ViewBag.PersonnelCount</span>
-            <p class="d-flex align-items-center"><i class="bi bi-person-badge me-2"></i>Personel Sayısı</p>
+            <p class="d-flex align-items-center"><i class="bi bi-person-badge me-2"></i>@(isEnglish ? "Personnel Count" : "Personel Sayisi")</p>
         </div>
     </div>
 
     <div class="premium-list-panel dashboard-activity-panel mt-4">
         <div class="premium-list-header border-bottom pb-3 mb-4">
             <div>
-                <span class="premium-panel-label"><i class="bi bi-shield-check me-2"></i>Sistem Takibi</span>
-                <h2 class="mt-2">Son İşlemler</h2>
+                <span class="premium-panel-label"><i class="bi bi-shield-check me-2"></i>@AppLanguage.LogText(Context, "Sistem Takibi")</span>
+                <h2 class="mt-2">@AppLanguage.LogText(Context, "Son Islemler")</h2>
             </div>
-            <a class="btn btn-outline-primary btn-sm shadow-sm" asp-controller="ActivityLogs" asp-action="Index"><i class="bi bi-arrow-right me-1"></i>Tümünü Gör</a>
+            <a class="btn btn-outline-primary btn-sm shadow-sm" asp-controller="ActivityLogs" asp-action="Index"><i class="bi bi-arrow-right me-1"></i>@AppLanguage.LogText(Context, "Tumunu Gor")</a>
         </div>
 
         @if (!recentLogs.Any())
         {
             <div class="premium-empty-state">
                 <span><i class="bi bi-info-circle"></i></span>
-                <h3>Henüz islem logu yok</h3>
-                <p>Proje, gider, evrak, satis veya giris islemleri yapildikca burada gorunecek.</p>
+                <h3>@(isEnglish ? "No activity logs yet" : "Henuz islem logu yok")</h3>
+                <p>@(isEnglish ? "Project, expense, document, sales or login actions will appear here as they happen." : "Proje, gider, evrak, satis veya giris islemleri yapildikca burada gorunecek.")</p>
             </div>
         }
         else
@@ -62,13 +77,13 @@
                         <div class="activity-dot"><i class="bi @(log.IsSuccessful ? "bi-check2" : "bi-x")"></i></div>
                         <div class="activity-content">
                             <div class="activity-row">
-                                <strong>@log.Action</strong>
+                                <strong>@AppLanguage.LogText(Context, log.Action)</strong>
                                 <span class="status-pill @(log.IsSuccessful ? "" : "status-danger")">
-                                    @(log.IsSuccessful ? "Başarılı" : "Başarısız")
+                                    @AppLanguage.LogText(Context, log.IsSuccessful ? "Basarili" : "Basarisiz")
                                 </span>
                             </div>
-                            <p>@log.Description</p>
-                            <span class="activity-meta">@log.UserFullName · @log.ModuleName</span>
+                            <p>@AppLanguage.LogText(Context, log.Description)</p>
+                            <span class="activity-meta">@AppLanguage.LogText(Context, log.UserFullName) - @AppLanguage.LogText(Context, log.ModuleName)</span>
                         </div>
                     </article>
                 }
@@ -79,12 +94,12 @@
     <div class="premium-list-panel dashboard-personnel-panel mt-4">
         <div class="premium-list-header border-bottom pb-3 mb-4">
             <div>
-                <span class="premium-panel-label"><i class="bi bi-diagram-3 me-2"></i>Personel Yönetimi</span>
-                <h2 class="mt-2">Kayıtlı Personeller</h2>
+                <span class="premium-panel-label"><i class="bi bi-diagram-3 me-2"></i>@(isEnglish ? "Personnel Management" : "Personel Yonetimi")</span>
+                <h2 class="mt-2">@(isEnglish ? "Registered Personnel" : "Kayitli Personeller")</h2>
             </div>
             <div class="personnel-panel-actions">
-                <span class="premium-count bg-light"><i class="bi bi-people-fill me-2"></i>@Model.Count() Personel</span>
-                <a class="btn btn-primary btn-sm" asp-controller="Manager" asp-action="CreatePersonnel"><i class="bi bi-person-plus-fill me-2"></i>Personel Ekle</a>
+                <span class="premium-count bg-light"><i class="bi bi-people-fill me-2"></i>@Model.Count() @(isEnglish ? "personnel" : "Personel")</span>
+                <a class="btn btn-primary btn-sm" asp-controller="Manager" asp-action="CreatePersonnel"><i class="bi bi-person-plus-fill me-2"></i>@(isEnglish ? "Add Personnel" : "Personel Ekle")</a>
             </div>
         </div>
 
@@ -92,9 +107,9 @@
         {
             <div class="premium-empty-state">
                 <span>+</span>
-                <h3>Henuz personel eklenmedi</h3>
-                <p>Yeni personel hesabi acarak ekip icindeki is akislarini rol bazli yonetin.</p>
-                <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
+                <h3>@(isEnglish ? "No personnel has been added yet" : "Henuz personel eklenmedi")</h3>
+                <p>@(isEnglish ? "Create a new personnel account to manage team workflows by role." : "Yeni personel hesabi acarak ekip icindeki is akislarini rol bazli yonetin.")</p>
+                <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">@(isEnglish ? "Add Personnel" : "Personel Ekle")</a>
             </div>
         }
         else
@@ -105,21 +120,21 @@
                     <article class="personnel-card">
                         <div class="personnel-card-top">
                             <div class="personnel-avatar">@user.FullName.Substring(0, 1).ToUpper()</div>
-                            <span class="role-chip">@user.Role?.Name</span>
+                            <span class="role-chip">@RoleLabel(user.Role?.Name)</span>
                         </div>
                         <div class="personnel-info">
                             <h3>@user.FullName</h3>
                             <p><i class="bi bi-envelope me-1"></i>@user.Email</p>
                         </div>
                         <div class="personnel-details">
-                            <span>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? "Telefon yok" : user.PhoneNumber)</span>
-                            <span>@user.CompanyName (@user.CompanySize kisi)</span>
+                            <span>@(string.IsNullOrWhiteSpace(user.PhoneNumber) ? (isEnglish ? "No phone" : "Telefon yok") : user.PhoneNumber)</span>
+                            <span>@user.CompanyName (@CompanySizeLabel(user.CompanySize))</span>
                         </div>
                         <div class="personnel-card-actions">
-                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Manager" asp-action="Personnel">Detay</a>
-                            <form asp-controller="Manager" asp-action="DeletePersonnel" asp-route-id="@user.Id" method="post" onsubmit="return confirm('Bu personel kaydını silmek istiyor musunuz?');">
+                            <a class="btn btn-outline-secondary btn-sm" asp-controller="Manager" asp-action="Personnel">@(isEnglish ? "Detail" : "Detay")</a>
+                            <form asp-controller="Manager" asp-action="DeletePersonnel" asp-route-id="@user.Id" method="post" onsubmit="return confirm('@(isEnglish ? "Do you want to delete this personnel record?" : "Bu personel kaydini silmek istiyor musunuz?")');">
                                 @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3 me-1"></i>Sil</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash3 me-1"></i>@(isEnglish ? "Delete" : "Sil")</button>
                             </form>
                         </div>
                     </article>

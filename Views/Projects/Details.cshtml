@@ -1,7 +1,7 @@
 @model OfisYonetimSistemi.Models.Project
 
 @{
-    ViewData["Title"] = "Proje Detay";
+    ViewData["Title"] = AppLanguage.T(Context, "ProjectDetail");
     decimal totalExpense = ViewBag.TotalExpense ?? 0m;
     decimal directExpenseTotal = ViewBag.DirectExpenseTotal ?? 0m;
     bool canEditProject = ViewBag.CanEditProject ?? false;
@@ -26,7 +26,7 @@
 
         if (endDate < today)
         {
-            remainingText = "Suresi doldu";
+            remainingText = AppLanguage.T(Context, "Expired");
         }
         else
         {
@@ -40,7 +40,7 @@
             }
 
             var days = (endDate - cursor).Days;
-            remainingText = $"{months} ay {days} gun";
+            remainingText = $"{months} {AppLanguage.T(Context, "Month")} {days} {AppLanguage.T(Context, "Day")}";
         }
     }
 }
@@ -48,15 +48,15 @@
 <section class="dashboard-page project-detail-page">
     <div class="dashboard-header project-detail-hero">
         <div>
-            <p class="eyebrow"><i class="bi bi-info-circle me-2"></i>Proje Detay</p>
+            <p class="eyebrow"><i class="bi bi-info-circle me-2"></i>@AppLanguage.T(Context, "ProjectDetail")</p>
             <h1>@Model.Name</h1>
-            <p class="text-muted">@(Model.Description ?? "Bu proje icin aciklama girilmemis.")</p>
+            <p class="text-muted">@(Model.Description ?? AppLanguage.T(Context, "ProjectNoDescription"))</p>
         </div>
         <div class="hero-actions">
-            <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Projelere Don</a>
+            <a class="btn btn-outline-secondary shadow-sm" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>@AppLanguage.T(Context, "BackToProjects")</a>
             @if (canEditProject)
             {
-                <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square me-2"></i>Duzenle</a>
+                <a class="btn btn-primary shadow-sm" asp-controller="Projects" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil-square me-2"></i>@AppLanguage.T(Context, "Edit")</a>
             }
         </div>
     </div>
@@ -64,30 +64,30 @@
     <div class="detail-grid project-detail-stats mb-5">
         <div class="detail-card position-relative overflow-hidden">
             <i class="bi bi-activity position-absolute text-primary opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
-            <span><i class="bi bi-circle-fill me-2 text-primary" style="font-size: 0.5rem; vertical-align: middle;"></i>Durum</span>
+            <span><i class="bi bi-circle-fill me-2 text-primary" style="font-size: 0.5rem; vertical-align: middle;"></i>@AppLanguage.T(Context, "Status")</span>
             <strong>@Model.Status</strong>
         </div>
         <div class="detail-card position-relative overflow-hidden">
             <i class="bi bi-calendar-event position-absolute text-success opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
-            <span><i class="bi bi-calendar-check me-2 text-success"></i>Baslangic</span>
+            <span><i class="bi bi-calendar-check me-2 text-success"></i>@AppLanguage.T(Context, "Start")</span>
             <strong>@Model.StartDate.ToString("dd.MM.yyyy")</strong>
         </div>
         <div class="detail-card position-relative overflow-hidden">
             <i class="bi bi-calendar-x position-absolute text-danger opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
-            <span><i class="bi bi-calendar-x me-2 text-danger"></i>Bitis</span>
+            <span><i class="bi bi-calendar-x me-2 text-danger"></i>@AppLanguage.T(Context, "End")</span>
             <strong>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</strong>
         </div>
         @if (canManageProjectExpenses)
         {
             <div class="detail-card position-relative overflow-hidden">
                 <i class="bi bi-cash-stack position-absolute text-warning opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
-                <span><i class="bi bi-wallet2 me-2 text-warning"></i>Toplam gider</span>
+                <span><i class="bi bi-wallet2 me-2 text-warning"></i>@AppLanguage.T(Context, "TotalExpense")</span>
                 <strong>@totalExpense.ToString("N2") TL</strong>
             </div>
         }
         <div class="detail-card position-relative overflow-hidden">
             <i class="bi bi-hourglass-split position-absolute text-info opacity-25" style="font-size: 3rem; right: -10px; bottom: -10px;"></i>
-            <span><i class="bi bi-clock-history me-2 text-info"></i>Kalan sure</span>
+            <span><i class="bi bi-clock-history me-2 text-info"></i>@AppLanguage.T(Context, "RemainingTime")</span>
             <strong>@remainingText</strong>
         </div>
     </div>
@@ -106,13 +106,13 @@
     {
         <div class="project-gallery-strip">
             <div>
-                <p class="eyebrow mb-1"><i class="bi bi-images me-2"></i>Proje Görselleri</p>
-                <h2>@projectImages.Count görsel yüklendi</h2>
+                <p class="eyebrow mb-1"><i class="bi bi-images me-2"></i>@AppLanguage.T(Context, "ProjectImages")</p>
+                <h2>@projectImages.Count @AppLanguage.T(Context, "ImagesLoaded")</h2>
             </div>
             <div class="project-gallery-preview">
                 @foreach (var image in previewImages)
                 {
-                    <button type="button" class="project-gallery-thumb" data-bs-toggle="modal" data-bs-target="#projectImagesModal" aria-label="@image.OriginalFileName görselini aç">
+                    <button type="button" class="project-gallery-thumb" data-bs-toggle="modal" data-bs-target="#projectImagesModal" aria-label="@image.OriginalFileName">
                         <img src="@image.FilePath" alt="@image.OriginalFileName">
                     </button>
                 }
@@ -120,11 +120,11 @@
                 {
                     <button type="button" class="project-gallery-more" data-bs-toggle="modal" data-bs-target="#projectImagesModal">
                         <i class="bi bi-plus-lg"></i>
-                        <span>@hiddenImageCount görsel daha</span>
+                        <span>@hiddenImageCount @AppLanguage.T(Context, "MoreImages")</span>
                     </button>
                 }
                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#projectImagesModal">
-                    <i class="bi bi-images me-2"></i>Proje Görsellerini Gör
+                    <i class="bi bi-images me-2"></i>@AppLanguage.T(Context, "ProjectImagesView")
                 </button>
             </div>
         </div>
@@ -133,28 +133,28 @@
     <div class="detail-section">
         <div class="table-panel shadow-sm project-summary-panel">
             <div class="table-panel-header border-bottom pb-2 mb-3">
-                <h2><i class="bi bi-card-text me-2"></i>Proje özeti</h2>
+                <h2><i class="bi bi-card-text me-2"></i>@AppLanguage.T(Context, "ProjectSummary")</h2>
             </div>
             <dl class="project-info-list">
-                <dt>Proje adi</dt>
+                <dt>@AppLanguage.T(Context, "ProjectName")</dt>
                 <dd>@Model.Name</dd>
-                <dt>Konum</dt>
+                <dt>@AppLanguage.T(Context, "Location")</dt>
                 <dd>@(Model.Location ?? "-")</dd>
-                <dt>Baslangic tarihi</dt>
+                <dt>@AppLanguage.T(Context, "StartDate")</dt>
                 <dd>@Model.StartDate.ToString("dd.MM.yyyy")</dd>
-                <dt>Bitis tarihi</dt>
+                <dt>@AppLanguage.T(Context, "EndDate")</dt>
                 <dd>@(Model.EndDate?.ToString("dd.MM.yyyy") ?? "-")</dd>
-                <dt>Bitmesine kalan</dt>
+                <dt>@AppLanguage.T(Context, "RemainingTime")</dt>
                 <dd>@remainingText</dd>
-                <dt>Kayit tarihi</dt>
+                <dt>@AppLanguage.T(Context, "CreatedDate")</dt>
                 <dd>@Model.CreatedAt.ToString("dd.MM.yyyy HH:mm")</dd>
                 @if (canManageProjectExpenses)
                 {
-                    <dt>Proje gider toplami</dt>
+                    <dt>@AppLanguage.T(Context, "ProjectExpenseTotal")</dt>
                     <dd>@directExpenseTotal.ToString("N2") TL</dd>
                 }
-                <dt>Kat / daire sayisi</dt>
-                <dd>@Model.FloorCount kat / @Model.ApartmentCount daire</dd>
+                <dt>@AppLanguage.T(Context, "FloorApartmentCount")</dt>
+                <dd>@Model.FloorCount @AppLanguage.T(Context, "Floor") / @Model.ApartmentCount @AppLanguage.T(Context, "Apartment")</dd>
             </dl>
         </div>
     </div>
@@ -162,13 +162,13 @@
     <div class="detail-section">
         <div class="table-panel shadow-sm apartment-sales-panel">
             <div class="table-panel-header border-bottom pb-2 mb-3">
-                <h2><i class="bi bi-building me-2"></i>Daire satis takip tablosu</h2>
+                <h2><i class="bi bi-building me-2"></i>@AppLanguage.T(Context, "ApartmentSalesTable")</h2>
             </div>
             @if (!Model.Apartments.Any())
             {
                 <div class="premium-empty-state">
                     <span><i class="bi bi-info-circle"></i></span>
-                    <p>Bu proje için daire kaydı bulunmuyor.</p>
+                    <p>@AppLanguage.T(Context, "NoApartments")</p>
                 </div>
             }
             else
@@ -179,22 +179,22 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="projectId" value="@Model.Id" />
                         <div class="col-md-3">
-                            <label class="form-label text-muted small">Seçim tipi</label>
+                            <label class="form-label text-muted small">@AppLanguage.T(Context, "SelectionType")</label>
                             <select name="selectionType" class="form-select">
-                                <option value="column">Sütun seç</option>
-                                <option value="row">Satır seç</option>
+                                <option value="column">@AppLanguage.T(Context, "ColumnSelect")</option>
+                                <option value="row">@AppLanguage.T(Context, "RowSelect")</option>
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label text-muted small">Satır / Sütun no</label>
+                            <label class="form-label text-muted small">@AppLanguage.T(Context, "RowColumnNo")</label>
                             <input name="selectionNumber" type="number" min="1" class="form-control" value="1">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label text-muted small">Oda tipi</label>
+                            <label class="form-label text-muted small">@AppLanguage.T(Context, "RoomType")</label>
                             <input name="roomType" class="form-control" placeholder="2+1, 3+1, 4+1">
                         </div>
                         <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-pencil-square me-2"></i>Oda Tipini Güncelle</button>
+                            <button type="submit" class="btn btn-primary w-100"><i class="bi bi-pencil-square me-2"></i>@AppLanguage.T(Context, "UpdateRoomType")</button>
                         </div>
                     </form>
                 }
@@ -202,10 +202,10 @@
                     <table class="table align-middle text-center apartment-sales-table">
                         <thead>
                             <tr>
-                                <th>Kat</th>
+                                <th>@AppLanguage.T(Context, "Floor")</th>
                                 @for (var i = 1; i <= maxApartmentColumnCount; i++)
                                 {
-                                    <th>Sütun @i</th>
+                                    <th>@AppLanguage.T(Context, "Column") @i</th>
                                 }
                             </tr>
                         </thead>
@@ -213,17 +213,15 @@
                             @foreach (var floorGroup in Model.Apartments.GroupBy(a => a.FloorNumber).OrderByDescending(g => g.Key))
                             {
                                 <tr>
-                                    <th>@floorGroup.Key. Kat</th>
+                                    <th>@floorGroup.Key. @AppLanguage.T(Context, "Floor")</th>
                                     @foreach (var apartment in floorGroup.OrderBy(a => a.ApartmentNumber))
                                     {
-                                        var cellColor = apartment.IsSold ? "#198754" : "#ffffff";
-                                        var textColor = apartment.IsSold ? "#ffffff" : "#111111";
                                         <td class="apartment-cell @(apartment.IsSold ? "is-sold" : "is-empty")">
                                             <a asp-controller="Apartments" asp-action="Details" asp-route-id="@apartment.Id" style="display:block; color:inherit; text-decoration:none;">
                                                 <strong>No @apartment.ApartmentNumber</strong><br>
                                                 <span class="small">@apartment.RoomType</span><br>
                                                 <span class="small">@apartment.Price.ToString("N0") TL</span><br>
-                                                <span class="badge @(apartment.IsSold ? "bg-light text-success" : "bg-secondary") mt-1">@(apartment.IsSold ? "SATILDI" : "BOS")</span>
+                                                <span class="badge @(apartment.IsSold ? "bg-light text-success" : "bg-secondary") mt-1">@(apartment.IsSold ? AppLanguage.T(Context, "Sold") : AppLanguage.T(Context, "Empty"))</span>
                                             </a>
                                         </td>
                                     }
@@ -242,68 +240,68 @@
 
     @if (canManageProjectExpenses)
     {
-    <div class="detail-section">
-        <div class="table-panel shadow-sm project-expenses-panel">
-            <div class="table-panel-header border-bottom pb-2 mb-3">
-                <h2><i class="bi bi-receipt me-2"></i>Projeye ait gider ve belgeler</h2>
-                <a class="btn btn-outline-primary btn-sm shadow-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id"><i class="bi bi-plus-lg me-1"></i>Gider Ekle</a>
-            </div>
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Alınan Malzeme</th>
-                            <th>Firma / Tedarikçi</th>
-                            <th>Miktar</th>
-                            <th>Birim Fiyat</th>
-                            <th>Toplam Fiyat</th>
-                            <th>Açıklama</th>
-                            <th>Fiş / Belge</th>
-                            <th>Tarih</th>
-                            <th class="text-end">İşlem</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var expense in Model.Expenses.OrderByDescending(e => e.ExpenseDate))
-                        {
+        <div class="detail-section">
+            <div class="table-panel shadow-sm project-expenses-panel">
+                <div class="table-panel-header border-bottom pb-2 mb-3">
+                    <h2><i class="bi bi-receipt me-2"></i>@AppLanguage.T(Context, "ProjectExpensesDocuments")</h2>
+                    <a class="btn btn-outline-primary btn-sm shadow-sm" asp-controller="Expenses" asp-action="Create" asp-route-projectId="@Model.Id"><i class="bi bi-plus-lg me-1"></i>@AppLanguage.T(Context, "ExpenseAdd")</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
                             <tr>
-                                <td>@expense.Title</td>
-                                <td>@expense.SupplierName</td>
-                                <td>@expense.Quantity.ToString("N2")</td>
-                                <td>@expense.UnitPrice.ToString("N2") TL</td>
-                                <td><strong>@expense.Amount.ToString("N2") TL</strong></td>
-                                <td>
-                                    @if (!string.IsNullOrWhiteSpace(expense.Description))
-                                    {
-                                        <span class="expense-description-cell">@expense.Description</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small"><i class="bi bi-dash"></i>Yok</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (!string.IsNullOrWhiteSpace(expense.DocumentFilePath))
-                                    {
-                                        <a href="@expense.DocumentFilePath" target="_blank" class="text-primary text-decoration-none"><i class="bi bi-file-earmark-text me-1"></i>Belge</a>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted small"><i class="bi bi-dash"></i>Yok</span>
-                                    }
-                                </td>
-                                <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
-                                <td class="text-end">
-                                    <a class="btn btn-outline-secondary btn-sm border-0" asp-controller="Expenses" asp-action="Edit" asp-route-id="@expense.Id" title="Düzenle"><i class="bi bi-pencil"></i></a>
-                                    <a class="btn btn-outline-danger btn-sm border-0" asp-controller="Expenses" asp-action="Delete" asp-route-id="@expense.Id" title="Sil"><i class="bi bi-trash"></i></a>
-                                </td>
+                                <th>@AppLanguage.T(Context, "ItemTaken")</th>
+                                <th>@AppLanguage.T(Context, "ExpenseSupplier")</th>
+                                <th>@AppLanguage.T(Context, "Quantity")</th>
+                                <th>@AppLanguage.T(Context, "UnitPrice")</th>
+                                <th>@AppLanguage.T(Context, "ExpenseAmount")</th>
+                                <th>@AppLanguage.T(Context, "Description")</th>
+                                <th>@AppLanguage.T(Context, "ReceiptDocument")</th>
+                                <th>@AppLanguage.T(Context, "Date")</th>
+                                <th class="text-end">@AppLanguage.T(Context, "Action")</th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var expense in Model.Expenses.OrderByDescending(e => e.ExpenseDate))
+                            {
+                                <tr>
+                                    <td>@expense.Title</td>
+                                    <td>@expense.SupplierName</td>
+                                    <td>@expense.Quantity.ToString("N2")</td>
+                                    <td>@expense.UnitPrice.ToString("N2") TL</td>
+                                    <td><strong>@expense.Amount.ToString("N2") TL</strong></td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(expense.Description))
+                                        {
+                                            <span class="expense-description-cell">@expense.Description</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small"><i class="bi bi-dash"></i>@AppLanguage.T(Context, "None")</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(expense.DocumentFilePath))
+                                        {
+                                            <a href="@expense.DocumentFilePath" target="_blank" class="text-primary text-decoration-none"><i class="bi bi-file-earmark-text me-1"></i>@AppLanguage.T(Context, "Document")</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted small"><i class="bi bi-dash"></i>@AppLanguage.T(Context, "None")</span>
+                                        }
+                                    </td>
+                                    <td>@expense.ExpenseDate.ToString("dd.MM.yyyy")</td>
+                                    <td class="text-end">
+                                        <a class="btn btn-outline-secondary btn-sm border-0" asp-controller="Expenses" asp-action="Edit" asp-route-id="@expense.Id" title='@AppLanguage.T(Context, "Edit")'><i class="bi bi-pencil"></i></a>
+                                        <a class="btn btn-outline-danger btn-sm border-0" asp-controller="Expenses" asp-action="Delete" asp-route-id="@expense.Id" title='@AppLanguage.T(Context, "Delete")'><i class="bi bi-trash"></i></a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
     }
 </section>
 
@@ -314,10 +312,10 @@
             <div class="modal-content project-gallery-modal">
                 <div class="modal-header">
                     <div>
-                        <p class="eyebrow mb-1">Galeri</p>
-                        <h2 class="modal-title fs-4" id="projectImagesModalLabel">@Model.Name görselleri</h2>
+                        <p class="eyebrow mb-1">@AppLanguage.T(Context, "Gallery")</p>
+                        <h2 class="modal-title fs-4" id="projectImagesModalLabel">@Model.Name @AppLanguage.T(Context, "ProjectImages")</h2>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label='@AppLanguage.T(Context, "Close")'></button>
                 </div>
                 <div class="modal-body">
                     <div id="projectImagesCarousel" class="carousel slide project-gallery-carousel" data-bs-ride="false">
@@ -343,7 +341,7 @@
                                         class="@(i == 0 ? "active" : "")"
                                         data-bs-target="#projectImagesCarousel"
                                         data-bs-slide-to="@i"
-                                        aria-label="@(i + 1). görsel">
+                                        aria-label='@(i + 1). @AppLanguage.T(Context, "ProjectImages")'>
                                     <img src="@image.FilePath" alt="@image.OriginalFileName">
                                 </button>
                             }
@@ -351,10 +349,10 @@
 
                         @if (projectImages.Count > 1)
                         {
-                            <button class="carousel-control-prev project-gallery-control" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="prev" aria-label="Önceki görsel">
+                            <button class="carousel-control-prev project-gallery-control" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="prev" aria-label='@AppLanguage.T(Context, "PreviousImage")'>
                                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                             </button>
-                            <button class="carousel-control-next project-gallery-control" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="next" aria-label="Sonraki görsel">
+                            <button class="carousel-control-next project-gallery-control" type="button" data-bs-target="#projectImagesCarousel" data-bs-slide="next" aria-label='@AppLanguage.T(Context, "NextImage")'>
                                 <span class="carousel-control-next-icon" aria-hidden="true"></span>
                             </button>
                         }

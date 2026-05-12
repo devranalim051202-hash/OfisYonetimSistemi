@@ -1,21 +1,30 @@
 @{
-    ViewData["Title"] = "Admin Girisi";
+    ViewData["Title"] = AppLanguage.T(Context, "AdminLogin");
 }
+
+<header class="public-header auth-topbar">
+    <a class="brand-logo-link public-brand" asp-controller="Home" asp-action="Index">
+        <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="brand-logo brand-logo-public" />
+    </a>
+    <div class="public-header-actions">
+        <partial name="_LanguageSelector" />
+    </div>
+</header>
 
 <section class="auth-split-page">
     <div class="auth-split-media">
         <div class="auth-split-caption">
-            <span>Akilli Ofis</span>
-            <strong>Projeleri, ekipleri ve evrak sureclerini tek merkezden yonetin.</strong>
+            <span>Smart Office</span>
+            <strong>@(AppLanguage.IsEnglish(Context) ? "Manage projects, teams and documents from one center." : "Projeleri, ekipleri ve evrak sureclerini tek merkezden yonetin.")</strong>
         </div>
     </div>
 
     <div class="auth-split-content">
         <div class="auth-panel auth-split-panel">
-            <a class="auth-back-link" asp-controller="Account" asp-action="Login">Giris secimine don</a>
-            <p class="eyebrow">Admin Paneli</p>
-            <h1>Admin Girisi</h1>
-            <p class="auth-help">Tam yetkili kullanicilar sistem yonetimi icin buradan giris yapar.</p>
+            <a class="auth-back-link" asp-controller="Account" asp-action="Login">@AppLanguage.T(Context, "BackToLoginChoice")</a>
+            <p class="eyebrow">@AppLanguage.T(Context, "AdminPanel")</p>
+            <h1>@AppLanguage.T(Context, "AdminLogin")</h1>
+            <p class="auth-help">@AppLanguage.T(Context, "AdminLoginHelp")</p>
 
             @if (TempData["SuccessMessage"] != null)
             {
@@ -30,14 +39,14 @@
             <form asp-controller="Account" asp-action="AdminLogin" method="post" class="auth-form" autocomplete="off">
                 @Html.AntiForgeryToken()
                 <div class="form-floating mb-3 position-relative">
-                    <input id="adminEmail" name="email" type="email" class="form-control ps-4 js-clear-login-field" placeholder="admin@ornek.com" autocomplete="off" autocapitalize="none" spellcheck="false" value="" required>
-                    <label for="adminEmail" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>E-posta Adresi</label>
+                    <input id="adminEmail" name="email" type="email" class="form-control ps-4 js-clear-login-field" placeholder="admin@example.com" autocomplete="off" autocapitalize="none" spellcheck="false" value="" required>
+                    <label for="adminEmail" class="ps-4"><i class="bi bi-envelope me-2 text-muted"></i>@AppLanguage.T(Context, "UserEmail")</label>
                 </div>
                 <div class="form-floating mb-4 position-relative">
-                    <input id="adminPassword" name="password" type="password" class="form-control ps-4 js-clear-login-field" placeholder="Sifrenizi girin" autocomplete="new-password" value="" required>
-                    <label for="adminPassword" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>Sifre</label>
+                    <input id="adminPassword" name="password" type="password" class="form-control ps-4 js-clear-login-field" placeholder='@AppLanguage.T(Context, "Password")' autocomplete="new-password" value="" required>
+                    <label for="adminPassword" class="ps-4"><i class="bi bi-lock me-2 text-muted"></i>@AppLanguage.T(Context, "Password")</label>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 fs-5"><i class="bi bi-box-arrow-in-right me-2"></i>Admin Girisi Yap</button>
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-5"><i class="bi bi-box-arrow-in-right me-2"></i>@AppLanguage.T(Context, "AdminLoginButton")</button>
             </form>
         </div>
     </div>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using OfisYonetimSistemi.Localization;
 using OfisYonetimSistemi.Security;
 using OfisYonetimSistemi.Services;
 
@@ -692,7 +693,25 @@ public class ProjectsController : Controller
 
     private void FillStatuses(string? selectedStatus = null)
     {
-        ViewBag.Statuses = new SelectList(ProjectStatuses, selectedStatus);
+        var isEnglish = AppLanguage.IsEnglish(HttpContext);
+        ViewBag.Statuses = ProjectStatuses.Select(status => new SelectListItem
+        {
+            Value = status,
+            Text = isEnglish ? ProjectStatusLabel(status) : status,
+            Selected = string.Equals(status, selectedStatus, StringComparison.OrdinalIgnoreCase)
+        }).ToList();
+    }
+
+    private static string ProjectStatusLabel(string status)
+    {
+        return status switch
+        {
+            "Aktif" => "Active",
+            "Beklemede" => "Pending",
+            "Tamamlandi" => "Completed",
+            "Iptal" => "Canceled",
+            _ => status
+        };
     }
 
     private void ValidateProjectDates(ProjectFormViewModel project)

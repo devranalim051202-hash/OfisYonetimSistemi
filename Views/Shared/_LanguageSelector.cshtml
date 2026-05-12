@@ -1,0 +1,29 @@
+@{
+    var currentCulture = AppLanguage.Current(Context);
+    var isEnglish = currentCulture == AppLanguage.English;
+    var currentLabel = isEnglish ? "English" : "Turkce";
+    var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+}
+
+<div class="language-selector dropdown">
+    <button class="language-selector-toggle dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-translate"></i>
+        <span>@currentLabel</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end language-selector-menu">
+        <li>
+            <a class="dropdown-item @(isEnglish ? "" : "active")"
+               asp-controller="Language"
+               asp-action="Set"
+               asp-route-culture="tr"
+               asp-route-returnUrl="@returnUrl">Turkce</a>
+        </li>
+        <li>
+            <a class="dropdown-item @(isEnglish ? "active" : "")"
+               asp-controller="Language"
+               asp-action="Set"
+               asp-route-culture="en"
+               asp-route-returnUrl="@returnUrl">English</a>
+        </li>
+    </ul>
+</div>

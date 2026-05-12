@@ -1,16 +1,17 @@
 @model OfisYonetimSistemi.Models.ViewModels.ProjectFormViewModel
 
 @{
-    ViewData["Title"] = "Proje Ekle";
+    var isEnglish = AppLanguage.IsEnglish(Context);
+    ViewData["Title"] = isEnglish ? "Add Project" : "Proje Ekle";
 }
 
 <section class="form-page">
     <div class="form-panel shadow-sm border-0">
-        <a class="auth-back-link mb-4 d-inline-block" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>Projelere dön</a>
+        <a class="auth-back-link mb-4 d-inline-block" asp-controller="Projects" asp-action="Index"><i class="bi bi-arrow-left me-2"></i>@(isEnglish ? "Back to Projects" : "Projelere don")</a>
         <div class="mb-4">
-            <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>Proje Yönetimi</p>
-            <h1>Proje Ekle</h1>
-            <p class="text-muted">Yeni proje kaydı oluşturun. Gider, evrak ve daire kayıtları daha sonra bu projeye bağlanacak.</p>
+            <p class="eyebrow"><i class="bi bi-briefcase-fill me-2"></i>@(isEnglish ? "Project Management" : "Proje Yonetimi")</p>
+            <h1>@(isEnglish ? "Add Project" : "Proje Ekle")</h1>
+            <p class="text-muted">@(isEnglish ? "Create a new project record. Expenses, documents and apartments can be linked to this project later." : "Yeni proje kaydi olusturun. Gider, evrak ve daire kayitlari daha sonra bu projeye baglanacak.")</p>
         </div>
 
         <form asp-controller="Projects" asp-action="Create" method="post" enctype="multipart/form-data" class="row g-4">
@@ -20,7 +21,7 @@
             <partial name="_ProjectForm" model="Model" />
 
             <div class="col-12 mt-4 pt-3 border-top">
-                <button type="submit" class="btn btn-primary px-4 py-2"><i class="bi bi-save me-2"></i>Proje Kaydet</button>
+                <button type="submit" class="btn btn-primary px-4 py-2"><i class="bi bi-save me-2"></i>@(isEnglish ? "Save Project" : "Proje Kaydet")</button>
             </div>
         </form>
     </div>
@@ -29,4 +30,3 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-

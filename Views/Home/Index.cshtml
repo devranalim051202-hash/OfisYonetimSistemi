@@ -1,14 +1,15 @@
 @{
-    ViewData["Title"] = "Ana Sayfa";
+    ViewData["Title"] = AppLanguage.IsEnglish(Context) ? "Home" : "Ana Sayfa";
 }
 
 <header class="public-header">
     <a class="brand-logo-link public-brand" asp-controller="Home" asp-action="Index">
         <img src="~/images/smart-office-logo-cropped.png" alt="Smart Office" class="brand-logo brand-logo-public" />
     </a>
-    <nav class="public-header-actions" aria-label="Ana sayfa işlemleri">
-        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">Giriş Yap</a>
-        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">Üye Ol</a>
+    <nav class="public-header-actions" aria-label="Main actions">
+        <partial name="_LanguageSelector" />
+        <a class="btn btn-outline-primary" asp-controller="Account" asp-action="Login">@AppLanguage.T(Context, "Login")</a>
+        <a class="btn btn-primary" asp-controller="Account" asp-action="Register">@AppLanguage.T(Context, "Register")</a>
     </nav>
 </header>
 
@@ -24,131 +25,79 @@
     <div class="hero-overlay"></div>
 
     <div class="hero-content">
-        <p class="eyebrow">Akıllı Ofis Yönetim Sistemi</p>
-
-        <h1>Proje, stok, gider ve evrak süreçlerini tek panelden yönetin.</h1>
-
-        <p class="hero-text">
-            İnşaat ve ofis ekipleri için geliştirilen sade yönetim paneliyle; proje takibi,
-            malzeme hareketleri, firma kayıtları, fatura ve irsaliye süreçlerini
-            düzenli ve anlaşılır bir yapıda takip edin.
-        </p>
+        <p class="eyebrow">@AppLanguage.T(Context, "HomeHeroEyebrow")</p>
+        <h1>@AppLanguage.T(Context, "HomeHeroTitle")</h1>
+        <p class="hero-text">@AppLanguage.T(Context, "HomeHeroText")</p>
 
         <div class="hero-stats">
             <div>
-                <strong>360°</strong>
-                <span>Ofis Yönetimi</span>
+                <strong>360</strong>
+                <span>@(AppLanguage.IsEnglish(Context) ? "Office Management" : "Ofis Yonetimi")</span>
             </div>
             <div>
                 <strong>ERP</strong>
-                <span>Kurumsal Altyapı</span>
+                <span>@(AppLanguage.IsEnglish(Context) ? "Business Core" : "Kurumsal Altyapi")</span>
             </div>
             <div>
-                <strong>Tek Panel</strong>
-                <span>Proje & Stok Takibi</span>
+                <strong>@(AppLanguage.IsEnglish(Context) ? "One Panel" : "Tek Panel")</strong>
+                <span>@(AppLanguage.IsEnglish(Context) ? "Project Tracking" : "Proje Takibi")</span>
             </div>
         </div>
     </div>
 </section>
 
 <section class="premium-intro">
-    <p class="eyebrow">Düzenli Yönetim Deneyimi</p>
-    <h2>Dağınık dosyalar ve sözlü takip yerine okunabilir, kontrollü ve tek merkezli bir sistem.</h2>
-    <p>
-        Hangi projeye hangi malzeme alındı, hangi firmadan ne geldi, stokta ne kaldı
-        ve hangi evrak hangi projeye ait; tüm kritik bilgiler tek ekrandan takip edilir.
-    </p>
+    <p class="eyebrow">@AppLanguage.T(Context, "HomeIntroEyebrow")</p>
+    <h2>@AppLanguage.T(Context, "HomeIntroTitle")</h2>
+    <p>@AppLanguage.T(Context, "HomeIntroText")</p>
 </section>
 
 <section class="premium-grid">
     <article class="premium-card">
         <span>01</span>
-        <h3>Proje Bazlı Yönetim</h3>
-        <p>Giderleri, malzemeleri ve evrakları doğrudan ilgili projeye bağlayın.</p>
+        <h3>@(AppLanguage.IsEnglish(Context) ? "Project-Based Management" : "Proje Bazli Yonetim")</h3>
+        <p>@(AppLanguage.IsEnglish(Context) ? "Connect expenses, apartments and documents directly to the related project." : "Giderleri, daireleri ve evraklari dogrudan ilgili projeye baglayin.")</p>
     </article>
 
     <article class="premium-card">
         <span>02</span>
-        <h3>Stok Hareketleri</h3>
-        <p>Giriş, çıkış ve mevcut stok bilgilerini kontrollü şekilde yönetin.</p>
+        <h3>@(AppLanguage.IsEnglish(Context) ? "Expense Tracking" : "Gider Takibi")</h3>
+        <p>@(AppLanguage.IsEnglish(Context) ? "Track project costs and receipts in a clear accounting workflow." : "Proje maliyetlerini ve fisleri anlasilir bir muhasebe akisiyle takip edin.")</p>
     </article>
 
     <article class="premium-card">
         <span>03</span>
-        <h3>Firma & Tedarikçi</h3>
-        <p>Tedarikçi bilgilerini, iletişim ve vergi kayıtlarını düzenli tutun.</p>
+        <h3>@(AppLanguage.IsEnglish(Context) ? "Personnel Roles" : "Personel Rolleri")</h3>
+        <p>@(AppLanguage.IsEnglish(Context) ? "Separate admin, secretary, accounting and real estate permissions cleanly." : "Admin, sekreter, muhasebe ve emlak yetkilerini temiz sekilde ayirin.")</p>
     </article>
 
     <article class="premium-card">
         <span>04</span>
-        <h3>Fatura & İrsaliye</h3>
-        <p>Evrak süreçlerini proje ve firma bilgileriyle ilişkilendirin.</p>
+        <h3>@(AppLanguage.IsEnglish(Context) ? "Apartment Sales" : "Daire Satis")</h3>
+        <p>@(AppLanguage.IsEnglish(Context) ? "Follow apartment status, sales and contract information from project details." : "Daire durumu, satis ve sozlesme bilgilerini proje detayindan takip edin.")</p>
     </article>
 </section>
 
 <section class="premium-band">
     <div>
-        <p class="eyebrow">Kimler İçin?</p>
-        <h2>Müteahhit ofisleri, muhasebe ekipleri ve proje sorumluları için tasarlandı.</h2>
+        <p class="eyebrow">@AppLanguage.T(Context, "HomeForWhom")</p>
+        <h2>@AppLanguage.T(Context, "HomeForWhomText")</h2>
     </div>
 
     <div class="premium-tags">
-        <span>Müteahhitler</span>
-        <span>Muhasebe Ekibi</span>
-        <span>Ofis Personeli</span>
-        <span>Proje Sorumluları</span>
+        <span>@(AppLanguage.IsEnglish(Context) ? "Contractors" : "Muteahhitler")</span>
+        <span>@(AppLanguage.IsEnglish(Context) ? "Accounting Teams" : "Muhasebe Ekibi")</span>
+        <span>@(AppLanguage.IsEnglish(Context) ? "Office Staff" : "Ofis Personeli")</span>
+        <span>@(AppLanguage.IsEnglish(Context) ? "Project Managers" : "Proje Sorumlulari")</span>
     </div>
 </section>
 
 <section class="premium-cta">
-    <h2>Ofis yönetimini daha düzenli ve izlenebilir hale getirin.</h2>
-    <p>Hesabınıza giriş yapın veya yeni kullanıcı oluşturarak sistemi kullanmaya başlayın.</p>
+    <h2>@AppLanguage.T(Context, "HomeCtaTitle")</h2>
+    <p>@AppLanguage.T(Context, "HomeCtaText")</p>
 
     <div class="hero-actions">
-        <a class="premium-btn primary" asp-controller="Account" asp-action="Login">Giriş Yap</a>
-        <a class="premium-btn secondary" asp-controller="Account" asp-action="Register">Üye Ol</a>
-    </div>
-</section>
-
-<section class="faq-section">
-    <div class="faq-header">
-        <p class="eyebrow">Sıkça Sorulan Sorular</p>
-        <h2>Smart Office ERP hakkında merak edilenler</h2>
-        <p>
-            İnşaat ve ofis yönetimi süreçlerinde proje, gider, evrak, personel ve daire satış
-            adımlarının nasıl daha düzenli takip edilebildiğini inceleyin.
-        </p>
-    </div>
-
-    <div class="faq-container">
-        <details class="faq-item">
-            <summary>Smart Office ERP sistemi ne işe yarar?</summary>
-            <p>Smart Office, ofis içindeki proje, gider, evrak, personel ve daire satış süreçlerini tek panelden takip etmeyi sağlar. Farklı sayfalara dağılmış bilgileri daha okunabilir bir yapıda toplar. Böylece yönetici, muhasebe ve personel tarafı aynı sistem üzerinden güncel veriye ulaşabilir. Günlük iş akışında kim hangi işlemle ilgileniyor, hangi proje ne durumda ve hangi kayıt tamamlanmış daha net görünür.</p>
-        </details>
-
-        <details class="faq-item">
-            <summary>Bu sistem hangi işletmeler için uygundur?</summary>
-            <p>Sistem özellikle müteahhit ofisleri, küçük ve orta ölçekli inşaat firmaları, muhasebe ekipleri ve proje sorumluları için uygundur. Birden fazla proje, firma, gider ve evrak kaydıyla çalışan ekiplerin daha kontrollü ilerlemesine yardımcı olur. Kullanıcılar görevlerine göre farklı alanlara erişerek kendi işlerini daha hızlı tamamlayabilir. Bu yapı ofis içi takip yükünü azaltır ve karar alma sürecini daha düzenli hale getirir.</p>
-        </details>
-
-        <details class="faq-item">
-            <summary>Daire satış ve sözleşme süreçleri yönetilebilir mi?</summary>
-            <p>Evet. Daire satış sayfaları üzerinden satışa ait temel bilgiler, müşteri kayıtları ve ödeme durumu daha düzenli biçimde takip edilebilir. Sözleşme süreçleri de ilgili daire ve satış kaydıyla bağlantılı şekilde yönetilebilir. Bu sayede satış sonrası bilgi arama, belge kontrolü ve işlem geçmişi takibi daha pratik hale gelir. Özellikle birden fazla dairenin bulunduğu projelerde tüm satış kayıtlarının aynı tasarım diliyle izlenmesi kolaylık sağlar.</p>
-        </details>
-
-        <details class="faq-item">
-            <summary>Fatura ve irsaliyeler projelere bağlanabilir mi?</summary>
-            <p>Evet. Evrak kayıtları ilgili proje ve firma bilgileriyle ilişkilendirilerek düzenli şekilde saklanabilir. Fatura, irsaliye veya benzeri belgeler sisteme eklendiğinde hangi projeye ait olduğu daha net görülür. Bu yapı muhasebe ve yönetim tarafında belge kontrolünü hızlandırır. Eski kayıtlara dönmek gerektiğinde evraklar proje bazlı daha anlaşılır biçimde incelenebilir.</p>
-        </details>
-
-        <details class="faq-item">
-            <summary>Birden fazla kullanıcı sistemi kullanabilir mi?</summary>
-            <p>Evet. Yönetici, muhasebe, personel ve proje sorumlusu gibi farklı kullanıcı rolleriyle sistem kullanılabilir. Her kullanıcı kendi sorumluluk alanına göre ilgili sayfalarda işlem yapabilir. Bu sayede tüm ekibin aynı panelde çalışması sağlanırken yönetim tarafında kontrol daha güçlü kalır. Kullanıcı kayıtları, giriş işlemleri ve personel yönetimi tek bir yapı içinde daha takip edilebilir hale gelir.</p>
-        </details>
-
-        <details class="faq-item">
-            <summary>Sistem ileride geliştirilebilir mi?</summary>
-            <p>Evet. Smart Office modüler bir yapı üzerine kurulduğu için yeni ihtiyaçlara göre geliştirilebilir. Raporlama, gider analizi, gelişmiş yetkilendirme, bildirimler ve yeni yönetim modülleri sisteme sonradan eklenebilir. Mevcut sayfalar korunarak yeni özelliklerin aynı tasarım çizgisinde büyütülmesi mümkündür. Böylece proje ilerledikçe sistem hem görsel hem de işlevsel olarak daha kurumsal bir seviyeye taşınabilir.</p>
-        </details>
+        <a class="premium-btn primary" asp-controller="Account" asp-action="Login">@AppLanguage.T(Context, "Login")</a>
+        <a class="premium-btn secondary" asp-controller="Account" asp-action="Register">@AppLanguage.T(Context, "Register")</a>
     </div>
 </section>
