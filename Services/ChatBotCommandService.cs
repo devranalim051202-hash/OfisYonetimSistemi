@@ -6,6 +6,9 @@ using Microsoft.ML;
 using Microsoft.ML.Data;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
 
 namespace OfisYonetimSistemi.Services;
 
@@ -18,6 +21,45 @@ public class ChatBotCommandService
         _context = context;
     }
 
+    private async Task<string> CallPythonAiApiAsync(string userMessage)
+{
+    try
+    {
+        using (var client = new HttpClient())
+        {
+            // Az önce VS Code'da ayağa kaldırdığımız Python sunucusunun adresi
+            var url = "http://127.0.0.1:8000/api/chat";
+            
+            // Python'ın beklediği {"message": "..."} formatını hazırlıyoruz
+            var requestBody = new { message = userMessage };
+            var json = JsonSerializer.Serialize(requestBody);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // Python'a POST isteği gönderiyoruz
+            var response = await client.PostAsync(url, content);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var responseString = await response.Content.ReadAsStringAsync();
+                
+                // Gelen {"response": "yapay zeka cevabı"} JSON'ını çözüyoruz
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var result = JsonSerializer.Deserialize<Dictionary<string, string>>(responseString, options);
+                
+                if (result != null && result.ContainsKey("response"))
+                {
+                    return result["response"];
+                }
+            }
+        }
+    }
+    catch
+    {
+        // Eğer Python sunucusu kapalıysa veya bir ağ hatası olursa sistem çökmesin, null dönsün
+        return null;
+    }
+    return null;
+}
     public async Task<ChatCommandResponse> ProcessAsync(string commandText, int userId, string roleName)
     {
         var command = (commandText ?? string.Empty).Trim();
@@ -38,125 +80,136 @@ public class ChatBotCommandService
     }
 
     private async Task<ChatCommandResponse> RouteCommandAsync(string command, string normalized, int userId, string roleName)
+{
+    // 1. ÖNCELİK: Boşluk ve Temel Selamlama/Yardım Kontrolleri (Hızlı kurallar)
+    if (string.IsNullOrWhiteSpace(command))
     {
-        if (string.IsNullOrWhiteSpace(command))
-        {
-            return Success("BosKomut", "Lutfen bir sey yazin. Neler yapabildigimi gormek icin 'yardim' yazabilirsiniz.");
-        }
-
-        if (IsGreeting(normalized))
-        {
-            return Success("Selamlama", "Merhaba. Ben Ofis Yonetim Sistemi AI Asistaniyim. Proje, gider, satis, daire, personel ve kar-zarar sorularina rol yetkinize gore cevap verebilirim.");
-        }
-
-        if (IsIdentityQuestion(normalized))
-        {
-            return Introduce(roleName);
-        }
-
-        if (IsHelpQuestion(normalized))
-        {
-            return Help(roleName);
-        }
-
-        var intent = ChatIntentClassifier.Predict(normalized);
-        if (intent.IsConfident)
-        {
-            return await ExecuteIntentAsync(intent.Intent, command, normalized, userId, roleName);
-        }
-
-        if (IsPersonnelCommand(normalized))
-        {
-            return await ListPersonnelAsync(roleName);
-        }
-
-        if (IsProjectListCommand(normalized))
-        {
-            return await ListProjectsAsync(roleName);
-        }
-
-        if (IsBuyerListCommand(normalized))
-        {
-            return await ListAllBuyersAsync(roleName);
-        }
-
-        if (IsLowStockCommand(normalized))
-        {
-            return await ListLowStockMaterialsAsync(roleName);
-        }
-
-        if (IsMaterialExpenseSummaryCommand(normalized))
-        {
-            return await ShowMaterialExpenseSummaryAsync(normalized, roleName);
-        }
-
-        if (IsTopExpenseCategoryCommand(normalized))
-        {
-            return await ShowTopExpenseCategoriesAsync(roleName);
-        }
-
-        if (IsProjectInfoCommand(normalized))
-        {
-            return await ShowProjectInfoAsync(normalized, roleName);
-        }
-
-        if (IsProfitLossCommand(normalized))
-        {
-            return await ShowProfitLossAsync(normalized, roleName);
-        }
-
-        if (IsApartmentSalesCommand(normalized))
-        {
-            var buyerName = await FindBuyerNameInCommandAsync(normalized);
-            if (buyerName != null)
-            {
-                return await ShowSpecificBuyerSalesAsync(buyerName, roleName);
-            }
-            return await ListApartmentSalesAsync(normalized, roleName);
-        }
-
-        if (IsEmptyApartmentCommand(normalized))
-        {
-            return await ListApartmentsAsync(normalized, roleName, isSold: false);
-        }
-
-        if (IsSoldApartmentCommand(normalized))
-        {
-            return await ListApartmentsAsync(normalized, roleName, isSold: true);
-        }
-
-        if (IsSupplierExpenseCommand(normalized))
-        {
-            var supplierName = await FindSupplierNameInCommandAsync(normalized);
-            if (supplierName != null)
-            {
-                return await ShowSpecificSupplierExpensesAsync(supplierName, roleName);
-            }
-            return await ShowSupplierExpensesAsync(normalized, roleName);
-        }
-
-        if (IsExpenseQueryCommand(normalized))
-        {
-            return await ListExpensesAsync(normalized, roleName);
-        }
-
-        if (IsDashboardSummaryCommand(normalized))
-        {
-            return await ShowSystemSummaryAsync(roleName);
-        }
-
-        if (LooksLikeExpenseCreate(normalized))
-        {
-            return await CreateExpenseFromCommandAsync(command, normalized, userId, roleName);
-        }
-
-        if (IsProjectCreateCommand(normalized))
-        {
-            return ProjectCreateHelp(roleName);
-        }
-
-        return SmartFallback(normalized, roleName);
+        return Success("BosKomut", "Lutfen bir sey yazin. Neler yapabildigimi gormek icin 'yardim' yazabilirsiniz.");
     }
+
+    if (IsGreeting(normalized))
+    {
+        return Success("Selamlama", "Merhaba. Ben Ofis Yonetim Sistemi AI Asistaniyim. Proje, gider, satis, daire, personel ve kar-zarar sorularina rol yetkinize gore cevap verebilirim.");
+    }
+
+    if (IsIdentityQuestion(normalized))
+    {
+        return Introduce(roleName);
+    }
+
+    if (IsHelpQuestion(normalized))
+    {
+        return Help(roleName);
+    }
+
+    // 2. ÖNCELİK: Arkadaşının yazdığı tüm özel veri listeleme ve komut fonksiyonları
+    if (IsPersonnelCommand(normalized))
+    {
+        return await ListPersonnelAsync(roleName);
+    }
+
+    if (IsProjectListCommand(normalized))
+    {
+        return await ListProjectsAsync(roleName);
+    }
+
+    if (IsBuyerListCommand(normalized))
+    {
+        return await ListAllBuyersAsync(roleName);
+    }
+
+    if (IsLowStockCommand(normalized))
+    {
+        return await ListLowStockMaterialsAsync(roleName);
+    }
+
+    if (IsMaterialExpenseSummaryCommand(normalized))
+    {
+        return await ShowMaterialExpenseSummaryAsync(normalized, roleName);
+    }
+
+    if (IsTopExpenseCategoryCommand(normalized))
+    {
+        return await ShowTopExpenseCategoriesAsync(roleName);
+    }
+
+    if (IsProjectInfoCommand(normalized))
+    {
+        return await ShowProjectInfoAsync(normalized, roleName);
+    }
+
+    if (IsProfitLossCommand(normalized))
+    {
+        return await ShowProfitLossAsync(normalized, roleName);
+    }
+
+    if (IsApartmentSalesCommand(normalized))
+    {
+        var buyerName = await FindBuyerNameInCommandAsync(normalized);
+        if (buyerName != null)
+        {
+            return await ShowSpecificBuyerSalesAsync(buyerName, roleName);
+        }
+        return await ListApartmentSalesAsync(normalized, roleName);
+    }
+
+    if (IsEmptyApartmentCommand(normalized))
+    {
+        return await ListApartmentsAsync(normalized, roleName, isSold: false);
+    }
+
+    if (IsSoldApartmentCommand(normalized))
+    {
+        return await ListApartmentsAsync(normalized, roleName, isSold: true);
+    }
+
+    if (IsSupplierExpenseCommand(normalized))
+    {
+        var supplierName = await FindSupplierNameInCommandAsync(normalized);
+        if (supplierName != null)
+        {
+            return await ShowSpecificSupplierExpensesAsync(supplierName, roleName);
+        }
+        return await ShowSupplierExpensesAsync(normalized, roleName);
+    }
+
+    if (IsExpenseQueryCommand(normalized))
+    {
+        return await ListExpensesAsync(normalized, roleName);
+    }
+
+    if (IsDashboardSummaryCommand(normalized))
+    {
+        return await ShowSystemSummaryAsync(roleName);
+    }
+
+    if (LooksLikeExpenseCreate(normalized))
+    {
+        return await CreateExpenseFromCommandAsync(command, normalized, userId, roleName);
+    }
+
+    if (IsProjectCreateCommand(normalized))
+    {
+        return ProjectCreateHelp(roleName);
+    }
+
+    // 3. ÖNCELİK: Eğer hiçbir yukarıdaki kural tutmadıysa, arkadaşının ML Sınıflandırıcısına soruyoruz
+    var intent = ChatIntentClassifier.Predict(normalized);
+    if (intent.IsConfident)
+    {
+        return await ExecuteIntentAsync(intent.Intent, command, normalized, userId, roleName);
+    }
+
+    // 4. ÖNCELİK (SON ÇARE): Eğer arkadaşının yazdığı 1300 satır ve ML motoru pes ettiyse, Yapay Zekaya (Python) gidiyoruz
+    var aiResponse = await CallPythonAiApiAsync(command);
+    if (!string.IsNullOrEmpty(aiResponse))
+    {
+        return Success("YapayZekaCevabi", aiResponse);
+    }
+
+    // Python sunucusu da kapalıysa en son çare olarak sistemin orijinal "anlayamadım" metoduna düşüyoruz
+    return SmartFallback(normalized, roleName);
+}
 
     private async Task<ChatCommandResponse> ExecuteIntentAsync(string intent, string command, string normalized, int userId, string roleName)
     {
