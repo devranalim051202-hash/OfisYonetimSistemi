@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Personeller";
     var lastDate = ViewBag.LastPersonnelDate as DateTime?;
+    var isEnglish = AppLanguage.IsEnglish(Context);
 }
 
 <section class="personnel-premium-page">
@@ -12,7 +13,12 @@
             <h1>Personeller</h1>
             <p>Ofis ekibindeki kullanıcı hesaplarını, rollerini, iletişim bilgilerini ve panel erişim durumlarını tek ekrandan yönetin.</p>
         </div>
-        <div class="personnel-premium-actions">
+        <div class="personnel-premium-actions d-flex align-items-center gap-3">
+            <div class="position-relative search-container" style="min-width: 220px;">
+                <i class="bi bi-search position-absolute text-muted" style="left: 12px; top: 50%; transform: translateY(-50%); z-index: 5;"></i>
+                <input type="text" id="personnelSearchInput" class="form-control form-control-sm search-input" maxlength="20" placeholder="@(isEnglish ? "Search Personnel..." : "Personel Ara...")" style="padding-left: 32px; border-radius: 20px; height: 38px; border: 1px solid #dfe5ef; box-shadow: none;" />
+                <div id="personnelSuggestions" class="search-suggestions-dropdown d-none"></div>
+            </div>
             <a class="btn btn-primary" asp-controller="Manager" asp-action="CreatePersonnel">Personel Ekle</a>
         </div>
     </div>
@@ -92,3 +98,246 @@
         }
     </div>
 </section>
+
+<style>
+.search-container {
+    position: relative;
+    min-width: 220px;
+}
+.search-suggestions-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    z-index: 1050;
+    background: #ffffff;
+    border: 1px solid #dfe5ef;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+    max-height: 250px;
+    overflow-y: auto;
+    margin-top: 6px;
+    text-align: left;
+}
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1e293b;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.15s ease;
+}
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+.suggestion-item:hover {
+    background: #f8fafc;
+}
+.suggestion-item .suggestion-icon {
+    margin-right: 10px;
+    color: #64748b;
+}
+.did-you-mean-item {
+    background: #f0f7ff;
+    color: #2563eb;
+    font-weight: 600;
+    font-style: italic;
+    border-bottom: 1px dashed #bfdbfe;
+}
+.did-you-mean-item:hover {
+    background: #e0f2fe;
+}
+.search-highlight {
+    border: 2px dashed #2563eb !important;
+    animation: pulseHighlight 1.5s ease-in-out;
+}
+@@keyframes pulseHighlight {
+    0% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+    }
+}
+</style>
+
+@section Scripts {
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const searchInput = document.getElementById("personnelSearchInput");
+    const suggestionsDropdown = document.getElementById("personnelSuggestions");
+    const personnelCards = document.querySelectorAll(".personnel-premium-card");
+
+    // Gather personnel from the DOM
+    const personnelList = [];
+    personnelCards.forEach(card => {
+        const nameEl = card.querySelector(".personnel-info h3");
+        if (nameEl) {
+            personnelList.push({
+                name: nameEl.textContent.trim(),
+                element: card
+            });
+        }
+    });
+
+    // Turkish lowercase conversion
+    function trLowercase(str) {
+        return str.replace(/İ/g, 'i')
+                  .replace(/I/g, 'ı')
+                  .replace(/Ş/g, 'ş')
+                  .replace(/Ğ/g, 'ğ')
+                  .replace(/Ü/g, 'ü')
+                  .replace(/Ö/g, 'ö')
+                  .replace(/Ç/g, 'ç')
+                  .toLowerCase();
+    }
+
+    // Levenshtein distance for fuzzy matching
+    function getLevenshteinDistance(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) {
+            matrix[i] = [i];
+        }
+        for (let j = 0; j <= a.length; j++) {
+            matrix[0][j] = j;
+        }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(
+                        matrix[i - 1][j - 1] + 1, // substitution
+                        matrix[i][j - 1] + 1,     // insertion
+                        matrix[i - 1][j] + 1      // deletion
+                    );
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
+    // Handle suggestion selection
+    function selectSuggestion(name) {
+        searchInput.value = name;
+        suggestionsDropdown.classList.add("d-none");
+        filterAndDisplay(name);
+
+        // Highlight and scroll to the selected personnel card
+        const match = personnelList.find(p => trLowercase(p.name) === trLowercase(name));
+        if (match && match.element) {
+            match.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            match.element.classList.add("search-highlight");
+            setTimeout(() => {
+                match.element.classList.remove("search-highlight");
+            }, 2500);
+        }
+    }
+
+    function filterAndDisplay(query) {
+        const cleanQuery = trLowercase(query.trim());
+
+        if (!cleanQuery) {
+            personnelCards.forEach(card => card.style.display = "");
+            return;
+        }
+
+        personnelCards.forEach(card => {
+            const nameEl = card.querySelector(".personnel-info h3");
+            const emailEl = card.querySelector(".personnel-info p");
+            const roleEl = card.querySelector(".role-chip");
+            const detailsEl = card.querySelector(".personnel-profile-list");
+            
+            const nameText = nameEl ? trLowercase(nameEl.textContent) : "";
+            const emailText = emailEl ? trLowercase(emailEl.textContent) : "";
+            const roleText = roleEl ? trLowercase(roleEl.textContent) : "";
+            const detailsText = detailsEl ? trLowercase(detailsEl.textContent) : "";
+
+            if (nameText.includes(cleanQuery) || emailText.includes(cleanQuery) || roleText.includes(cleanQuery) || detailsText.includes(cleanQuery)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+
+    // Input event listener
+    searchInput.addEventListener("input", function () {
+        const query = searchInput.value;
+        const cleanQuery = trLowercase(query.trim());
+
+        filterAndDisplay(query);
+
+        if (!cleanQuery) {
+            suggestionsDropdown.innerHTML = "";
+            suggestionsDropdown.classList.add("d-none");
+            return;
+        }
+
+        // Generate suggestions sorted alphabetically (A-Z)
+        const exactMatches = personnelList
+            .filter(p => trLowercase(p.name).includes(cleanQuery))
+            .map(p => p.name)
+            .sort((a, b) => a.localeCompare(b, "tr"));
+
+        suggestionsDropdown.innerHTML = "";
+
+        if (exactMatches.length > 0) {
+            exactMatches.forEach(name => {
+                const item = document.createElement("div");
+                item.className = "suggestion-item";
+                item.innerHTML = `<i class="bi bi-person suggestion-icon"></i><span>${name}</span>`;
+                item.addEventListener("click", () => selectSuggestion(name));
+                suggestionsDropdown.appendChild(item);
+            });
+            suggestionsDropdown.classList.remove("d-none");
+        } else {
+            // Fuzzy search ("Did you mean?")
+            let bestMatch = null;
+            let minDistance = 999;
+
+            personnelList.forEach(p => {
+                const nameLower = trLowercase(p.name);
+                const distance = getLevenshteinDistance(cleanQuery, nameLower);
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    bestMatch = p.name;
+                }
+            });
+
+            const threshold = Math.max(2, Math.floor(cleanQuery.length * 0.6));
+            if (bestMatch && minDistance <= threshold) {
+                const didYouMean = document.createElement("div");
+                didYouMean.className = "suggestion-item did-you-mean-item";
+                const text = (trLowercase("@isEnglish") === "true" ? "Did you mean: " : "Bunu mu demek istediniz: ") + `<strong>${bestMatch}</strong>?`;
+                didYouMean.innerHTML = `<i class="bi bi-question-circle suggestion-icon text-primary"></i><span>${text}</span>`;
+                didYouMean.addEventListener("click", () => selectSuggestion(bestMatch));
+                suggestionsDropdown.appendChild(didYouMean);
+                suggestionsDropdown.classList.remove("d-none");
+            } else {
+                suggestionsDropdown.classList.add("d-none");
+            }
+        }
+    });
+
+    // Close dropdown on click outside
+    document.addEventListener("click", function (e) {
+        if (!searchInput.contains(e.target) && !suggestionsDropdown.contains(e.target)) {
+            suggestionsDropdown.classList.add("d-none");
+        }
+    });
+
+    // Show suggestions on focus if query exists
+    searchInput.addEventListener("focus", function () {
+        if (searchInput.value.trim() && suggestionsDropdown.children.length > 0) {
+            suggestionsDropdown.classList.remove("d-none");
+        }
+    });
+});
+</script>
+}

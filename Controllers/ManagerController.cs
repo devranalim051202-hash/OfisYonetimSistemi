@@ -94,13 +94,103 @@ public class ManagerController : Controller
         await _activityLogService.LogAsync("Ekleme", "Personeller", user.Id, $"{user.FullName} personel hesabi olusturuldu.");
 
         TempData["SuccessMessage"] = "Personel hesabi olusturuldu.";
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(nameof(Personnel));
+    }
+
+    public async Task<IActionResult> Personnel()
+    {
+        if (!IsManager())
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        var usersQuery = _context.Users
+            .Include(u => u.Role)
+            .Where(u => u.RoleId != 1);
+
+        if (!IsAdmin())
+        {
+            var companyName = CurrentCompanyName();
+            usersQuery = usersQuery.Where(u => u.CompanyName == companyName);
+        }
+
+        var users = await usersQuery
+            .OrderByDescending(u => u.CreatedAt)
+            .ToListAsync();
+
+        ViewBag.TotalPersonnel = users.Count;
+        ViewBag.ActivePersonnel = users.Count;
+        ViewBag.RoleCount = users.Select(u => u.RoleId).Distinct().Count();
+        ViewBag.LastPersonnelDate = users.FirstOrDefault()?.CreatedAt;
+
+        return View(users);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeletePersonnel(int id)
+    {
+        if (!IsManager())
+        {
+            await _activityLogService.LogAsync("YetkisizDeneme", "Personeller", id, "Personel silme islemi yetkisiz denendi.", false);
+            return RedirectToAction("Login", "Account");
+        }
+
+        var userQuery = _context.Users
+            .Include(u => u.Expenses)
+            .Where(u => u.Id == id && u.RoleId != 1);
+
+        if (!IsAdmin())
+        {
+            var companyName = CurrentCompanyName();
+            userQuery = userQuery.Where(u => u.CompanyName == companyName);
+        }
+
+        var user = await userQuery.FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            TempData["ErrorMessage"] = "Personel kaydi bulunamadi.";
+            return RedirectToAction(nameof(Personnel));
+        }
+
+        if (user.Expenses.Any())
+        {
+            TempData["ErrorMessage"] = "Bu personele bagli gider kaydi oldugu icin silinemez.";
+            return RedirectToAction(nameof(Personnel));
+        }
+
+        _context.Users.Remove(user);
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            TempData["ErrorMessage"] = "Bu personele bagli sistem kaydi oldugu icin silinemez.";
+            return RedirectToAction(nameof(Personnel));
+        }
+
+        await _activityLogService.LogAsync("Silme", "Personeller", id, $"{user.FullName} personel hesabi silindi.");
+
+        TempData["SuccessMessage"] = "Personel hesabi silindi.";
+        return RedirectToAction(nameof(Personnel));
     }
 
     private bool IsManager()
     {
         var roleName = HttpContext.Session.GetString("RoleName");
         return roleName == "Admin" || roleName == "Mudur";
+    }
+
+    private bool IsAdmin()
+    {
+        return HttpContext.Session.GetString("RoleName") == "Admin";
+    }
+
+    private string CurrentCompanyName()
+    {
+        return HttpContext.Session.GetString("CompanyName") ?? string.Empty;
     }
 
     private async Task FillRolesAsync()
@@ -114,4 +204,3 @@ public class ManagerController : Controller
     }
 }
 
-//ferhat test

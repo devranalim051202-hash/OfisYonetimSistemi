@@ -1,3 +1,5 @@
+import os
+from dotenv import load_workbook # veya direkt os.getenv
 from fastapi import FastAPI
 from pydantic import BaseModel
 from openai import OpenAI
@@ -7,7 +9,7 @@ app = FastAPI()
 # Hugging Face üzerindeki Llama 3 modelini OpenAI standartlarında çağırıyoruz
 client = OpenAI(
     base_url="https://router.huggingface.co/v1",
-    api_key="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" # hf_ ile başlayan token'ını buraya tırnak içine yapıştır
+    api_key = os.getenv("HF_API_KEY")
 )
 
 class GelenMesaj(BaseModel):
