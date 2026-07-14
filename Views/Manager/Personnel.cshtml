@@ -38,9 +38,13 @@
                 <span class="premium-panel-label">Kayıtlı Ekip</span>
                 <h2>Personel Listesi</h2>
             </div>
-            <div class="personnel-panel-actions">
+            <div class="personnel-panel-actions d-flex align-items-center gap-2">
                 <span class="premium-count">@Model.Count() kayıt</span>
                 <span class="premium-count">Son eklenen: @(lastDate.HasValue ? lastDate.Value.ToString("dd.MM.yyyy") : "-")</span>
+                
+                <button id="sortPersonnelBtn" class="btn btn-outline-secondary btn-sm shadow-sm ms-2" data-sort="date" style="border-radius: 8px;">
+                    <i class="bi bi-sort-numeric-down me-1"></i><span>En Yeni En Başta</span>
+                </button>
             </div>
         </div>
 
@@ -55,11 +59,14 @@
         }
         else
         {
-            <div class="personnel-premium-grid">
+            <div class="personnel-premium-grid" id="personnelGrid">
                 @foreach (var user in Model)
                 {
                     var initial = string.IsNullOrWhiteSpace(user.FullName) ? "P" : user.FullName.Substring(0, 1).ToUpper();
-                    <article class="personnel-premium-card">
+                    
+                    <article class="personnel-premium-card" 
+                             data-date="@user.CreatedAt.ToString("yyyy-MM-ddTHH:mm:ss")" 
+                             data-name="@user.FullName">
                         <div class="personnel-card-top">
                             <div class="personnel-avatar premium-avatar">@initial</div>
                             <span class="role-chip">@user.Role?.Name</span>
@@ -153,6 +160,7 @@
     border: 2px dashed #2563eb !important;
     animation: pulseHighlight 1.5s ease-in-out;
 }
+/* 🎯 İşte hata veren yer burasıydı, çift @@ işaretiyle Razor'ı susturduk */
 @@keyframes pulseHighlight {
     0% {
         box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
@@ -172,6 +180,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const searchInput = document.getElementById("personnelSearchInput");
     const suggestionsDropdown = document.getElementById("personnelSuggestions");
     const personnelCards = document.querySelectorAll(".personnel-premium-card");
+    const sortPersonnelBtn = document.getElementById("sortPersonnelBtn");
+    const personnelGrid = document.getElementById("personnelGrid");
 
     // Gather personnel from the DOM
     const personnelList = [];
@@ -338,6 +348,44 @@ document.addEventListener("DOMContentLoaded", function () {
             suggestionsDropdown.classList.remove("d-none");
         }
     });
+
+    // 🔄 YENİ: Personel Sıralama Algoritması
+    if (sortPersonnelBtn && personnelGrid) {
+        sortPersonnelBtn.addEventListener("click", function () {
+            const currentSort = this.getAttribute("data-sort");
+            const cards = Array.from(personnelGrid.querySelectorAll(".personnel-premium-card"));
+            const isEn = "@isEnglish".toLowerCase() === "true";
+
+            if (currentSort === "date") {
+                // 🔤 A'dan Z'ye Sıralama Modu (Türkçe Karakter Duyarlı)
+                cards.sort((a, b) => {
+                    const nameA = a.getAttribute("data-name");
+                    const nameB = b.getAttribute("data-name");
+                    return nameA.localeCompare(nameB, "tr", { sensitivity: "base" });
+                });
+
+                this.setAttribute("data-sort", "alpha");
+                this.className = "btn btn-primary btn-sm shadow-sm ms-2"; // Basılı mavi renk modu
+                this.querySelector("i").className = "bi bi-sort-alpha-down me-1";
+                this.querySelector("span").innerText = isEn ? "A to Z" : "A'dan Z'ye Sıralı";
+            } else {
+                // 📅 Kayıt Tarihine Göre En Yeni En Başta Sıralama Modu
+                cards.sort((a, b) => {
+                    const dateA = new Date(a.getAttribute("data-date"));
+                    const dateB = new Date(b.getAttribute("data-date"));
+                    return dateB - dateA; // En yeni en başta
+                });
+
+                this.setAttribute("data-sort", "date");
+                this.className = "btn btn-outline-secondary btn-sm shadow-sm ms-2"; // Normal gri mod
+                this.querySelector("i").className = "bi bi-sort-numeric-down me-1";
+                this.querySelector("span").innerText = isEn ? "Newest First" : "En Yeni En Başta";
+            }
+
+            // Kartları DOM üzerinde anlık olarak yeniden sırala
+            cards.forEach(card => personnelGrid.appendChild(card));
+        });
+    }
 });
 </script>
 }

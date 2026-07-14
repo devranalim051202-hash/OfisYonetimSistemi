@@ -35,12 +35,13 @@ public class ManagerController : Controller
             .ToListAsync();
 
         var users = await _context.Users
-            .Include(u => u.Role)
-            .Where(u => u.RoleId != 1)
-            .OrderByDescending(u => u.CreatedAt)
-            .ToListAsync();
+        .Include(u => u.Role)
+        .Where(u => u.RoleId != 1)
+        .OrderBy(u => u.FirstName)
+        .ThenBy(u => u.LastName)
+        .ToListAsync();
 
-        return View(users);
+    return View(users);
     }
 
     public async Task<IActionResult> CreatePersonnel()

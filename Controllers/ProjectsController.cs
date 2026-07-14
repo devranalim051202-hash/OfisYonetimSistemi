@@ -44,18 +44,15 @@ public class ProjectsController : Controller
 
     public async Task<IActionResult> Index()
     {
-        if (!IsLoggedIn())
-        {
-            return RedirectToAction("Login", "Account");
-        }
-
-        var projects = await _context.Projects
-            .Include(p => p.ProjectImages)
-            .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync();
-
-        SetProjectPermissionViewBags();
-        return View(projects);
+      // Bitiş tarihi en yakın olan (deadline'ı yaklaşan) projeleri en üste sıralar. 
+    // Bitiş tarihi girilmemiş (Devam ediyor) olanları ise otomatik olarak en sona atar.
+    var projects = await _context.Projects
+        .Include(p => p.ProjectImages)
+        .OrderBy(p => p.EndDate == null) // Bitiş tarihi girilmeyenleri en arkaya iter
+        .ThenBy(p => p.EndDate)           // Bitiş tarihi en yakın olanı en öne çeker
+        .ToListAsync();
+        
+    return View(projects);
     }
 
     public async Task<IActionResult> Details(int id)

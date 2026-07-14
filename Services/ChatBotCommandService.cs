@@ -7,7 +7,6 @@ using Microsoft.ML.Data;
 using OfisYonetimSistemi.Models;
 using OfisYonetimSistemi.Models.ViewModels;
 using System.Net.Http;
-using System.Text;
 using System.Text.Json;
 
 namespace OfisYonetimSistemi.Services;
@@ -56,9 +55,9 @@ public class ChatBotCommandService
     catch
     {
         // Eğer Python sunucusu kapalıysa veya bir ağ hatası olursa sistem çökmesin, null dönsün
-        return null;
+        return string.Empty;
     }
-    return null;
+    return string.Empty;
 }
     public async Task<ChatCommandResponse> ProcessAsync(string commandText, int userId, string roleName)
     {
